@@ -1,0 +1,54 @@
+    #{extra}
+    <div .col-sm-12>
+        <div .form-group>
+            <label>フレーム名
+            ^{fvInput titleView}
+        $maybe titleErr <- fvErrors titleView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{titleErr}
+
+        <div .form-group>
+            <label>入力フォーマット
+                <span .badge .badge-danger>必須
+            $forall (inpTypName, inpTypNum) <- inpTyp
+                <div .radio>
+                    <label>
+                        $if inpTypNum == selInpTyp
+                            <input type="radio" name="input_type" id="inputType#{inpTypNum}" value=#{inpTypNum} checked="checked">#{inpTypName}
+                        $else
+                            <input type="radio" name="input_type" id="inputType#{inpTypNum}" value=#{inpTypNum}>#{inpTypName}
+
+        <div .form-group>
+            <label>フリーページコンテンツ
+                <span .badge .badge-danger>必須
+            ^{fvInput contView}
+        $maybe contErr <- fvErrors contView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{contErr}
+
+        <div .form-group>
+            <label>タグ
+            ^{fvInput tagView}
+        $maybe tagErr <- fvErrors tagView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{tagErr}
+
+        <div .form-group>
+            <label>フリーページCSS
+            ^{fvInput cssView}
+        $maybe cssErr <- fvErrors cssView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{cssErr}
+
+        <div .col-sm-12>
+            <div .form-group .text-center>
+                <a href=@{FreeListR 1 $ Page Nothing} .btn .btn-warning>一覧へ戻る
+                <button type="submit" .btn .btn-primary>
+                    登　　録
+
+            ^{fvInput idView}
+            ^{fvInput verView}

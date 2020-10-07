@@ -1,0 +1,11 @@
+[Unit]
+Description=Houbou Yesod webapp
+After=nginx.service
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+WorkingDirectory=/var/www/
+User=houbou
+ExecStart=/var/www/Houbou config/settings.yml

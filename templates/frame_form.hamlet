@@ -1,0 +1,36 @@
+    #{extra}
+    <div .col-sm-12>
+        <div .form-group>
+            <label>フレーム名
+            ^{fvInput frameNameView}
+        $maybe fnameErr <- fvErrors frameNameView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{fnameErr}
+
+        <div .form-group>
+            <label>フレームHTML
+                <span .badge .badge-danger>
+            ^{fvInput frameHtmlView}
+        $maybe frameHtmlErr <- fvErrors frameHtmlView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{frameHtmlErr}
+
+        <div .form-group>
+            <label>フレームCSS
+                <span .badge .badge-danger>
+            ^{fvInput frameCssView}
+        $maybe frameCssErr <- fvErrors frameCssView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{frameCssErr}
+
+        <div .col-sm-12>
+            <div .form-group .text-center>
+                <a href=@{FrameListR $ Page Nothing} .btn .btn-warning>一覧へ戻る
+                <button type="submit" .btn .btn-primary>
+                    登　　録
+
+            ^{fvInput frameIdView}
+            ^{fvInput frameVerView}

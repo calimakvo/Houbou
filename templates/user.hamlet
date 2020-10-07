@@ -1,0 +1,35 @@
+            <div #page-wrapper>
+                <div .container-fluid>
+                    <div .row>
+                        <div .col-lg-12>
+                            <h1 .page-header>
+                                ユーザー情報登録・変更
+                        <!-- /.col-lg-12 -->
+                    $forall (status, m) <- msg
+                        $if status == successKey
+                            <div .alert .alert-success role="alert">
+                                #{m}
+                        $else
+                            <div .alert .alert-danger role="alert">
+                                #{m}
+                    <!-- /.row -->
+                    <div .row>
+                        <div .col-lg-12>
+                            <div .panel .panel-default>
+                                <div .panel-heading>
+                                    ユーザー情報登録・変更
+                                <div .panel-body>
+                                    <div .row>
+                                        <div .col-lg-6>
+                                            ^{userFormWidget}
+
+                                            <!-- /.col-sm-6 -->
+                                        <!-- /.row -->
+                                    <!-- /form>
+                                <!-- /.panel-body -->
+                                <!-- /.panel-heading -->
+                            <!-- /.panel .panel-default -->
+                        <!-- /.col-lg-12 -->
+                    <!-- /.row -->
+                <!-- /.container-fluid -->
+            <!-- /#page-wrapper -->

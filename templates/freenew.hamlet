@@ -1,0 +1,37 @@
+            <div #page-wrapper>
+                <div .container-fluid>
+                    <div .row>
+                        <div .col-lg-12>
+                            <h1 .page-header>
+                                フリーページ新規登録
+                        <!-- /.col-lg-12 -->
+                    $forall (status, m) <- msg
+                        $if status == successKey
+                            <div .alert .alert-success role="alert">
+                                #{m}
+                        $else
+                            <div .alert .alert-danger role="alert">
+                                #{m}
+                    <!-- /.row -->
+                    <div .row>
+                        <div .col-lg-12>
+                            <div .panel .panel-default>
+                                <div .panel-heading>
+                                    フリーページ新規フォーム
+                                <div .panel-body>
+                                    <div .col-sm-12>
+                                        <form method="post">
+                                            <div .row>
+                                                ^{freeWidget}
+                                                <!-- /.col-sm-6 -->
+                                            <!-- /.row -->
+                                        <!-- /form>
+                                    <!-- .col-sm-12 -->
+                                    <!-- .col-sm-6 -->
+                                <!-- /.panel-body -->
+                                <!-- /.panel-heading -->
+                            <!-- /.panel .panel-default -->
+                        <!-- /.col-lg-12 -->
+                    <!-- /.row -->
+                <!-- /.container-fluid -->
+            <!-- /#page-wrapper -->

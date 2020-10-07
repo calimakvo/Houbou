@@ -1,0 +1,153 @@
+            <script type="text/javascript">
+              \ $(function(){
+              \   $("#pageperline").change(function() {
+              \     $("#pageperlineform").submit();
+              \   });
+              \ });
+            <div #page-wrapper>
+                <div .container-fluid>
+                    <div .row>
+                        <div .col-lg-12>
+                            <h1 .page-header>メディア
+                        <!-- /.col-lg-12 -->
+                    $forall (status, m) <- msg
+                        $if status == successKey
+                            <div .alert .alert-success role="alert">
+                                #{m}
+                        $else
+                            <div .alert .alert-danger role="alert">
+                                #{m}
+                    <!-- /.row -->
+                    <div .row>
+                        <div .col-lg-12>
+                            <div .panel .panel-default>
+                                <div .panel-heading>
+                                    <a href=@{MediaNewR} .btn .btn-default>新規登録
+                                <!-- /.panel-heading -->
+                                $if null medias
+                                    <div .panel-body>
+                                        <div .alert .alert-warning .text-center role="alert">
+                                            メディアはありません
+                                $else
+                                    <div .panel-body>
+                                        <div .row>
+                                            <div .col-sm-6>
+                                                <form action=@{MediaListR (Page Nothing)} method="post" #pageperlineform .form-inline>
+                                                    <div .form-inline>
+                                                        <label>
+                                                            Show
+                                                            ^{pagePerLineWidget}
+                                                            entries
+    
+                                            $if unIsPager pager
+                                                <div .col-sm-6 .text-right>
+                                                    <div>
+                                                       <ul .pagination .hb-mergin-reset>
+                                                           $if unPrevPage pager > 0
+                                                               <li .paginate_button>
+                                                                   <a href=@{MediaListR (Page $ Just (unPrevPage pager))}>&lt;&lt;
+                                                           $forall p <- unNumsPages pager
+                                                               $if p == (unCurPage pager)
+                                                                   <li .paginate_button .active>
+                                                                       <a>#{p}
+                                                               $else
+                                                                   <li .paginate_button>
+                                                                       <a href=@{MediaListR (Page $ Just p)}>#{p}
+                                                           $if unNextPage pager > 0
+                                                               <li .paginate_button>
+                                                                   <a href=@{MediaListR (Page $ Just (unNextPage pager))}>&gt;&gt;
+    
+                                        <div .table-responsive>
+                                            <table .table .table-striped .table-bordered .table-hover>
+                                                <thead>
+                                                    <tr>
+                                                        <th .hb-td-min-size-100>メディア
+                                                        <th>メディアパス
+                                                        <th>サイズ
+                                                        <th>登録日/更新日
+                                                        <th .hb-td-size-50>操作
+                                                <tbody>
+                                                    $forall (i, MediaList n mediaId title dir name size thflag ctime utime _ _ version) <- mediaList
+                                                        <tr class="#{rowClass n}">
+                                                            <td .hb-td-size-150>
+                                                                <a href=@{MediaMdfR $ MediaId $ Just mediaId}>
+                                                                    $if thflag == True
+                                                                        <img .img-responsive src=#{mediaPath (unBlogSettingMediaUrl setting) dir name} alt=#{name}>
+                                                                    $else
+                                                                        <img .img-responsive src=@{StaticR images_noimage_png} alt="noimage">
+                                                            <td>
+
+                                                                $if thflag == True
+                                                                    <a href=#{mediaPath (unBlogSettingMediaUrl setting) dir name} data-lightbox="#imgId#{i}" #imgId#{i} .fa .fa-expand>
+                                                                        $maybe t <- title
+                                                                            #{abridgeText 10 t}
+                                                                        $nothing
+                                                                            #{name}
+                                                                $else
+                                                                    <a href=#{mediaPath (unBlogSettingMediaUrl setting) dir name} #imgId#{i} .fa .fa-download>
+                                                                        $maybe t <- title
+                                                                            #{abridgeText 10 t}
+                                                                        $nothing
+                                                                            #{name}
+
+
+                                                                <div #imgCpyId#{i}>
+
+                                                            <td>#{showSize size}
+                                                            <td .hb-td-size-50>
+                                                                <p>#{dateTimeFullFormat ctime}
+                                                                <p>#{dateTimeFullFormat utime}
+                                                            <td>
+                                                                <form action=@{MediaDelR} method="post">
+                                                                    ^{token}
+                                                                    <input type="hidden" name="media_id" value="#{mediaId}">
+                                                                    <input type="hidden" name="version" value="#{version}">
+                                                                    <input type="submit" name="submit" value="削除" .btn .btn-danger .mt-3 .hbDelBtn>
+    
+                                        <!-- /.table-responsive -->
+                                        <div .row>
+                                            <div .col-sm-5>
+                                                <div>Showing #{unCurPage pager} to #{length medias} of #{totalCnt} entries
+
+                                            $if unIsPager pager
+                                                <div .col-sm-7 .text-right>
+                                                    <div>
+                                                        <ul .pagination .hb-mergin-reset>
+                                                            $if unPrevPage pager > 0
+                                                                <li .paginate_button>
+                                                                    <a href=@{MediaListR (Page $ Just (unPrevPage pager))}>&lt;&lt;
+                                                            $forall p <- unNumsPages pager
+                                                                $if p == (unCurPage pager)
+                                                                    <li .paginate_button .active>
+                                                                        <a>#{p}
+                                                                $else
+                                                                    <li .paginate_button>
+                                                                        <a href=@{MediaListR (Page $ Just p)}>#{p}
+                                                            $if unNextPage pager > 0
+                                                                <li .paginate_button>
+                                                                    <a href=@{MediaListR (Page $ Just (unNextPage pager))}>&gt;&gt;
+    
+                                    <!-- /.panel-body -->
+                            <!-- /.panel -->
+                        <!-- /.col-lg-12 -->
+                    <!-- /.row -->
+                <!-- /.container-fluid -->
+            <!-- /#page-wrapper -->
+            <script src="/static/js/houbou.js">
+            <script src="/static/js/hb_urlcpy.js">
+            <script type="text/javascript">
+                var apps = new Array();
+                var i = 0;
+                $forall (i, _) <- mediaList
+                    var img = document.getElementById('imgId#{i}');
+                    var app = Elm.UrlCpy.init({
+                          flags: { "url": img.href, "elmId" : "#{i}" }
+                        , node: document.getElementById('imgCpyId#{i}')
+                    });
+                    apps.push(app);
+                    apps[i].ports.copy.subscribe(() => {
+                        console.log('cpy#{i}');
+                        document.querySelector('#cpy#{i}').select();
+                        document.execCommand('copy');
+                    });
+                    i=i+1;

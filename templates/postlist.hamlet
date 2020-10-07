@@ -1,0 +1,152 @@
+            <script type="text/javascript">
+              \ $(function(){
+              \   $("#pageperline").change(function() {
+              \     $("#pageperlineform").submit();
+              \   });
+              \ });
+            <div #page-wrapper>
+                <div .container-fluid>
+                    <div .row>
+                        <div .col-lg-12>
+                            <h1 .page-header>投稿（#{headerStr}）
+                        <!-- /.col-lg-12 -->
+                    $forall (status, m) <- msg
+                        $if status == successKey
+                            <div .alert .alert-success role="alert">
+                                #{m}
+                        $else
+                            <div .alert .alert-danger role="alert">
+                                #{m}
+                    <!-- /.row -->
+                    <div .row>
+                        <div .col-lg-12>
+                            <div .panel .panel-default>
+                                <div .panel-heading>
+                                    <a href=@{PostNewR} .btn .btn-default>新規作成
+                                <!-- /.panel-heading -->
+                                $if null posts
+                                    <div .panel-body>
+                                        <div .alert .alert-warning .text-center role="alert">
+                                            記事はありません
+                                $else
+                                    <div .panel-body>
+                                        <div .row>
+                                            <div .col-sm-6>
+                                                <form action=@{PostListR truePageType (Page Nothing)} method="post" #pageperlineform .form-inline>
+                                                    <div .form-inline>
+                                                        <label>
+                                                            Show
+                                                            ^{pagePerLineWidget}
+                                                            entries
+    
+                                            $if unIsPager pager
+                                                <div .col-sm-6 .text-right>
+                                                    <div>
+                                                       <ul .pagination .hb-mergin-reset>
+                                                           $if unPrevPage pager > 0
+                                                               <li .paginate_button>
+                                                                   <a href=@{PostListR truePageType (Page $ Just (unPrevPage pager))}>&lt;&lt;
+                                                           $forall p <- unNumsPages pager
+                                                               $if p == (unCurPage pager)
+                                                                   <li .paginate_button .active>
+                                                                       <a>#{p}
+                                                               $else
+                                                                   <li .paginate_button>
+                                                                       <a href=@{PostListR truePageType (Page $ Just p)}>#{p}
+                                                           $if unNextPage pager > 0
+                                                               <li .paginate_button>
+                                                                   <a href=@{PostListR truePageType (Page $ Just (unNextPage pager))}>&gt;&gt;
+    
+                                        <div .table-responsive>
+                                            <table .table .table-striped .table-bordered .table-hover>
+                                                <thead>
+                                                    <tr>
+                                                        <th>操作
+                                                        <th>公開
+                                                        <th>タイトル
+                                                        <th>投稿日
+                                                        <th>コメント
+                                                        <th>閲覧数
+                                                        <th>操作
+                                                <tbody>
+                                                    $forall (i, PostList n postId status title pubdate _ version comCntTotal comCntAprov viewCnt) <- postList
+                                                        <tr class="#{rowClass n}">
+                                                            <td .hb-td-size-50>
+                                                                <a href=@{PostR (PostId $ Just postId)} .btn .btn-primary>編集
+                                                            <td .hb-td-size-50>
+                                                                <form action=@{StatusChangeR} method="post" enctype="multipart/form-data">
+                                                                    ^{token}
+                                                                    $if status == (fromEnum Published)
+                                                                        <button type="button" .btn .btn-info .btn-circle .btnStatusUpdate>
+                                                                            <i .fa .fa-check>
+                                                                    $else
+                                                                        <button type="button" .btn .btn-warning .btn-circle .btnStatusUpdate>
+                                                                            <i .fa .fa-times>
+                                                                    $# ^{token}の直下に配置すると、hiddenの値が正確に出力されない
+                                                                    <input type="hidden" name="post_id" value="#{postId}">
+                                                                    <input type="hidden" name="version" value="#{version}">
+                                                            <td>
+                                                                <a href=@{PutR $ PostId (Just postId)} target="_blank" .fa .fa-external-link aria-hidden="true" #postUrlId#{i}>
+                                                                    #{title}
+                                                                <div #postCpyId#{i}>
+                                                            <td .hb-td-size-150>
+                                                                $maybe pd <- pubdate
+                                                                    #{dateTimeFullFormat pd}
+                                                                $nothing
+                                                                    -
+                                                            <td .hb-td-size-50>#{comCntTotal} #{comCntTotal - comCntAprov}/#{comCntAprov}
+                                                            <td .hb-td-size-50>#{viewCnt}
+                                                            <td .hb-td-size-50>
+                                                                <form action=@{PostDelR truePageType} method="post" enctype="multipart/form-data">
+                                                                    ^{token}
+                                                                    <input type="hidden" name="post_id" value="#{postId}">
+                                                                    <input type="hidden" name="version" value="#{version}">
+                                                                    <input type="submit" name="submit" value="削除" .btn .btn-danger .mt-3 .hbDelBtn>
+    
+                                        <!-- /.table-responsive -->
+                                        <div .row>
+                                            <div .col-sm-5>
+                                                <div>Showing #{unCurPage pager} to #{length posts} of #{totalCnt} entries
+
+                                            $if unIsPager pager
+                                                <div .col-sm-7 .text-right>
+                                                    <div>
+                                                        <ul .pagination .hb-mergin-reset>
+                                                            $if unPrevPage pager > 0
+                                                                <li .paginate_button>
+                                                                    <a href=@{PostListR truePageType (Page $ Just (unPrevPage pager))}>&lt;&lt;
+                                                            $forall p <- unNumsPages pager
+                                                                $if p == (unCurPage pager)
+                                                                    <li .paginate_button .active>
+                                                                        <a>#{p}
+                                                                $else
+                                                                    <li .paginate_button>
+                                                                        <a href=@{PostListR truePageType (Page $ Just p)}>#{p}
+                                                            $if unNextPage pager > 0
+                                                                <li .paginate_button>
+                                                                    <a href=@{PostListR truePageType (Page $ Just (unNextPage pager))}>&gt;&gt;
+    
+                                    <!-- /.panel-body -->
+                            <!-- /.panel -->
+                        <!-- /.col-lg-12 -->
+                    <!-- /.row -->
+                <!-- /.container-fluid -->
+            <!-- /#page-wrapper -->
+            <script src="/static/js/houbou.js">
+            <script src="/static/js/hb_urlcpy.js">
+            <script type="text/javascript">
+                var apps = new Array();
+                var i = 0;
+                $forall (i, _) <- postList
+                    var url = document.getElementById('postUrlId#{i}');
+                    var app = Elm.UrlCpy.init({
+                          flags: { "url": url.href, "elmId" : "#{i}" }
+                        , node: document.getElementById('postCpyId#{i}')
+                    });
+                    apps.push(app);
+                    apps[i].ports.copy.subscribe(() => {
+                        console.log('cpy#{i}');
+                        document.querySelector('#cpy#{i}').select();
+                        document.execCommand('copy');
+                    });
+                    i=i+1;

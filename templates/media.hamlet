@@ -1,0 +1,21 @@
+            <div #page-wrapper>
+                <div .container-fluid>
+                    <div .row>
+                        <div .col-lg-12>
+                            <h1 .page-header>
+                                メディアアップロード
+                    <!-- /.row -->
+                    <div .row>
+                        <div .col-lg-12 #fileUploader>
+
+            <!-- /#page-wrapper -->
+            <script src="/static/js/hb_mediaupload.js">
+
+            <script type="text/javascript">
+                var app = Elm.MediaUpload.init({
+                      flags: {
+                          "key": "#{tokenKey}"
+                        , "val": "#{token}"
+                        , "maxlen": #{titleLen} }
+                    , node: document.getElementById('fileUploader')
+                });

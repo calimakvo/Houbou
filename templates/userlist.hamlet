@@ -1,0 +1,125 @@
+            <script type="text/javascript">
+              \ $(function(){
+              \   $("#pageperline").change(function() {
+              \     $("#pageperlineform").submit();
+              \   });
+              \ });
+            <div #page-wrapper>
+                <div .container-fluid>
+                    <div .row>
+                        <div .col-lg-12>
+                            <h1 .page-header>ユーザー
+                        <!-- /.col-lg-12 -->
+                    $forall (status, m) <- msg
+                        $if status == successKey
+                            <div .alert .alert-success role="alert">
+                                #{m}
+                        $else
+                            <div .alert .alert-danger role="alert">
+                                #{m}
+                    <!-- /.row -->
+                    <div .row>
+                        <div .col-lg-12>
+                            <div .panel .panel-default>
+                                <div .panel-heading>
+                                    <a href=@{UserNewR} .btn .btn-primary>ユーザー登録
+                                <!-- /.panel-heading -->
+                                <div .panel-body>
+                                    <div .row>
+                                        <div .col-sm-6>
+                                            <form action=@{UserListR (Page Nothing)} method="post" #pageperlineform .form-inline>
+                                                <div .form-inline>
+                                                    <label>
+                                                        Show
+                                                        ^{userPerLineWidget}
+                                                        entries
+ 
+                                        $if unIsPager pager
+                                            <div .col-sm-6 .text-right>
+                                                <div>
+                                                   <ul .pagination .hb-mergin-reset>
+                                                       $if unPrevPage pager > 0
+                                                           <li .paginate_button>
+                                                               <a href=@{UserListR (Page $ Just (unPrevPage pager))}>&lt;&lt;
+                                                       $forall p <- unNumsPages pager
+                                                           $if p == (unCurPage pager)
+                                                               <li .paginate_button .active>
+                                                                   <a>#{p}
+                                                           $else
+                                                               <li .paginate_button>
+                                                                   <a href=@{UserListR (Page $ Just p)}>#{p}
+                                                       $if unNextPage pager > 0
+                                                           <li .paginate_button>
+                                                               <a href=@{UserListR (Page $ Just (unNextPage pager))}>&gt;&gt;
+ 
+                                    <div .table-responsive>
+                                        <table .table .table-striped .table-bordered .table-hover>
+                                            <thead>
+                                                <tr>
+                                                    <th>No
+                                                    <th>編集
+                                                    <th>ユーザー名
+                                                    <th>ログインID
+                                                    <th>登録日
+                                                    <th>権限
+                                                    <th>操作
+                                            <tbody>
+                                                $forall UserList n userId name email ctime _ version delflag _ permname <- users
+                                                    <tr class="#{rowClass n}">
+                                                        <td .hb-td-size-50>
+                                                             #{n}
+                                                        <td .hb-td-size-50>
+                                                            <a href=@{UserR $ (UserId $ Just userId)} .btn .btn-primary>編集
+                                                        <td>
+                                                                #{name}
+                                                        <td>#{email}
+                                                        <td>
+                                                                #{dateFormat ctime}
+                                                        <td>#{permname}
+                                                        <td .hb-td-size-50>
+                                                            $if delflag == False
+                                                                <form action=@{UserDelR} method="post">
+                                                                    ^{token}
+                                                                    <input type="hidden" name="user_id" value="#{userId}">
+                                                                    <input type="hidden" name="version" value="#{version}">
+                                                                    $if ownId /= userId
+                                                                        <input type="submit" name="submit" value="削除" .btn .btn-danger .hbUserDelBtn>
+                                                                    $else
+                                                                        <input type="submit" name="submit" value="削除" .btn .btn-danger .disabled .hbUserDelBtn>
+                                                            $else
+                                                                <form action=@{UserDelResetR} method="post">
+                                                                    ^{token}
+                                                                    <input type="hidden" name="user_id" value="#{userId}">
+                                                                    <input type="hidden" name="version" value="#{version}">
+                                                                    <input type="submit" name="submit" value="戻す" .btn .btn-warning .hbUserDelBtn>
+
+                                    <!-- /.table-responsive -->
+                                    <div .row>
+                                        <div .col-sm-5>
+                                            <div>Showing #{unCurPage pager} to #{length users} of #{totalCnt} entries
+
+                                        $if unIsPager pager
+                                            <div .col-sm-7 .text-right>
+                                                <div>
+                                                    <ul .pagination .hb-mergin-reset>
+                                                        $if unPrevPage pager > 0
+                                                            <li .paginate_button>
+                                                                <a href=@{UserListR (Page $ Just (unPrevPage pager))}>&lt;&lt;
+                                                        $forall p <- unNumsPages pager
+                                                            $if p == (unCurPage pager)
+                                                                <li .paginate_button .active>
+                                                                    <a>#{p}
+                                                            $else
+                                                                <li .paginate_button>
+                                                                    <a href=@{UserListR (Page $ Just p)}>#{p}
+                                                        $if unNextPage pager > 0
+                                                            <li .paginate_button>
+                                                                <a href=@{UserListR (Page $ Just (unNextPage pager))}>&gt;&gt;
+ 
+                                <!-- /.panel-body -->
+                        <!-- /.panel -->
+                    <!-- /.col-lg-12 -->
+                <!-- /.row -->
+            <!-- /.container-fluid -->
+        <!-- /#page-wrapper -->
+        <script src="/static/js/houbou.js">

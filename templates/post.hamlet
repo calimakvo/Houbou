@@ -1,0 +1,54 @@
+            <div #page-wrapper>
+                <div .container-fluid>
+                    <div .row>
+                        <div .col-lg-12>
+                            <h1 .page-header>
+                                投稿編集
+                        <!-- /.col-lg-12 -->
+                    $forall (status, m) <- msg
+                        $if status == successKey
+                            <div .alert .alert-success role="alert">
+                                #{m}
+                        $else
+                            <div .alert .alert-danger role="alert">
+                                #{m}
+                    <!-- /.row -->
+                    <div .row>
+                        <div .col-lg-12>
+                            <div .panel .panel-default>
+                                <div .panel-heading>
+                                    投稿変更フォーム
+                                <div .panel-body>
+                                    <div .col-sm-6>
+                                        <div .form-group>
+                                            <a href=#{pagePath (unBlogSettingBlogUrl setting) "p" (unPostId post)} target="_blank" .fa .fa-link aria-hidden="true" #postUrl>URL
+                                            <div #postUrlId>
+                                    <div .col-sm-12>
+                                        <form method="post">
+                                            <div .row>
+                                                ^{postWidget}
+                                                <!-- /.col-sm-6 -->
+                                            <!-- /.row -->
+                                        <!-- /form>
+                                    <!-- .col-sm-12 -->
+                                    <!-- .col-sm-6 -->
+                                <!-- /.panel-body -->
+                                <!-- /.panel-heading -->
+                            <!-- /.panel .panel-default -->
+                        <!-- /.col-lg-12 -->
+                    <!-- /.row -->
+                <!-- /.container-fluid -->
+            <!-- /#page-wrapper -->
+            <script src="/static/js/hb_urlcpy.js">
+            <script type="text/javascript">
+                var url = document.getElementById('postUrl');
+                var app = Elm.UrlCpy.init({
+                      flags: { "url": url.href, "elmId" : "0" }
+                    , node: document.getElementById('postUrlId')
+                });
+                app.ports.copy.subscribe(() => {
+                   console.log('cpy0');
+                   document.querySelector('#cpy0').select();
+                   document.execCommand('copy');
+                })
+;

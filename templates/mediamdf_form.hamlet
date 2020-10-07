@@ -1,0 +1,38 @@
+    #{extra}
+    <div .col-sm-12>
+        <div .form-group>
+            <label>メディアタイトル
+            ^{fvInput titleView}
+        $maybe titleErr <- fvErrors titleView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{titleErr}
+
+        <div .form-group>
+            <label>メディアパス
+            <p .form-control-static>ああああああ
+
+        <div .form-group>
+            <label>メディア登録日
+            <p .form-control-static>#{dateTimeFullFormat (unMediaCreateTime m)}
+
+        <div .form-group>
+            <label>メディアサイズ
+            <p .form-control-static>#{showSize (unMediaSize m)}
+
+        <div .form-group>
+            <label>メディア
+            <p .form-control-static>
+                $if unMediaThumbDispFlag m == True
+                    <img .img-responsive .center-block src=#{mediaPath (unBlogSettingMediaUrl setting) (unMediaDir m) (unMediaFileName m)} alt=#{fromMaybe "" (unMediaTitle m)}>
+                $else
+                    <img .img-responsive .center-block src=@{StaticR images_noimage_png} alt=#{fromMaybe "" (unMediaTitle m)}>
+
+        <div .col-sm-12>
+            <div .form-group .text-center>
+                <a href=@{MediaListR $ Page Nothing} .btn .btn-warning>一覧へ戻る
+                <button type="submit" .btn .btn-primary>
+                    登　　録
+
+            ^{fvInput mediaIdView}
+            ^{fvInput verView}

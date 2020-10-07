@@ -1,0 +1,150 @@
+            <script type="text/javascript">
+              \ $(function(){
+              \   $("#pageperline").change(function() {
+              \     $("#pageperlineform").submit();
+              \   });
+              \ });
+            <div #page-wrapper>
+                <div .container-fluid>
+                    <div .row>
+                        <div .col-lg-12>
+                            <h1 .page-header>フリーページ
+                        <!-- /.col-lg-12 -->
+                    $forall (status, m) <- msg
+                        $if status == successKey
+                            <div .alert .alert-success role="alert">
+                                #{m}
+                        $else
+                            <div .alert .alert-danger role="alert">
+                                #{m}
+                    <!-- /.row -->
+                    <div .row>
+                        <div .col-lg-12>
+                            <div .panel .panel-default>
+                                <div .panel-heading>
+                                    <a href=@{FreeNewR} .btn .btn-default>新規作成
+                                <!-- /.panel-heading -->
+                                $if null frees
+                                    <div .panel-body>
+                                        <div .alert .alert-warning .text-center role="alert">
+                                            記事はありません
+                                $else
+                                    <div .panel-body>
+                                        <div .row>
+                                            <div .col-sm-6>
+                                                <form action=@{FreeListR truePageType (Page Nothing)} method="post" #pageperlineform .form-inline>
+                                                    <div .form-inline>
+                                                        <label>
+                                                            Show
+                                                            ^{freePerLineWidget}
+                                                            entries
+    
+                                            $if unIsPager pager
+                                                <div .col-sm-6 .text-right>
+                                                    <div>
+                                                       <ul .pagination .hb-mergin-reset>
+                                                           $if unPrevPage pager > 0
+                                                               <li .paginate_button>
+                                                                   <a href=@{FreeListR truePageType (Page $ Just (unPrevPage pager))}>&lt;&lt;
+                                                           $forall p <- unNumsPages pager
+                                                               $if p == (unCurPage pager)
+                                                                   <li .paginate_button .active>
+                                                                       <a>#{p}
+                                                               $else
+                                                                   <li .paginate_button>
+                                                                       <a href=@{FreeListR truePageType (Page $ Just p)}>#{p}
+                                                           $if unNextPage pager > 0
+                                                               <li .paginate_button>
+                                                                   <a href=@{FreeListR truePageType (Page $ Just (unNextPage pager))}>&gt;&gt;
+    
+                                        <div .table-responsive>
+                                            <table .table .table-striped .table-bordered .table-hover>
+                                                <thead>
+                                                    <tr>
+                                                        <th>操作
+                                                        <th>公開
+                                                        <th>フリーページタイトル
+                                                        <th>更新日
+                                                        <th>閲覧数
+                                                        <th>操作
+                                                <tbody>
+                                                    $forall (i, FreeList n freeId title _ status _ ctime _ version viewCnt) <- freeList
+                                                        <tr class="#{rowClass n}">
+                                                            <td .hb-td-size-50>
+                                                                <a href=@{FreeR (FreeId $ Just freeId)} .btn .btn-primary>編集
+                                                            <td .hb-td-size-50>
+                                                                <form action=@{FreeStatusChangeR} method="post" enctype="multipart/form-data">
+                                                                    ^{token}
+                                                                    $if status == (fromEnum Published)
+                                                                        <button type="submit" .btn .btn-info .btn-circle .btnStatusUpdate>
+                                                                            <i .fa .fa-check>
+                                                                    $else
+                                                                        <button type="submit" .btn .btn-warning .btn-circle .btnStatusUpdate>
+                                                                            <i .fa .fa-times>
+                                                                    $# ^{token}の直下に配置すると、hiddenの値が正確に出力されない
+                                                                    <input type="hidden" name="free_id" value="#{freeId}">
+                                                                    <input type="hidden" name="version" value="#{version}">
+
+
+                                                            <td>
+                                                                <a href=@{PutFreeR $ FreeId (Just freeId)} target="_blank" .fa .fa-external-link aria-hidden="true" #freeUrlId#{i}>
+                                                                    #{title}
+                                                                <div #freeCpyId#{i}>
+                                                            <td .hb-td-size-150>
+                                                                #{dateTimeFullFormat ctime}
+                                                            <td .hb-td-size-70>
+                                                                #{viewCnt}
+                                                            <td .hb-td-size-50>
+                                                                <form action=@{FreeDelR truePageType} method="post" enctype="multipart/form-data">
+                                                                    ^{token}
+                                                                    <input type="hidden" name="free_id" value="#{freeId}">
+                                                                    <input type="hidden" name="version" value="#{version}">
+                                                                    <input type="submit" name="submit" value="削除" .btn .btn-danger .mt-3 .hbDelBtn>
+    
+                                        <!-- /.table-responsive -->
+                                        <div .row>
+                                            <div .col-sm-5>
+                                                <div>Showing #{unCurPage pager} to #{length frees} of #{totalCnt} entries
+
+                                            $if unIsPager pager
+                                                <div .col-sm-7 .text-right>
+                                                    <div>
+                                                        <ul .pagination .hb-mergin-reset>
+                                                            $if unPrevPage pager > 0
+                                                                <li .paginate_button>
+                                                                    <a href=@{FreeListR truePageType (Page $ Just (unPrevPage pager))}>&lt;&lt;
+                                                            $forall p <- unNumsPages pager
+                                                                $if p == (unCurPage pager)
+                                                                    <li .paginate_button .active>
+                                                                        <a>#{p}
+                                                                $else
+                                                                    <li .paginate_button>
+                                                                        <a href=@{FreeListR truePageType (Page $ Just p)}>#{p}
+                                                            $if unNextPage pager > 0
+                                                                <li .paginate_button>
+                                                                    <a href=@{FreeListR truePageType (Page $ Just (unNextPage pager))}>&gt;&gt;
+    
+                                    <!-- /.panel-body -->
+                            <!-- /.panel -->
+                        <!-- /.col-lg-12 -->
+                    <!-- /.row -->
+                <!-- /.container-fluid -->
+            <!-- /#page-wrapper -->
+            <script src="/static/js/houbou.js">
+            <script src="/static/js/hb_urlcpy.js">
+            <script type="text/javascript">
+                var apps = new Array();
+                var i = 0;
+                $forall (i, _) <- freeList
+                    var url = document.getElementById('freeUrlId#{i}');
+                    var app = Elm.UrlCpy.init({
+                          flags: { "url": url.href, "elmId" : "#{i}" }
+                        , node: document.getElementById('freeCpyId#{i}')
+                    });
+                    apps.push(app);
+                    apps[i].ports.copy.subscribe(() => {
+                        console.log('cpy#{i}');
+                        document.querySelector('#cpy#{i}').select();
+                        document.execCommand('copy');
+                    });
+                    i=i+1;

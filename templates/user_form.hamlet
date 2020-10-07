@@ -1,0 +1,54 @@
+<form method="post">
+    #{extra}
+    <div .form-group>
+        <label>ログインID
+        ^{fvInput emailView}
+        <p .help-block>メールアドレスを入力
+        $maybe emailErr <- fvErrors emailView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{emailErr}
+    <div .form-group>
+        <label>ユーザー名
+        ^{fvInput usernameView}
+        <p .help-block>#{usernameLen}文字以上
+        $maybe usernameErr <- fvErrors usernameView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{usernameErr}
+    <div .form-group>
+        <label>プロファイル
+        ^{fvInput profileView}
+        <p .help-block>#{profileLen}文字以上
+        $maybe profileErr <- fvErrors profileView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{profileErr}
+    <div .form-group>
+        <label>ユーザー権限
+        ^{fvInput permView}
+        $maybe permErr <- fvErrors permView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{permErr}
+    <div .form-group>
+        <label>パスワード
+        ^{fvInput passwdView}
+        <p .help-block>6文字以上
+        $maybe passwdErr <- fvErrors passwdView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{passwdErr}
+    <div .form-group>
+        <label>パスワード
+        ^{fvInput passwdConfView}
+        <p .help-block>6文字以上
+        $maybe passwdConfErr <- fvErrors passwdConfView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{passwdConfErr}
+    <div .form-group>
+        <button type="submit" .btn .btn-primary .center-block>
+            登　　録
+    ^{fvInput verView}
+    ^{fvInput userIdView}

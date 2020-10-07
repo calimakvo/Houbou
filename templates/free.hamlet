@@ -1,0 +1,53 @@
+            <div #page-wrapper>
+                <div .container-fluid>
+                    <div .row>
+                        <div .col-lg-12>
+                            <h1 .page-header>
+                                フリーページ編集
+                        <!-- /.col-lg-12 -->
+                    $forall (status, m) <- msg
+                        $if status == successKey
+                            <div .alert .alert-success role="alert">
+                                #{m}
+                        $else
+                            <div .alert .alert-danger role="alert">
+                                #{m}
+                    <!-- /.row -->
+                    <div .row>
+                        <div .col-lg-12>
+                            <div .panel .panel-default>
+                                <div .panel-heading>
+                                    フリーページ変更フォーム
+                                <div .panel-body>
+                                    <div .col-sm-6>
+                                        <div .form-group>
+                                            <a href=#{pagePath (unBlogSettingBlogUrl setting) "f" (unFreeId free)} target="_blank" .fa .fa-link aria-hidden="true" #freeUrl>URL
+                                            <div #freeUrlId>
+                                    <div .col-sm-12>
+                                        <form method="post">
+                                            <div .row>
+                                                ^{freeWidget}
+                                                <!-- /.col-sm-6 -->
+                                            <!-- /.row -->
+                                        <!-- /form>
+                                    <!-- .col-sm-12 -->
+                                    <!-- .col-sm-6 -->
+                                <!-- /.panel-body -->
+                                <!-- /.panel-heading -->
+                            <!-- /.panel .panel-default -->
+                        <!-- /.col-lg-12 -->
+                    <!-- /.row -->
+                <!-- /.container-fluid -->
+            <!-- /#page-wrapper -->
+            <script src="/static/js/hb_urlcpy.js">
+            <script type="text/javascript">
+                var url = document.getElementById('freeUrl');
+                var app = Elm.UrlCpy.init({
+                      flags: { "url": url.href, "elmId" : "0" }
+                    , node: document.getElementById('freeUrlId')
+                });
+                app.ports.copy.subscribe(() => {
+                   console.log('cpy0');
+                   document.querySelector('#cpy0').select();
+                   document.execCommand('copy');
+                });

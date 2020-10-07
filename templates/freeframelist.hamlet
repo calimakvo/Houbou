@@ -1,0 +1,133 @@
+            <script type="text/javascript">
+              \ $(function(){
+              \   $("#pageperline").change(function() {
+              \     $("#pageperlineform").submit();
+              \   });
+              \ });
+            <div #page-wrapper>
+                <div .container-fluid>
+                    <div .row>
+                        <div .col-lg-12>
+                            <h1 .page-header>フリーフレーム
+                        <!-- /.col-lg-12 -->
+                    $forall (status, m) <- msg
+                        $if status == successKey
+                            <div .alert .alert-success role="alert">
+                                #{m}
+                        $else
+                            <div .alert .alert-danger role="alert">
+                                #{m}
+                    <!-- /.row -->
+                    <div .row>
+                        <div .col-lg-12>
+                            <div .panel .panel-default>
+                                <div .panel-heading>
+                                    <a href=@{FreeFrameNewR} .btn .btn-default>新規作成
+                                <!-- /.panel-heading -->
+                                $if null frames
+                                    <div .panel-body>
+                                        <div .alert .alert-warning .text-center role="alert">
+                                            記事はありません
+                                $else
+                                    <div .panel-body>
+                                        <div .row>
+                                            <div .col-sm-6>
+                                                <form action=@{FreeFrameListR (Page Nothing)} method="post" #pageperlineform .form-inline>
+                                                    <div .form-inline>
+                                                        <label>
+                                                            Show
+                                                            ^{pagePerLineWidget}
+                                                            entries
+    
+                                            $if unIsPager pager
+                                                <div .col-sm-6 .text-right>
+                                                    <div>
+                                                       <ul .pagination .hb-mergin-reset>
+                                                           $if unPrevPage pager > 0
+                                                               <li .paginate_button>
+                                                                   <a href=@{FreeFrameListR (Page $ Just (unPrevPage pager))}>&lt;&lt;
+                                                           $forall p <- unNumsPages pager
+                                                               $if p == (unCurPage pager)
+                                                                   <li .paginate_button .active>
+                                                                       <a>#{p}
+                                                               $else
+                                                                   <li .paginate_button>
+                                                                       <a href=@{FreeFrameListR (Page $ Just p)}>#{p}
+                                                           $if unNextPage pager > 0
+                                                               <li .paginate_button>
+                                                                   <a href=@{FreeFrameListR (Page $ Just (unNextPage pager))}>&gt;&gt;
+    
+                                        <div .table-responsive>
+                                            <table .table .table-striped .table-bordered .table-hover>
+                                                <thead>
+                                                    <tr>
+                                                        <th>操作
+                                                        <th>公開
+                                                        <th>フレーム名
+                                                        <th>更新日
+                                                        <th>操作
+                                                <tbody>
+                                                    $forall FreeFrameList n freeFrameId framename validflag _ ctime _ version <- frames
+                                                        <tr class="#{rowClass n}">
+                                                            <td .hb-td-size-50>
+                                                                <a href=@{FreeFrameR (FreeFrameId $ Just freeFrameId)} .btn .btn-primary>編集
+                                                            <td .hb-td-size-50>
+                                                                <form action=@{FreeFrameChangeR} method="post" enctype="multipart/form-data">
+                                                                    ^{token}
+                                                                    $if validflag == True
+                                                                        <button type="submit" .btn .btn-info .btn-circle>
+                                                                            <i .fa .fa-check>
+                                                                    $else
+                                                                        <button type="submit" .btn .btn-warning .btn-circle>
+                                                                            <i .fa .fa-times>
+                                                                    $# ^{token}の直下に配置すると、hiddenの値が正確に出力されない
+                                                                    <input type="hidden" name="freeframe_id" value="#{freeFrameId}">
+                                                                    <input type="hidden" name="version" value="#{version}">
+
+
+                                                            <td>
+                                                                $maybe fname <- framename
+                                                                    #{fname}
+                                                                $nothing
+                                                                    -
+                                                            <td .hb-td-size-150>
+                                                                #{dateTimeFullFormat ctime}
+                                                            <td .hb-td-size-50>
+                                                                $if validflag == False
+                                                                    <form action=@{FreeFrameDelR} method="post" enctype="multipart/form-data">
+                                                                        ^{token}
+                                                                        <input type="hidden" name="freeframe_id" value="#{freeFrameId}">
+                                                                        <input type="hidden" name="version" value="#{version}">
+                                                                        <input type="submit" name="submit" value="削除" .btn .btn-danger .mt-3 .hbDelBtn>
+
+    
+                                        <!-- /.table-responsive -->
+                                        <div .row>
+                                            <div .col-sm-5>
+                                                <div>Showing #{unCurPage pager} to #{length frames} of #{totalCnt} entries
+
+                                            $if unIsPager pager
+                                                <div .col-sm-7 .text-right>
+                                                    <div>
+                                                        <ul .pagination .hb-mergin-reset>
+                                                            $if unPrevPage pager > 0
+                                                                <li .paginate_button>
+                                                                    <a href=@{FreeFrameListR (Page $ Just (unPrevPage pager))}>&lt;&lt;
+                                                            $forall p <- unNumsPages pager
+                                                                $if p == (unCurPage pager)
+                                                                    <li .paginate_button .active>
+                                                                        <a>#{p}
+                                                                $else
+                                                                    <li .paginate_button>
+                                                                        <a href=@{FreeFrameListR (Page $ Just p)}>#{p}
+                                                            $if unNextPage pager > 0
+                                                                <li .paginate_button>
+                                                                    <a href=@{FreeFrameListR (Page $ Just (unNextPage pager))}>&gt;&gt;
+    
+                                    <!-- /.panel-body -->
+                            <!-- /.panel -->
+                        <!-- /.col-lg-12 -->
+                    <!-- /.row -->
+                <!-- /.container-fluid -->
+            <!-- /#page-wrapper -->
+            <script src="/static/js/houbou.js">

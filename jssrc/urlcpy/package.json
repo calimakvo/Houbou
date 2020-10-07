@@ -1,0 +1,15 @@
+{
+  "name": "hb_urlcpy",
+  "version": "1.0.0",
+  "description": "Houbou image url copy to clip board",
+  "main": "index.js",
+  "scripts": {
+    "build": "elm make src/UrlCpy.elm --output=../../static/js/hb_urlcpy.js"
+  },
+  "author": "Empty Yoshida",
+  "license": "BSD-2-Clause",
+  "dependencies": {},
+  "devDependencies": {
+    "elm": "^0.19.1-3"
+  }
+}

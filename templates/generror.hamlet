@@ -1,0 +1,13 @@
+            <div #page-wrapper>
+                <div .container-fluid>
+                    <div .row>
+                        <div .col-lg-12>
+                            <div .alert .alert-danger role="alert" style="margin-top: 50px;">
+                                #{err_message}
+                    <!-- /.row -->
+                    <div .row>
+                        <div .col-lg-12>
+                        <!-- /.col-lg-12 -->
+                    <!-- /.row -->
+                <!-- /.container-fluid -->
+            <!-- /#page-wrapper -->

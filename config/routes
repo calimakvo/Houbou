@@ -1,0 +1,45 @@
+-- By default this file is used by `parseRoutesFile` in Foundation.hs
+-- Syntax for this file here: https://www.yesodweb.com/book/routing-and-handlers
+/admin/auth   AuthR   Auth   getAuth
+/admin/dashboard DashboardR GET
+/admin/postlist/#Int/#Page PostListR GET POST
+/admin/post/#PostId PostR GET POST
+/admin/postdel/#Int PostDelR POST
+/admin/newpost PostNewR GET POST
+/admin/freelist/#Int/#Page FreeListR GET POST
+/admin/free/#FreeId FreeR GET POST
+/admin/freedel/#Int FreeDelR POST
+/admin/freenew FreeNewR GET POST
+/admin/freeframelist/#Page FreeFrameListR GET POST
+/admin/freeframe/#FreeFrameId FreeFrameR GET POST
+/admin/freeframenew FreeFrameNewR GET POST
+/admin/freeframedel FreeFrameDelR POST
+/admin/framelist/#Page FrameListR GET POST
+/admin/frame/#FrameId FrameR GET POST
+/admin/framenew FrameNewR GET POST
+/admin/framedel FrameDelR POST
+/admin/frmchg FrameChangeR POST
+/admin/stchg StatusChangeR POST
+/admin/freestchg FreeStatusChangeR POST
+/admin/freefrmchg FreeFrameChangeR POST
+/admin/blogsetting BlogSettingR GET POST
+/admin/userlist/#Page UserListR GET POST
+/admin/user/#UserId UserR GET POST
+/admin/usernew UserNewR GET POST
+/admin/userdel UserDelR POST
+/admin/userdelreset UserDelResetR POST
+/admin/medialist/#Page MediaListR GET POST
+/admin/medianew MediaNewR GET POST
+/admin/mediadel MediaDelR POST
+/admin/media/#MediaId MediaMdfR GET POST
+
+/ HomeR GET
+/p/#PostId PutR GET
+/f/#FreeId PutFreeR GET
+/taglist/#TagId PutTagListR GET
+/ads.txt AdstxtR GET
+/favicon.ico FaviconR GET
+/robots.txt RobotsR GET
+/static StaticR Static appStatic
+
+

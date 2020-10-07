@@ -1,0 +1,62 @@
+<form method="post">
+    #{extra}
+    <div .form-group>
+        <label>ブログ名
+        ^{fvInput nameView}
+        <p .help-block>ブログ名を設定
+        $maybe nameErr <- fvErrors nameView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{nameErr}
+    <div .form-group>
+        <label>URL
+        ^{fvInput urlView}
+        <p .help-block>ブログで利用するURLを指定(https://またはhttp://から入力)
+        $maybe urlErr <- fvErrors urlView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{urlErr}
+    <div .form-group>
+        <label>ブログトップ記事数
+        ^{fvInput numView}
+        <p .help-block>ブログのトップへ表示する記事数
+        $maybe numErr <- fvErrors numView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{numErr}
+    <div .form-group>
+        <label>メディアURL
+        ^{fvInput mdaView}
+        <p .help-block>画像へアクセスするURLを指定(https://またはhttp://から入力)
+        $maybe mdaErr <- fvErrors mdaView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{mdaErr}
+    <div .form-group>
+        <label>メディアディレクトリ
+        ^{fvInput dirView}
+        <p .help-block>メディアを保存するディレクトリ
+        $maybe dirErr <- fvErrors dirView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{dirErr}
+    <div .form-group>
+        <label>アップロード最大サイズ(MB)
+        ^{fvInput sizeView}
+        <p .help-block>リクエストサイズ上限(最小&nbsp;#{uploadSizeMin}MB&nbsp;～最大&nbsp;#{uploadSizeMax}MB&nbsp;設定可能)
+        $maybe sizeErr <- fvErrors sizeView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{sizeErr}
+    <div .form-group>
+        <label>ads.txt
+        ^{fvInput adsView}
+        <p .help-block>adsenseで発行されるads.txtを設定(/ads.txtにて出力されます)
+        $maybe adsErr <- fvErrors adsView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{adsErr}
+    <div .form-group>
+        <button type="submit" .btn .btn-primary .center-block>
+            登　　録
+    ^{fvInput verView}

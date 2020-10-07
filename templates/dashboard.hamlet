@@ -1,0 +1,78 @@
+            <div #page-wrapper>
+                <div .container-fluid>
+                    <div .row>
+                        <div .col-lg-12>
+                            <h1 .page-header>
+                                ダッシュボード
+                    $forall (status, m) <- msg
+                        $if status == successKey
+                            <div .alert .alert-success role="alert">
+                                #{m}
+                        $else
+                            <div .alert .alert-danger role="alert">
+                                #{m}
+                    <div .row>
+                        <!-- /.col-lg-12 -->
+                        <div .col-lg-12>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    アクセスログ
+                                <!-- /.panel-heading -->
+                                <div class="panel-body">
+                                    <div class="flot-chart">
+                                        <div class="flot-chart-content" id="flot-bar-chart">
+                                <!-- /.panel-body -->
+                            <!-- /.panel -->
+
+            <!-- Flot Charts JavaScript -->
+            <script src="/static/js/flot/excanvas.min.js">
+            <script src="/static/js/flot/jquery.flot.js">
+            <script src="/static/js/flot/jquery.flot.pie.js">
+            <script src="/static/js/flot/jquery.flot.resize.js">
+            <script src="/static/js/flot/jquery.flot.time.js">
+            <script src="/static/js/flot/jquery.flot.tooltip.min.js">
+
+            <script type="text/javascript">
+                //Flot Bar Chart
+                \$(function() {
+                    var barOptions = {
+                        series: {
+                            bars: {
+                                show: true,
+                                barWidth: 43200000
+                            }
+                        },
+                        xaxis: {
+                            mode: "time",
+                            timeformat: "%m/%d",
+                            minTickSize: [1, "day"],
+                        },
+                        grid: {
+                            hoverable: true
+                        },
+                        legend: {
+                            show: true
+                        },
+                        tooltip: true,
+                        tooltipOpts: {
+                            content: "day: %x, cnt: %y"
+                        }
+                    };
+ 
+                    var barData = {
+                        label: "トップページ",
+                        data: [
+                            $forall (t, c) <- bars
+                                [#{show(t)}, #{c}],
+                        ]
+                    };
+                    var barData2 = {
+                        label: "記事+フリーページ",
+                        data: [
+                            $forall (t, c) <- bars2
+                                [#{show(t)}, #{c}],
+                        ]
+                    };
+
+                    \$.plot($("#flot-bar-chart"), [barData, barData2], barOptions);
+                });

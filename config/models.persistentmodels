@@ -1,0 +1,161 @@
+-- By default this file is used by `persistFileWith` in Model.hs (which is imported by Foundation.hs)
+-- Syntax for this file here: https://github.com/yesodweb/persistent/blob/master/docs/Persistent-entity-syntax.md
+
+TblMstUserPerm
+    level Int
+    dispOrder Int sqltype=smallint
+    name Text sqltype=varchar(512)
+    createTime UTCTime sqltype=timestamptz
+    updateTime UTCTime sqltype=timestamptz default=now()
+    version Int
+    deriving Typeable Show
+
+TblUser
+    username Text sqltype=varchar(512)
+    password Text Maybe sqltype=varchar(1024)
+    email Text sqltype=varchar(512)
+    profile Text sqltype=varchar(256)
+    createTime UTCTime sqltype=timestamptz
+    updateTime UTCTime sqltype=timestamptz default=now()
+    version Int
+    deleteFlag Bool
+    userPermId TblMstUserPermId
+    UniTblUserEmail email
+    deriving Typeable Show
+
+TblPost
+    title Text sqltype=varchar(2048)
+    content Text
+    html Text Maybe
+    inputType Int sqltype=smallint
+    tags Text sqltype=varchar(2048) Maybe
+    status Int sqltype=smallint
+    publishDate UTCTime sqltype=timestamptz Maybe
+    createTime UTCTime sqltype=timestamptz
+    updateTime UTCTime sqltype=timestamptz default=now()
+    authorId TblUserId
+   	version Int
+    deriving Typeable Show
+
+TblComment
+    content Text
+    status Int
+    createTime UTCTime sqltype=timestamptz Maybe
+    author Text sqltype=varchar(512)
+    email Text sqltype=varchar(512)
+    url Text sqltype=varchar(4096)
+    postId TblPostId
+    deriving Typeable Show
+
+TblPostTag
+    postId TblPostId
+    tagId TblMstTagId
+    UniPostTag postId tagId
+    deriving Typeable Show
+
+TblFreeTag
+    freeId TblFreeId
+    tagId TblMstTagId
+    UniFreeTag freeId tagId
+    deriving Typeable Show
+
+TblMstTag
+    name Text sqltype=varchar(128)
+    UniTagName name
+    deriving Typeable Show
+
+TblFrame
+    name Text Maybe sqltype=varchar(1024)
+    html Text Maybe
+    css Text Maybe
+    validFlag Bool
+    publishDate UTCTime sqltype=timestamptz Maybe
+    createTime UTCTime sqltype=timestamptz
+    updateTime UTCTime sqltype=timestamptz default=now()
+    version Int
+    deriving Typeable Show
+
+TblFreeFrame
+    name Text Maybe sqltype=varchar(1024)
+    html Text Maybe
+    css Text Maybe
+    validFlag Bool
+    publishDate UTCTime sqltype=timestamptz Maybe
+    createTime UTCTime sqltype=timestamptz
+    updateTime UTCTime sqltype=timestamptz default=now()
+    version Int
+    deriving Typeable Show
+
+TblFree
+    title Text sqltype=varchar(2048)
+    content Text
+    html Text Maybe
+    css Text Maybe
+    tags Text sqltype=varchar(2048) Maybe
+    inputType Int sqltype=smallint
+    status Int sqltype=smallint
+    publishDate UTCTime sqltype=timestamptz Maybe
+    createTime UTCTime sqltype=timestamptz
+    updateTime UTCTime sqltype=timestamptz default=now()
+    authorId TblUserId
+    version Int
+    deriving Typeable Show
+
+TblBlogSetting
+    ident Text sqltype=varchar(32)
+    blogName Text sqltype=varchar(2048)
+    blogUrl Text sqltype=varchar(2048)
+    postNum Int sqltype=smallint
+    mediaUrl Text sqltype=varchar(2048)
+    mediaDir Text sqltype=varchar(2048)
+    uploadSize Int
+    adstxt Text Maybe sqltype=varchar(512)
+    createTime UTCTime sqltype=timestamptz
+    updateTime UTCTime sqltype=timestamptz default=now()
+    version Int
+    UniIdent ident
+    deriving Typeable Show
+
+TblMedia
+    title Text Maybe sqltype=varchar(255)
+    dir Text sqltype=varchar(2048)         -- Directory
+    fileName Text sqltype=varchar(2048)    -- Original file name(filename.jpg)
+    hash Text Maybe sqltype=varchar(48)    -- md5 file
+    size Int                               -- file size byte
+    thumbDispFlag Bool                     -- Thumbnail output flag 
+    mimeTypeId TblMstMimeTypeId Maybe
+    createTime UTCTime sqltype=timestamptz
+    updateTime UTCTime sqltype=timestamptz default=now()
+    version Int
+    authorId TblUserId
+    deriving Typeable Show
+
+TblHomeAcc
+    accTime UTCTime sqltype=timestamptz
+    viewCnt Int sqltype=integer
+    UniHomeAccTime accTime
+    deriving Typeable Show
+
+TblPostAcc
+    accTime UTCTime sqltype=timestamptz
+    viewCnt Int sqltype=integer
+    postId TblPostId
+    UniPostAccTime postId accTime
+    deriving Typeable Show
+
+TblFreeAcc
+    accTime UTCTime sqltype=timestamptz
+    viewCnt Int sqltype=integer
+    freeId TblFreeId
+    UniFreeAccTime freeId accTime
+    deriving Typeable Show
+
+TblMstMimeType
+    extension Text sqltype=varchar(16)
+    mimeType Text sqltype=varchar(128)
+    createTime UTCTime sqltype=timestamptz
+    updateTime UTCTime sqltype=timestamptz default=now()
+    version Int
+    deleteFlag Bool
+    UniTblTblMstMimeType extension
+    deriving Typeable Show
