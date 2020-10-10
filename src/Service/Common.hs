@@ -41,7 +41,6 @@ module Service.Common (
   , fromTblMstTagKey
   , fromTblPostTagKey
   , fromTblFreeTagKey
-  , getTm
   , checkVersion
   , toBlogSetting
   , toUserList
@@ -59,7 +58,6 @@ module Service.Common (
   ) where
 
 import Import
-import Data.Time.LocalTime
 import Database.Persist.Sql (BackendKey(..))
 import qualified Database.Esqueleto as E
 import DataTypes.HoubouType
@@ -69,6 +67,8 @@ toFreeList ::
     E.Value Int
   , E.Value (Key TblFree)
   , E.Value Text
+  , E.Value (Maybe Text)
+  , E.Value (Maybe Text)
   , E.Value (Maybe UTCTime)
   , E.Value Int
   , E.Value (Key TblUser)
@@ -81,6 +81,8 @@ toFreeList (
     E.Value rownum
   , E.Value key
   , E.Value title
+  , E.Value slug
+  , E.Value urlpath
   , E.Value pubDate
   , E.Value status
   , E.Value author
@@ -88,7 +90,8 @@ toFreeList (
   , E.Value utime
   , E.Value version
   , E.Value viewCnt) 
-  = FreeList rownum (fromTblFreeKey key) title pubDate
+  = FreeList rownum (fromTblFreeKey key) title
+             slug urlpath pubDate
              status (fromTblUserKey author) ctime
              utime version (countMaybe viewCnt)
 
@@ -144,6 +147,8 @@ toPostList ::
   , E.Value (Key TblPost)
   , E.Value Int
   , E.Value Text
+  , E.Value (Maybe Text)
+  , E.Value (Maybe Text)
   , E.Value (Maybe UTCTime)
   , E.Value UTCTime
   , E.Value Int
@@ -157,6 +162,8 @@ toPostList
   , E.Value key
   , E.Value status
   , E.Value title
+  , E.Value slug
+  , E.Value utlpath
   , E.Value pubdate
   , E.Value ctime
   , E.Value version
@@ -165,7 +172,8 @@ toPostList
   , E.Value postCnt
   )
   = PostList rownum (fromTblPostKey key) status
-      title pubdate ctime version
+      title slug utlpath
+      pubdate ctime version
       (countMaybe comCntTotal)
       (countMaybe comCntAprov)
       (countMaybe postCnt)
@@ -256,9 +264,6 @@ fromTblHomeAccKey = unSqlBackendKey . unTblHomeAccKey
 fromTblPostAccKey :: Key TblPostAcc -> Int64
 fromTblPostAccKey = unSqlBackendKey . unTblPostAccKey
 
-getTm :: IO UTCTime
-getTm = getZonedTime >>= return . zonedTimeToUTC
-
 countMaybe ::
   Maybe Int
   -> Int
@@ -301,6 +306,8 @@ toFree (Entity key entity) = Free {
   , unFreeContent = tblFreeContent entity
   , unFreeHtml = tblFreeHtml entity
   , unFreeCss = tblFreeCss entity
+  , unFreeSlug = tblFreeSlug entity
+  , unFreeUrlpath = tblFreeUrlpath entity
   , unFreeInputType = tblFreeInputType entity
   , unFreeTags = tblFreeTags entity
   , unFreeStatus = tblFreeStatus entity
@@ -425,6 +432,8 @@ toPost (Entity key entity) = Post {
   , unPostContent = tblPostContent entity
   , unPostTags = tblPostTags entity
   , unPostHtml = tblPostHtml entity
+  , unPostSlug = tblPostSlug entity
+  , unPostUrlpath = tblPostUrlpath entity
   , unPostInputType = tblPostInputType entity
   , unPostStatus = tblPostStatus entity
   , unPostPublishDate = tblPostPublishDate entity

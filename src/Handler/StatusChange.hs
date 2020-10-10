@@ -22,8 +22,9 @@ postStatusChangeR = do
     FormSuccess (StatusChgForm postId version) -> do
       result <- updatePostStatus (toTblPostKey postId) (RecVersion version)
       case result of
-        Right ps -> retJson (fromEnum ps) version
-        Left err -> do
-          $(logError) $ "postStatusChangeR: error = " <> (toText err)
-          retJson (fromEnum UnkStatus) 0
-    _ -> retJson (fromEnum UnkStatus) 0
+        Right (ps, newRecVer) -> retJson (fromEnum ps) newRecVer ""
+        Left (err, curRecVer) -> do
+          $(logError) $ "postStatusChangeR: Post status update failure error = " <> (toText err)
+          let msg = parmErrToMsg err
+          retJson (fromEnum UnkStatus) curRecVer msg
+    _ -> retJson (fromEnum UnkStatus) 0 ""

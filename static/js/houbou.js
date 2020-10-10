@@ -53,7 +53,7 @@ $(document).ready(function() {
                         $btn.children("i").removeClass("fa-check");
                         $btn.children("i").addClass("fa-times");
                     } else {
-                        alert("データが更新されています、一覧を再読み込みして実行してください");
+                        alert(result.msg);
                     }
                     $form.find('input:hidden[name="version"]').val(result.version);
                 }

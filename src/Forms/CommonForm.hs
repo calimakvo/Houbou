@@ -4,6 +4,8 @@
 module Forms.CommonForm (
     titleFieldSet
   , bodyFieldSet
+  , slugPostFieldSet
+  , slugFreeFieldSet
   , tagFieldSet
   , postIdFieldSet
   , frameIdFieldSet
@@ -38,6 +40,8 @@ module Forms.CommonForm (
   , mediaIdFieldSet
   , mediaTitleFieldSet
   , blogAdsFieldSet
+  , initFormUrlpath
+  , formResultToId
   ) where
 
 import Import
@@ -68,6 +72,30 @@ bodyFieldSet = FieldSettings {
       , ("class", "form-control")
       , ("placeholder", "ブログ本文")
       , ("rows", "15")
+    ]
+  }
+
+slugPostFieldSet :: FieldSettings master
+slugPostFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "slugPostInputId"
+  , fsName = Just "post_slug"
+  , fsAttrs = [
+        ("class", "form-control")
+      , ("placeholder", "スラッグ")
+    ]
+  }
+
+slugFreeFieldSet :: FieldSettings master
+slugFreeFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "slugFreeInputId"
+  , fsName = Just "free_slug"
+  , fsAttrs = [
+        ("class", "form-control")
+      , ("placeholder", "スラッグ")
     ]
   }
 
@@ -436,3 +464,19 @@ userPermTouple ::
   [MstUserPerm]
   -> [(T.Text, Int64)]
 userPermTouple = map (\x -> (unMstUserName x, unMstUserPermId x))
+
+initFormUrlpath ::
+  FormResult (Maybe Text)
+  -> (Maybe Text)
+  -> FormResult (Maybe Text)
+initFormUrlpath slugRes urlpath =
+  case slugRes of
+    FormSuccess Nothing -> FormSuccess Nothing
+    FormSuccess (Just _) -> FormSuccess urlpath
+    _ -> FormSuccess Nothing
+
+formResultToId :: FormResult Int64 -> Int64
+formResultToId formId =
+  case formId of
+    FormSuccess i -> i
+    _ -> 0

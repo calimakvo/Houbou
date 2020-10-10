@@ -22,10 +22,9 @@ postFreeStatusChangeR = do
     FormSuccess (StatusChgFreeForm freeId version) -> do
       result <- updateFreeStatus (toTblFreeKey freeId) (RecVersion version)
       case result of
-        Right newStatus -> retJson (fromEnum newStatus) version
-        Left err  -> do
+        Right (fs, newRecVer) -> retJson (fromEnum fs) newRecVer ""
+        Left (err, curRecVer)  -> do
           $(logError) $ "postFreeStatusChangeR: Free Status update failure error=" <> (toText err)
-          retJson (fromEnum UnkStatus) 0
-    _ -> do
-      $(logInfo) "Form error"
-      retJson (fromEnum UnkStatus) 0
+          let msg = parmErrToMsg err
+          retJson (fromEnum UnkStatus) curRecVer msg
+    _ -> retJson (fromEnum UnkStatus) 0 ""

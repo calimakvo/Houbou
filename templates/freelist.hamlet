@@ -68,7 +68,7 @@
                                                         <th>閲覧数
                                                         <th>操作
                                                 <tbody>
-                                                    $forall (i, FreeList n freeId title _ status _ ctime _ version viewCnt) <- freeList
+                                                    $forall (i, FreeList n freeId title slug urlpath _ status _ ctime _ version viewCnt) <- freeList
                                                         <tr class="#{rowClass n}">
                                                             <td .hb-td-size-50>
                                                                 <a href=@{FreeR (FreeId $ Just freeId)} .btn .btn-primary>編集
@@ -87,8 +87,13 @@
 
 
                                                             <td>
-                                                                <a href=@{PutFreeR $ FreeId (Just freeId)} target="_blank" .fa .fa-external-link aria-hidden="true" #freeUrlId#{i}>
-                                                                    #{title}
+                                                                $if isJust slug && isJust urlpath
+                                                                    <a href=@{urlFreeSlug slug urlpath} target="_blank" .fa .fa-external-link aria-hidden="true" #freeUrlId#{i}>
+                                                                        #{title}
+                                                                    <small>
+                                                                        <a href=@{PutFreeR $ FreeId (Just freeId)}>(@{PutFreeR $ FreeId (Just freeId)})
+                                                                $else
+                                                                    <a href=@{PutFreeR $ FreeId (Just freeId)} target="_blank" .fa .fa-external-link aria-hidden="true" #freeUrlId#{i}>#{title}
                                                                 <div #freeCpyId#{i}>
                                                             <td .hb-td-size-150>
                                                                 #{dateTimeFullFormat ctime}

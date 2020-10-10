@@ -19,6 +19,8 @@ data PostForm = PostForm {
     unPostFormId :: Int64
   , unPostFormTitle :: Text
   , unPostFormContent :: Text
+  , unPostFormSlug :: Maybe Text
+  , unPostFormUrlpath :: Maybe Text
   , unPostFormInputType :: Int
   , unPostFormTags :: Maybe Text
   , unPostFormVersion :: Int
@@ -31,17 +33,21 @@ postForm ::
 postForm post extra = do
   master <- getYesod
   backListPageType <- lookupSession "truePageType"
+  t <- liftIO getTm
   let titleLen = appPostTitleMaxLength $ appSettings master
       bodyLen = appPostTextMaxLength $ appSettings master
+      slugLen = appSlugTextMaxLength $ appSettings master
       tagLen = appTagMaxLength $ appSettings master
       tagOneLen = appTagOneMaxLength $ appSettings master
       postId = fromMaybe 0 (unPostId <$> post)
       version = fromMaybe 0 (unPostVersion <$> post)
       selInpTyp = fromMaybe 1 (unPostInputType <$> post)
+      urlpath = if postId > 0 then join (unPostUrlpath <$> post) else (Just $ toUrlPath t)
   inpTyp <- liftHandler getInputTypeTouple
   (postIdRes, postIdView) <- mreq hiddenField postIdFieldSet (Just postId)
   (titleRes, titleView) <- mreq (titleField titleLen) titleFieldSet (unPostTitle <$> post)
   (textRes, textView) <- mreq (bodyField bodyLen) bodyFieldSet (Textarea <$> (unPostContent <$> post))
+  (slugRes, slugView) <- mopt (slugPostField slugLen postIdRes urlpath) slugPostFieldSet (unPostSlug <$> post)
   (inpTypRes, inpTypView) <- mreq (radioFieldList inpTyp) inputTypeRadioFieldSet (unPostInputType <$> post)
   (tagRes, tagView) <- mopt (tagField tagLen tagOneLen) tagFieldSet (unPostTags <$> post)
   (verRes, verView) <- mreq hiddenIdField versionFieldSet (Just version)
@@ -49,6 +55,8 @@ postForm post extra = do
                   <$> postIdRes
                   <*> titleRes
                   <*> (unTextarea <$> textRes)
+                  <*> slugRes
+                  <*> initFormUrlpath slugRes urlpath
                   <*> inpTypRes
                   <*> tagRes
                   <*> verRes
