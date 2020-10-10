@@ -27,6 +27,8 @@ TblPost
     title Text sqltype=varchar(2048)
     content Text
     html Text Maybe
+    slug Text sqltype=varchar(1024) Maybe
+    urlpath Text sqltype=varchar(16) Maybe
     inputType Int sqltype=smallint
     tags Text sqltype=varchar(2048) Maybe
     status Int sqltype=smallint
@@ -35,6 +37,7 @@ TblPost
     updateTime UTCTime sqltype=timestamptz default=now()
     authorId TblUserId
    	version Int
+    UniTblPostSlugUrlpath urlpath slug !force
     deriving Typeable Show
 
 TblComment
@@ -91,6 +94,8 @@ TblFree
     content Text
     html Text Maybe
     css Text Maybe
+    slug Text sqltype=varchar(1024) Maybe
+    urlpath Text sqltype=varchar(16) Maybe
     tags Text sqltype=varchar(2048) Maybe
     inputType Int sqltype=smallint
     status Int sqltype=smallint
@@ -99,6 +104,7 @@ TblFree
     updateTime UTCTime sqltype=timestamptz default=now()
     authorId TblUserId
     version Int
+    UniTblFreeSlugUrlpath urlpath slug !force
     deriving Typeable Show
 
 TblBlogSetting

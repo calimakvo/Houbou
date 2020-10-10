@@ -19,6 +19,7 @@ import UrlParam.PostId
 import UrlParam.FreeId
 import UrlParam.TagId
 import Libs.Common
+import Libs.CommonWidget
 import Libs.Template
 import Service.Common
 import Service.BlogSetting
@@ -45,17 +46,17 @@ createBlogContents setId postId = do
       $(logInfo) $ "createBlogContents': frame or posts undefined"
       return $ Left ErrPostUnitialize
     True -> do
-      html <- renderBlogContents' setting (fromJust frame) posts posted tags
+      html <- renderBlogContents setting (fromJust frame) posts posted tags
       return html
 
-renderBlogContents' ::
+renderBlogContents ::
   BlogSetting
   -> Frame
   -> [Post]
   -> [Post]
   -> [MstTag]
   -> Handler (HResult Html)
-renderBlogContents' setting frame posts posted tags = do
+renderBlogContents setting frame posts posted tags = do
   let pageMeta = toFramePageMeta setting (posts P.!! 0) frame
       postedElms = toPostToPosted posted
       renderInfo' = initContextPost pageMeta postedElms tags
@@ -208,6 +209,7 @@ initContextTagCont pageMeta tagcont postedElms tags msttag = H.fromList [
   , ("hb_search_tag", String $ unMstTagName msttag)
   , ("hb_blog_url", String $ unPageMetaBlogUrl pageMeta)
   , ("hb_blog_css", String $ unPageMetaFrameCss pageMeta)
+  , ("hb_share_url", initTagListShareUrl msttag pageMeta)
   , ("hb_blog_media_url", String $ unPageMetaMediaUrl pageMeta)
   , ("hb_tagconts", Array $ fromList (initTagContList tagcont))
   , ("hb_posteds", Array $ fromList (initPostedList postedElms))
@@ -223,20 +225,10 @@ initContextFree pageMeta postedElms tags = H.fromList [
   , ("hb_blog_title", String $ unPageMetaTitle pageMeta)
   , ("hb_blog_url", String $ unPageMetaBlogUrl pageMeta)
   , ("hb_blog_css", String $ unPageMetaFrameCss pageMeta)
+  , ("hb_blog_canonical_url", String $ unPageMetaCanonicalUrl pageMeta)
   , ("hb_blog_media_url", String $ unPageMetaMediaUrl pageMeta)
   , ("hb_posteds", Array $ fromList (initPostedList postedElms))
   , ("hb_tags", Array $ fromList (initMstTagList tags)) ]
-
-setContextFree ::
-  H.HashMap Text Value
-  -> PageMeta
-  -> [Free]
-  -> H.HashMap Text Value
-setContextFree renderInfo pageMeta frees =
-  let (k1, v1) = ("hb_share_url", initShareUrl (fId frees) pageMeta "f")
-      (k2, v2) = ("hb_posts", Array $ fromList (initFreeList frees))
-      r = H.insert k2 v2 (H.insert k1 v1 renderInfo)
-  in r
 
 initTagContList ::
   [TagContent]
@@ -294,6 +286,7 @@ initContextPost pageMeta postedElms tags = H.fromList [
   , ("hb_blog_title", String $ unPageMetaTitle pageMeta)
   , ("hb_blog_url", String $ unPageMetaBlogUrl pageMeta)
   , ("hb_blog_css", String $ unPageMetaFrameCss pageMeta)
+  , ("hb_blog_canonical_url", String $ unPageMetaCanonicalUrl pageMeta)
   , ("hb_blog_media_url", String $ unPageMetaMediaUrl pageMeta)
   , ("hb_posteds", Array $ fromList (initPostedList postedElms))
   , ("hb_tags", Array $ fromList (initMstTagList tags))]
@@ -304,29 +297,61 @@ setContextPost ::
   -> [Post]
   -> H.HashMap Text Value
 setContextPost renderInfo pageMeta posts =
-  let (k1, v1) = ("hb_share_url", initShareUrl (pId posts) pageMeta "p")
+  let (k1, v1) = ("hb_share_url", initPostShareUrl posts pageMeta)
       (k2, v2) = ("hb_posts", Array $ fromList (initPostList posts))
-      r = H.insert k2 v2 (H.insert k1 v1 renderInfo)
-  in r
+  in H.insert k2 v2 (H.insert k1 v1 renderInfo)
 
-pId ::
-  [Post]
-  -> Int64
-pId posts = if length(posts) == 1 then unPostId (posts P.!! 0) else 0
+setContextFree ::
+  H.HashMap Text Value
+  -> PageMeta
+  -> [Free]
+  -> H.HashMap Text Value
+setContextFree renderInfo pageMeta frees =
+  let (k1, v1) = ("hb_share_url", initFreeShareUrl frees pageMeta)
+      (k2, v2) = ("hb_posts", Array $ fromList (initFreeList frees))
+  in H.insert k2 v2 (H.insert k1 v1 renderInfo)
 
-fId ::
-  [Free]
-  -> Int64
-fId frees = if length(frees) == 1 then unFreeId (frees P.!! 0) else 0
+initTagListShareUrl ::
+  MstTag
+  -> PageMeta
+  -> Value
+initTagListShareUrl msttag pageMeta =
+  let tagId = unMstTagId msttag
+      baseUrl = unPageMetaBlogUrl pageMeta
+  in String $ rmSlash (baseUrl <> "/" <> toTagListUrlText tagId)
+  
+initPostShareUrl :: [Post] -> PageMeta -> Value
+initPostShareUrl posts pageMeta =
+  let post = headElm posts
+      baseUrl = unPageMetaBlogUrl pageMeta
+      pid = unPostId post
+      slug = unPostSlug post
+      urlpath = unPostUrlpath post
+  in
+    if length posts > 1 then
+      String baseUrl
+    else if all (==True) [isJust slug, isJust urlpath] then
+      String $ rmSlash (baseUrl <> "/" <> toPostSlugUrlText slug urlpath)
+    else
+      String $ rmSlash (baseUrl <> "/" <> toPostUrlText pid)
 
-initShareUrl :: Int64 -> PageMeta -> Text -> Value
-initShareUrl tid pageMeta ptype =
-  let baseUrl = unPageMetaBlogUrl pageMeta
-      shareUrl = if tid == 0 then
-                   baseUrl
-                 else
-                   pagePath baseUrl ptype tid
-  in String shareUrl
+initFreeShareUrl :: [Free] -> PageMeta -> Value
+initFreeShareUrl frees pageMeta =
+  let free = headElm frees
+      baseUrl = unPageMetaBlogUrl pageMeta
+      fid = unFreeId free
+      slug = unFreeSlug free
+      urlpath = unFreeUrlpath free
+  in
+    if length frees > 1 then
+      String baseUrl
+    else if all (==True) [isJust slug, isJust urlpath] then
+      String $ rmSlash (baseUrl <> "/" <> toFreeSlugUrlText slug urlpath)
+    else
+      String $ rmSlash (baseUrl <> "/" <> toFreeUrlText fid)
+
+headElm :: [a] -> a
+headElm xs = if length xs >= 1 then (xs P.!! 0) else error "headElm: array is empty"
 
 initPostList ::
   [Post]
@@ -378,6 +403,11 @@ initPostedList postedElms =
                  [
                       ("post_title", String $ unPostTitle post)
                     , ("post_id", Number $ (fromIntegral $ unPostId post))
+                    , ("post_slug_url",
+                       if isJust (unPostSlug post) && isJust (unPostUrlpath post) then
+                         String $ toPostSlugUrlText (unPostSlug post) (unPostUrlpath post)
+                       else
+                         String $ "")
                  ]
                )
              ) (unPostedPosts elm))
@@ -397,6 +427,7 @@ toFramePageMeta setting post frame = PageMeta {
   , unPageMetaBlogUrl = unBlogSettingBlogUrl setting
   , unPageMetaFrameCss = maybeToText $ unFrameCss frame
   , unPageMetaMediaUrl = unBlogSettingMediaUrl setting
+  , unPageMetaCanonicalUrl = canonicalPath CPost (unPostUrlpath post) (unPostSlug post)
   }
 
 toTagContsFramePageMeta ::
@@ -408,6 +439,7 @@ toTagContsFramePageMeta setting frame = PageMeta {
   , unPageMetaTitle = "タグ一覧"
   , unPageMetaBlogUrl = unBlogSettingBlogUrl setting
   , unPageMetaFrameCss = maybeToText $ unFreeFrameCss frame
+  , unPageMetaCanonicalUrl = ""
   , unPageMetaMediaUrl = unBlogSettingMediaUrl setting
   }
 
@@ -421,6 +453,7 @@ toFreeFramePageMeta setting free frame = PageMeta {
   , unPageMetaTitle = unFreeTitle free
   , unPageMetaBlogUrl = unBlogSettingBlogUrl setting
   , unPageMetaFrameCss = maybeToText $ unFreeFrameCss frame
+  , unPageMetaCanonicalUrl = canonicalPath CFree (unFreeUrlpath free) (unFreeSlug free)
   , unPageMetaMediaUrl = unBlogSettingMediaUrl setting
   }
 

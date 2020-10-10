@@ -11,8 +11,8 @@ import DataTypes.HoubouType
 import Forms.FreeForm
 import UrlParam.FreeId
 import Libs.Common
+import Libs.CommonWidget
 import Libs.Mapper
-import Service.BlogSetting
 import Service.Free
 import Service.Tags
 
@@ -20,10 +20,7 @@ getFreeR ::
   FreeId
   -> Handler Html
 getFreeR freeId = do
-  master <- getYesod
-  let setId = appBlogSettingId $ appSettings master
   msg <- getMessages
-  setting <- getBlogSetting setId
   result <- getFreeFromId freeId
   case result of
     Left err -> do
@@ -39,10 +36,7 @@ postFreeR ::
   FreeId
   -> Handler Html
 postFreeR freeId = do
-  master <- getYesod
-  let setId = appBlogSettingId $ appSettings master
   msg <- getMessages
-  setting <- getBlogSetting setId
   ((res, freeWidget), _) <- runFormPost $ freeForm Nothing
   case res of
    FormSuccess form -> do

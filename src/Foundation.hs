@@ -39,6 +39,10 @@ import UrlParam.FreeFrameId
 import UrlParam.UserId
 import UrlParam.MediaId
 import UrlParam.TagId
+import UrlParam.YPath
+import UrlParam.MPath
+import UrlParam.DPath
+import UrlParam.Slug
 
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -131,7 +135,9 @@ instance Yesod App where
     isAuthorized (AuthR _) _ = return Authorized
     isAuthorized HomeR _ = return Authorized
     isAuthorized (PutR _) _ = return Authorized
+    isAuthorized (PutSlugR _ _ _ _) _ = return Authorized
     isAuthorized (PutFreeR _) _ = return Authorized
+    isAuthorized (PutFreeSlugR _ _ _ _) _ = return Authorized
     isAuthorized (PutTagListR _) _ = return Authorized
     isAuthorized FaviconR _ = return Authorized
     isAuthorized RobotsR _ = return Authorized

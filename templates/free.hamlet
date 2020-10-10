@@ -21,7 +21,12 @@
                                 <div .panel-body>
                                     <div .col-sm-6>
                                         <div .form-group>
-                                            <a href=#{pagePath (unBlogSettingBlogUrl setting) "f" (unFreeId free)} target="_blank" .fa .fa-link aria-hidden="true" #freeUrl>URL
+                                            $if isJust (unFreeSlug free) && isJust (unFreeUrlpath free)
+                                                <a href=@{urlFreeSlug (unFreeSlug free) (unFreeUrlpath free)} target="_blank" .fa .fa-link aria-hidden="true" #freeUrl>URL
+                                                <small>
+                                                    <a href=@{PutFreeR $ FreeId $ Just (unFreeId free)} target="_blank">(@{PutFreeR $ FreeId $ Just (unFreeId free)})
+                                            $else
+                                                <a href=@{PutFreeR $ FreeId $ Just (unFreeId free)} target="_blank" .fa .fa-link aria-hidden="true" #freeUrl>URL
                                             <div #freeUrlId>
                                     <div .col-sm-12>
                                         <form method="post">

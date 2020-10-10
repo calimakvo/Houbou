@@ -1,9 +1,12 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Forms.FormValid (
     titleField
   , bodyField
+  , slugPostField
+  , slugFreeField
   , tagField
   , hiddenIdField
   , hiddenId64Field
@@ -33,9 +36,18 @@ import Text.Zenhan
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import Text.Email.Validate
+import DataTypes.HoubouType
 import Libs.Common
 import Libs.Template
+import Forms.CommonForm
 import qualified Text.Ginger as G
+import qualified Database.Esqueleto as E
+import Service.Common
+
+data SlugChkType =
+    SlugRegUp
+  | SlugRegNew
+  | SlugRegNone deriving(Show, Eq)
 
 titleField :: Int -> Field Handler Text
 titleField len = check (titleValid len) textField
@@ -60,6 +72,105 @@ bodyValid len s =
         Nothing -> return $ Right s
         (Just (pe, srcpos)) ->
           return $ Left $ ("記事が不正です、err=" <> pe <> " エラー内容:　" <> srcpos)
+
+slugPostField ::
+  Int
+  -> FormResult Int64
+  -> Maybe Text
+  -> Field Handler Text
+slugPostField len pid urlpath = checkM (slugPostValid len pid urlpath) textField
+
+slugPostValid ::
+  Int
+  -> FormResult Int64
+  -> Maybe Text
+  -> Text
+  -> Handler (Either Text Text)
+slugPostValid len pid urlpath slug = do
+  case checkLengthSlug len slug of
+    False -> return $ Left ("スラッグは" <> pack(show(len)) <> "文字まで入力可能です")
+    True -> case null slug of
+      True -> return $ Right slug
+      False -> runDB $ do
+        let postId = formResultToId pid
+            key = TblPostKey (E.SqlBackendKey postId)
+        p <- if postId > 0 then do
+               res <- get key
+               case res of
+                 Just p' -> return $ Just $ toPost (Entity key p')
+                 Nothing -> return Nothing
+             else
+               return Nothing
+        case checkUpdateSlugType p slug of
+          SlugRegNew -> do -- 新規登録
+            r <- getBy $ UniTblPostSlugUrlpath urlpath (Just slug)
+            case r of
+              Just _ -> return $ Left ("パーマリンクが重複しています")
+              Nothing -> return $ Right slug
+          SlugRegUp -> do
+            r <- getBy $ UniTblPostSlugUrlpath urlpath (Just slug)
+            case r of
+              Just (Entity k' _) ->
+                if (unPostId <$> p) == (Just $ fromTblPostKey k') then
+                  return $ Right slug
+                else
+                  return $ Left ("パーマリンクが重複しています")
+              Nothing -> return $ Right slug
+          SlugRegNone -> return $ Right slug
+
+checkUpdateSlugType :: Maybe a -> Text -> SlugChkType
+checkUpdateSlugType p s =
+  if not (null s) && isNothing p then
+    SlugRegNew
+  else if not (null s) && isJust p then
+    SlugRegUp
+  else
+    SlugRegNone
+
+slugFreeField ::
+  Int
+  -> FormResult Int64
+  -> Maybe Text
+  -> Field Handler Text
+slugFreeField len fid urlpath = checkM (slugFreeValid len fid urlpath) textField
+
+slugFreeValid ::
+  Int
+  -> FormResult Int64
+  -> Maybe Text
+  -> Text
+  -> Handler (Either Text Text)
+slugFreeValid len fid urlpath slug = do
+  case checkLengthSlug len slug of
+    False -> return $ Left ("スラッグは" <> pack(show(len)) <> "文字まで入力可能です")
+    True -> case null slug of
+      True -> return $ Right slug
+      False -> runDB $ do
+        let freeId = formResultToId fid
+            key = TblFreeKey (E.SqlBackendKey freeId)
+        f <- if freeId > 0 then do
+               res <- get key
+               case res of
+                 Just f' -> return $ Just $ toFree (Entity key f')
+                 Nothing -> return Nothing
+             else
+               return Nothing
+        case checkUpdateSlugType f slug of
+          SlugRegNew -> do
+            r <- getBy $ UniTblFreeSlugUrlpath urlpath (Just slug)
+            case r of
+              Just _ -> return $ Left ("パーマリンクが重複しています")
+              Nothing -> return $ Right slug
+          SlugRegUp -> do
+            r <- getBy $ UniTblFreeSlugUrlpath urlpath (Just slug)
+            case r of
+              Just (Entity k' _) ->
+                if (unFreeId <$> f) == (Just $ fromTblFreeKey k') then
+                  return $ Right slug
+                else
+                  return $ Left ("パーマリンクが重複しています")
+              Nothing -> return $ Right slug
+          SlugRegNone -> return $ Right slug
 
 tagField :: Int -> Int -> Field Handler Text
 tagField len oneLen = check (tagValid len oneLen) textField
@@ -97,12 +208,6 @@ uploadSizeField upsize = check (uploadSizeValid upsize) intField
 uploadSizeValid :: Int -> Int -> Either Text Int
 uploadSizeValid upsize s = if s >= uploadSizeMin && s < upsize then Right s else sizeerr
   where sizeerr = Left $ ("アップロードサイズは" <> pack(show(upsize)) <> "MBまで入力可能です")
-{-
-  case maybeReadInt s of
-    Just num -> if num < upsize then Right num else sizeerr
-    Nothing -> sizeerr
-  where sizeerr = Left $ ("アップロードサイズは" <> pack(show(upsize)) <> "MBまで入力可能です")
--}
 
 frameNameField :: Int -> Field Handler Text
 frameNameField len = check (frameNameValid len) textField
@@ -295,3 +400,6 @@ checkTemplate s = do
       let pe = pack (G.peErrorMessage err)
           srcpos = pack $ fromMaybe "なし" (show <$> G.peSourcePosition err)
       return $ Just (pe, srcpos)
+
+checkLengthSlug :: Int -> Text -> Bool
+checkLengthSlug len' s = if length s > len' then False else True

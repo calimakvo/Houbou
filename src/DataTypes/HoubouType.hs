@@ -33,8 +33,10 @@ module DataTypes.HoubouType (
   , TagInfo(..)
   , BlogAccess(..)
   , HResult
+  , HResultErrParam
   , TagStr
   , TagList
+  , PageCanonicalType(..)
 ) where
 
 import Import.NoFoundation
@@ -42,6 +44,7 @@ import qualified Prelude as P
 import Data.Maybe
 
 type HResult a = Either ErrHoubou a
+type HResultErrParam a b = Either (ErrHoubou, a) b
 
 data Result = Success | Failure deriving(Show, Eq)
 
@@ -114,7 +117,8 @@ data ErrHoubou =
   | ErrPostUnitialize
   | ErrFreeUnitialize
   | ErrTemplateUnInit
-  | ErrTagContUnitialize deriving(Show, Eq)
+  | ErrTagContUnitialize
+  | ErrRecNotUnique deriving(Show, Eq)
 
 type TagList = [Text]
 type TagStr = Text
@@ -130,7 +134,9 @@ data PostList = PostList {
     unPostListRowNum :: Int
   , unPostListId :: Int64
   , unPostListStatus ::  Int
-  , unPostListTitle ::  Text
+  , unPostListTitle :: Text
+  , unPostListSlug :: Maybe Text
+  , unPostListUrlpath :: Maybe Text
   , unPostListPublishDate :: Maybe UTCTime
   , unPostListCreateTime :: UTCTime
   , unPostListVersion :: Int
@@ -143,6 +149,8 @@ data FreeList = FreeList {
     unFreeListRowNum :: Int
   , unFreeListId :: Int64
   , unFreeListTitle :: Text
+  , unFreeListSlug :: Maybe Text
+  , unFreeListUrlpath :: Maybe Text
   , unFreeListPublishDate :: Maybe UTCTime
   , unFreeListStatus :: Int
   , unFreeListAuthorId :: Int64
@@ -166,6 +174,8 @@ data Post = Post {
   , unPostContent :: Text
   , unPostTags :: Maybe Text
   , unPostHtml :: Maybe Text
+  , unPostSlug :: Maybe Text
+  , unPostUrlpath :: Maybe Text
   , unPostInputType :: Int
   , unPostStatus :: Int
   , unPostPublishDate :: Maybe UTCTime
@@ -202,6 +212,8 @@ data Free = Free {
   , unFreeContent :: Text
   , unFreeHtml :: Maybe Text
   , unFreeCss :: Maybe Text
+  , unFreeSlug :: Maybe Text
+  , unFreeUrlpath :: Maybe Text
   , unFreeInputType :: Int
   , unFreeTags :: Maybe Text
   , unFreeStatus :: Int
@@ -343,6 +355,7 @@ data PageMeta = PageMeta {
   , unPageMetaBlogUrl :: Text
   , unPageMetaFrameCss :: Text
   , unPageMetaMediaUrl :: Text
+  , unPageMetaCanonicalUrl :: Text
   } deriving(Eq, Show)
 
 data MstTag = MstTag {
@@ -375,3 +388,5 @@ data BlogAccess = BlogAccess {
     unBlogAccessDate :: Day
   , unBlogAccessTatolCnt :: Int
   } deriving(Show, Eq)
+
+data PageCanonicalType = CPost | CFree deriving(Show, Eq)

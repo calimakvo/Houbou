@@ -1,9 +1,11 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Service.Post (
     getPostList
   , getPostFromId
+  , getPublishPostFromSlug
   , getPublishPostFromId
   , registerPost
   , updatePost
@@ -73,6 +75,8 @@ getPostList blogViewStatus pageInfo = runDB $ do
           , tblPost E.^. TblPostId
           , tblPost E.^. TblPostStatus
           , tblPost E.^. TblPostTitle
+          , tblPost E.^. TblPostSlug
+          , tblPost E.^. TblPostUrlpath
           , tblPost E.^. TblPostPublishDate
           , tblPost E.^. TblPostCreateTime
           , tblPost E.^. TblPostVersion
@@ -89,6 +93,22 @@ getPostList blogViewStatus pageInfo = runDB $ do
   totalCnt <- E.select countQuery
   return $ Right (E.unValue $ totalCnt P.!! 0, toPostList <$> list)
 
+getPublishPostFromSlug ::
+  Text
+  -> Text
+  -> Handler (HResult Post)
+getPublishPostFromSlug urlpath slug = runDB $ do
+  let flt = [
+              TblPostStatus ==. fromEnum Published
+            , TblPostPublishDate !=. Nothing
+            , TblPostUrlpath ==. Just urlpath
+            , TblPostSlug ==. Just slug
+            ]
+  p <- selectFirst flt []
+  case p of
+    Just entity -> return $ Right (toPost entity)
+    Nothing -> return $ Left ErrRecNotFound
+
 getPostFromId ::
   PostId
   -> Handler (HResult Post)
@@ -104,6 +124,8 @@ getPostFromId (PostId postId) = runDB $ do
             , unPostContent = tblPostContent p
             , unPostTags = tblPostTags p
             , unPostHtml = tblPostHtml p
+            , unPostSlug = tblPostSlug p
+            , unPostUrlpath = tblPostUrlpath p
             , unPostInputType = tblPostInputType p
             , unPostStatus = tblPostStatus p
             , unPostPublishDate = tblPostPublishDate p
@@ -145,6 +167,8 @@ registerPost usrKey post = runDB $ do
       , tblPostContent = unPostContent post
       , tblPostInputType = unPostInputType post
       , tblPostHtml = html
+      , tblPostSlug = unPostSlug post
+      , tblPostUrlpath = unPostUrlpath post
       , tblPostTags = unPostTags post
       , tblPostStatus = fromEnum UnPublished
       , tblPostPublishDate = Nothing
@@ -166,6 +190,10 @@ updatePost post = runDB $ do
     Just record -> do
       let pver = unPostVersion post
           dver = tblPostVersion record
+          urlpath = if isJust (unPostSlug post) && isNothing (tblPostUrlpath record) then
+                      unPostUrlpath post
+                    else
+                      tblPostUrlpath record
       case checkVersion dver pver of
         False -> return $ Left ErrRecVersion
         True -> do
@@ -178,6 +206,8 @@ updatePost post = runDB $ do
             , TblPostContent =. unPostContent post
             , TblPostTags =. unPostTags post
             , TblPostHtml =. html
+            , TblPostSlug =. unPostSlug post
+            , TblPostUrlpath =. urlpath
             , TblPostInputType =. unPostInputType post
             , TblPostUpdateTime =. now
             , TblPostVersion +=. 1
@@ -188,30 +218,28 @@ updatePost post = runDB $ do
 updatePostStatus ::
   Key TblPost
   -> RecVersion
-  -> Handler (HResult PublishStatus)
+  -> Handler (HResultErrParam Int (PublishStatus, Int))
 updatePostStatus postKey recver = runDB $ do
   now <- liftIO getTm
   curRec <- get postKey
   res <- case curRec of
-    Nothing -> return $ Left ErrRecNotFound
+    Nothing -> return $ Left (ErrRecNotFound, 0)
     Just post -> do
         let pver = unRecVersion recver
             dver = tblPostVersion post
-            upPubDate = if isNothing (tblPostPublishDate post)
-                        then [ TblPostPublishDate =. (Just now) ]
-                        else mempty
+            upPubDate = [ TblPostPublishDate =. (Just now) ]
             newStatus = if tblPostStatus post == (fromEnum Published)
                         then (fromEnum UnPublished)
                         else (fromEnum Published)
         case checkVersion dver pver of
-          False -> return $ Left ErrRecVersion
+          False -> return $ Left (ErrRecVersion, dver)
           True -> do
             update postKey $ [
-                TblPostStatus =. newStatus
+              TblPostStatus =. newStatus
               , TblPostUpdateTime =. now
               , TblPostVersion +=. 1
               ] ++ upPubDate
-            return $ Right (toEnum newStatus)
+            return $ Right ((toEnum newStatus), dver + 1)
   return res
 
 deletePost ::

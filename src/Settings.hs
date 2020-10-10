@@ -73,6 +73,8 @@ data AppSettings = AppSettings
     , appPostTitleMaxLength :: Int
     -- ^ Post Text length
     , appPostTextMaxLength :: Int
+    -- ^ Slug Text length
+    , appSlugTextMaxLength :: Int
     -- ^ Post tag length
     , appTagMaxLength :: Int
     -- ^ Post tag one length
@@ -83,8 +85,8 @@ data AppSettings = AppSettings
     , appFrameHtmlMaxLength :: Int
     -- ^ Frame css length
     , appFrameCssMaxLength :: Int
-    -- ^ Free page name length
-    , appFreeNameMaxLength :: Int
+    -- ^ Free page title length
+    , appFreeTitleMaxLength :: Int
     -- ^ Free page contents length
     , appFreeContentMaxLength :: Int
     -- ^ Free page css length
@@ -150,12 +152,13 @@ instance FromJSON AppSettings where
         appPagePerLineSelector    <- o .: "list-selector"
         appPostTitleMaxLength     <- o .: "post-title-length"
         appPostTextMaxLength      <- o .: "post-text-length"
+        appSlugTextMaxLength      <- o .: "slug-text-length"
         appTagMaxLength           <- o .: "tag-length"
         appTagOneMaxLength        <- o .: "tag-one-length"
         appFrameNameMaxLength     <- o .: "frame-name-length"
         appFrameHtmlMaxLength     <- o .: "frame-html-length"
         appFrameCssMaxLength      <- o .: "frame-css-length"
-        appFreeNameMaxLength      <- o .: "free-name-length"
+        appFreeTitleMaxLength     <- o .: "free-title-length"
         appFreeContentMaxLength   <- o .: "free-html-length"
         appFreeCssMaxLength       <- o .: "free-css-length"
         appBlogSetBlogNameMaxLength <- o .: "blog-set-blog-name-length"

@@ -1,12 +1,20 @@
     #{extra}
     <div .col-sm-12>
         <div .form-group>
-            <label>フレーム名
+            <label>フリーページタイトル
             ^{fvInput titleView}
         $maybe titleErr <- fvErrors titleView
             <div .form-group>
                 <div .alert .alert-danger role="alert">
                     <span>#{titleErr}
+
+        <div .form-group>
+            <label>スラッグ
+            ^{fvInput slugView}
+        $maybe slugErr <- fvErrors slugView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{slugErr}
 
         <div .form-group>
             <label>入力フォーマット
@@ -50,5 +58,5 @@
                 <button type="submit" .btn .btn-primary>
                     登　　録
 
-            ^{fvInput idView}
+            ^{fvInput freeIdView}
             ^{fvInput verView}

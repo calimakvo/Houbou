@@ -1,0 +1,3 @@
+ALTER TABLE tbl_free ADD COLUMN slug CHARACTER VARYING(1024);
+ALTER TABLE tbl_free ADD COLUMN urlpath CHARACTER VARYING(16);
+ALTER TABLE ONLY tbl_free ADD CONSTRAINT uni_tbl_free_slug_urlpath UNIQUE (slug, urlpath);

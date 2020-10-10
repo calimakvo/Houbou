@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Libs.Common (
-    textToInt
+    getTm
+  , textToInt
   , intToInt64
   , rowClass
   , timeZoneHours
@@ -45,6 +46,8 @@ module Libs.Common (
   , dayAccessToUnixTime
   , createBar1Data
   , createBar2Data
+  , toUrlPath
+  , parmErrToMsg
 ) where
 
 import Data.Int
@@ -86,6 +89,9 @@ intToInt64 ::
   Int
   -> Int64
 intToInt64 = fromIntegral
+
+getTm :: IO UTCTime
+getTm = getZonedTime >>= return . zonedTimeToUTC
 
 dateTimeFullFormat ::
   UTCTime
@@ -263,6 +269,11 @@ rmSlash ::
   -> Text
 rmSlash str = pack $ subRegex (mkRegex "/+") (unpack str) "/"
 
+toUrlPath ::
+  UTCTime
+  -> Text
+toUrlPath t = rmSlash $ dateFormat t <> "/"
+
 mediaPath ::
   Text
   -> Text
@@ -273,6 +284,7 @@ mediaPath mediaUrl dir name =
     "/" -> mediaUrl <> (rmSlash $ dir <> "/" <> name)
     _ -> mediaUrl <> (rmSlash $ "/" <> dir <> "/" <> name)
 
+-- #{pagePath (unBlogSettingBlogUrl setting) "p" (unPostId post)}
 pagePath ::
   Text
   -> Text
@@ -353,3 +365,12 @@ createBar2Data ba =
 chartOffset ::
   Int64
 chartOffset = 43200000
+
+parmErrToMsg ::
+  ErrHoubou
+  -> Text
+parmErrToMsg err =
+  case err of
+    ErrRecVersion -> "データが更新されています、一覧を再読み込みして実行してください"
+    ErrRecNotUnique -> "パーマリンクURLが重複しています"
+    _ -> "エラーが発生しました"

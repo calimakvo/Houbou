@@ -10,9 +10,9 @@ import Import
 import DataTypes.HoubouType
 import Forms.PostForm
 import Libs.Common
+import Libs.CommonWidget
 import Libs.Mapper
 import UrlParam.PostId
-import Service.BlogSetting
 import Service.Post
 import Service.Tags
 
@@ -20,10 +20,7 @@ getPostR ::
   PostId
   -> Handler Html
 getPostR postId = do
-  master <- getYesod
-  let setId = appBlogSettingId $ appSettings master
   msg <- getMessages
-  setting <- getBlogSetting setId
   result <- getPostFromId postId
   case result of
     Left err -> do
@@ -39,10 +36,7 @@ postPostR ::
   PostId
   -> Handler Html
 postPostR postId = do
-  master <- getYesod
-  let setId = appBlogSettingId $ appSettings master
   msg <- getMessages
-  setting <- getBlogSetting setId
   ((res, postWidget), _) <- runFormPost $ postForm Nothing
   case res of
    FormSuccess form -> do

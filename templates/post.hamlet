@@ -21,8 +21,15 @@
                                 <div .panel-body>
                                     <div .col-sm-6>
                                         <div .form-group>
-                                            <a href=#{pagePath (unBlogSettingBlogUrl setting) "p" (unPostId post)} target="_blank" .fa .fa-link aria-hidden="true" #postUrl>URL
+                                            $if isJust (unPostSlug post) && isJust (unPostUrlpath post)
+                                                <a href=@{urlPostSlug (unPostSlug post) (unPostUrlpath post)} target="_blank" .fa .fa-link aria-hidden="true" #postUrl>URL
+                                                <small>
+                                                    <a href=@{PutR $ PostId $ Just (unPostId post)} target="_blank">(@{PutR $ PostId $ Just (unPostId post)})
+                                            $else
+                                               <a href=@{PutR $ PostId $ Just (unPostId post)} target="_blank" .fa .fa-link aria-hidden="true" #postUrl>URL
                                             <div #postUrlId>
+                                            <div>
+                                                
                                     <div .col-sm-12>
                                         <form method="post">
                                             <div .row>

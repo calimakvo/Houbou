@@ -5,6 +5,7 @@ module Service.Free (
     getFreeList
   , getFreeFromId
   , getPublishFreeFromId
+  , getPublishFreeFromSlug
   , registerFree
   , updateFree
   , updateFreeStatus
@@ -49,6 +50,8 @@ getFreeList freeViewStatus pageInfo = runDB $ do
             rowNum
           , tblFree E.^. TblFreeId
           , tblFree E.^. TblFreeTitle
+          , tblFree E.^. TblFreeSlug
+          , tblFree E.^. TblFreeUrlpath
           , tblFree E.^. TblFreePublishDate
           , tblFree E.^. TblFreeStatus
           , tblFree E.^. TblFreeAuthorId
@@ -90,6 +93,10 @@ updateFree free = runDB $ do
     Just record -> do
       let pver = unFreeVersion free
           dver = tblFreeVersion record
+          urlpath = if isJust (unFreeSlug free) && isNothing (tblFreeUrlpath record) then
+                      unFreeUrlpath free
+                    else
+                      tblFreeUrlpath record
       case checkVersion dver pver of
         False -> return $ Left ErrRecVersion
         _ -> do
@@ -103,6 +110,8 @@ updateFree free = runDB $ do
             , TblFreeContent =. unFreeContent free
             , TblFreeHtml =. html
             , TblFreeCss =. unFreeCss free
+            , TblFreeSlug =. unFreeSlug free
+            , TblFreeUrlpath =. urlpath
             , TblFreeTags =. unFreeTags free
             , TblFreeInputType =. unFreeInputType free
             , TblFreeUpdateTime =. now
@@ -115,6 +124,7 @@ registerFree ::
   Key TblUser
   -> Free
   -> Handler (HResult Int64)
+
 registerFree usrKey free = runDB $ do
   html <- if unFreeInputType free == (fromEnum ContTypeMarkdown) then
               liftIO $ mdToHtml (unFreeContent free)
@@ -127,6 +137,8 @@ registerFree usrKey free = runDB $ do
       , tblFreeContent = unFreeContent free
       , tblFreeHtml = html
       , tblFreeCss = unFreeCss free
+      , tblFreeSlug = unFreeSlug free
+      , tblFreeUrlpath = unFreeUrlpath free
       , tblFreeInputType = unFreeInputType free
       , tblFreeTags = unFreeTags free
       , tblFreeStatus = fromEnum UnPublished
@@ -153,6 +165,8 @@ getFreeFromId (FreeId freeId) = runDB $ do
             , unFreeContent = tblFreeContent f
             , unFreeHtml = tblFreeHtml f
             , unFreeCss = tblFreeCss f
+            , unFreeSlug = tblFreeSlug f
+            , unFreeUrlpath = tblFreeUrlpath f
             , unFreeInputType = tblFreeInputType f
             , unFreeTags = tblFreeTags f
             , unFreeStatus = tblFreeStatus f
@@ -165,32 +179,47 @@ getFreeFromId (FreeId freeId) = runDB $ do
         _ -> return $ Left ErrRecNotFound
     Nothing -> return $ Left ErrParam
 
+getPublishFreeFromSlug ::
+  Text
+  -> Text
+  -> Handler (HResult Free)
+getPublishFreeFromSlug urlpath slug = runDB $ do
+  let flt = [
+              TblFreeStatus ==. fromEnum Published
+            , TblFreePublishDate !=. Nothing
+            , TblFreeUrlpath ==. Just urlpath
+            , TblFreeSlug ==. Just slug
+            ]
+  p <- selectFirst flt []
+  case p of
+    Just entity -> return $ Right (toFree entity)
+    Nothing -> return $ Left ErrRecNotFound
+
 updateFreeStatus ::
   Key TblFree
   -> RecVersion
-  -> Handler (HResult PublishStatus)
+  -> Handler (HResultErrParam Int (PublishStatus, Int))
 updateFreeStatus freeKey recver = runDB $ do
   now <- liftIO getTm
   curRec <- get freeKey
   res <- case curRec of
-    Nothing -> return $ Left ErrRecNotFound
+    Nothing -> return $ Left (ErrRecNotFound, 0)
     Just free -> do
       let pver = unRecVersion recver
           dver = tblFreeVersion free
-          upPubDate = if isNothing (tblFreePublishDate free)
-                      then [ TblFreePublishDate =. (Just now) ]
-                      else mempty
-          newStatus = if tblFreeStatus free == (fromEnum Published) then (fromEnum UnPublished)
+          upPubDate = [ TblFreePublishDate =. (Just now) ]
+          newStatus = if tblFreeStatus free == (fromEnum Published)
+                      then (fromEnum UnPublished)
                       else (fromEnum Published)
       case checkVersion dver pver of
-        False -> return $ Left ErrRecVersion
+        False -> return $ Left (ErrRecVersion, dver)
         True -> do
           update freeKey $ [
-              TblFreeStatus =. newStatus
+            TblFreeStatus =. newStatus
             , TblFreeUpdateTime =. now
             , TblFreeVersion +=. 1
             ] ++ upPubDate
-          return $ Right (toEnum newStatus)
+          return $ Right ((toEnum newStatus), dver + 1)
   return res
 
 deleteFree ::

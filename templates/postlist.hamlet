@@ -69,7 +69,7 @@
                                                         <th>閲覧数
                                                         <th>操作
                                                 <tbody>
-                                                    $forall (i, PostList n postId status title pubdate _ version comCntTotal comCntAprov viewCnt) <- postList
+                                                    $forall (i, PostList n postId status title slug urlpath pubdate _ version comCntTotal comCntAprov viewCnt) <- postList
                                                         <tr class="#{rowClass n}">
                                                             <td .hb-td-size-50>
                                                                 <a href=@{PostR (PostId $ Just postId)} .btn .btn-primary>編集
@@ -86,8 +86,13 @@
                                                                     <input type="hidden" name="post_id" value="#{postId}">
                                                                     <input type="hidden" name="version" value="#{version}">
                                                             <td>
-                                                                <a href=@{PutR $ PostId (Just postId)} target="_blank" .fa .fa-external-link aria-hidden="true" #postUrlId#{i}>
-                                                                    #{title}
+                                                                $if isJust slug && isJust urlpath
+                                                                    <a href=@{urlPostSlug slug urlpath} target="_blank" .fa .fa-external-link aria-hidden="true" #postUrlId#{i}>
+                                                                        #{title}
+                                                                    <small>
+                                                                        <a href=@{PutR $ PostId (Just postId)}>(@{PutR $ PostId (Just postId)})
+                                                                $else
+                                                                    <a href=@{PutR $ PostId (Just postId)} target="_blank" .fa .fa-external-link aria-hidden="true" #postUrlId#{i}>#{title}
                                                                 <div #postCpyId#{i}>
                                                             <td .hb-td-size-150>
                                                                 $maybe pd <- pubdate

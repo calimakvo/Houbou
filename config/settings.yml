@@ -65,6 +65,7 @@ list-selector:
 # Post Blog Param Max String Len
 post-title-length: 1000
 post-text-length: 100000
+slug-text-length: 1000
 tag-length: 600
 tag-one-length: 30
 
@@ -74,7 +75,7 @@ frame-html-length: 100000
 frame-css-length: 100000
 
 # Free page html and Css Max String Len
-free-name-length: 300
+free-title-length: 300
 free-html-length: 100000
 free-css-length: 100000
 

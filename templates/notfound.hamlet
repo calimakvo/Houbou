@@ -5,5 +5,5 @@
                 <h1 .text-center>404 - Not Found
             <div .col-lg-3>
             <div .col-lg-6>
-                <img .img-responsive src=@{StaticR images_hbssm_png} alt="Houbou" style="width: 80%;">
+                <img .img-responsive src=@{StaticR images_hbssm_jpg} alt="Houbou" style="width: 80%;">
             <div .col-lg-3>

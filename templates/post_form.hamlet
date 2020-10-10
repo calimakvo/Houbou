@@ -10,6 +10,16 @@
                     <span>#{titleErr}
 
         <div .form-group>
+            <label>URLスラッグ
+            ^{fvInput slugView}
+            <p .help-block>
+                <small>URLの最後の部分
+        $maybe slugErr <- fvErrors slugView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{slugErr}
+
+        <div .form-group>
             <label>入力フォーマット
                 <span .badge .badge-danger>必須
             $forall (inpTypName, inpTypNum) <- inpTyp
