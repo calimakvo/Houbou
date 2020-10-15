@@ -1,6 +1,22 @@
     #{extra}
     <div .col-sm-12>
         <div .form-group>
+            <label>公開状態
+                <span .badge .badge-danger>必須
+            $forall (stsTypName, stsTypNum) <- stsTyp
+                <div .radio>
+                    <label>
+                        $if stsTypNum == selStsTyp
+                            <input type="radio" name="status_type" id="statusType#{stsTypNum}" value=#{stsTypNum} checked="checked">#{stsTypName}
+                        $else
+                            <input type="radio" name="status_type" id="statusType#{stsTypNum}" value=#{stsTypNum}>#{stsTypName}
+
+        $maybe stsTypErr <- fvErrors stsTypView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{stsTypErr}
+
+        <div .form-group>
             <label>フリーページタイトル
             ^{fvInput titleView}
         $maybe titleErr <- fvErrors titleView

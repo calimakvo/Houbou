@@ -157,6 +157,7 @@ registerPost ::
   -> Post
   -> Handler (HResult Int64)
 registerPost usrKey post = runDB $ do
+  let status = unPostStatus post
   now <- liftIO getTm
   html <- if unPostInputType post == (fromEnum ContTypeMarkdown)
           then liftIO $ mdToHtml (unPostContent post)
@@ -170,8 +171,8 @@ registerPost usrKey post = runDB $ do
       , tblPostSlug = unPostSlug post
       , tblPostUrlpath = unPostUrlpath post
       , tblPostTags = unPostTags post
-      , tblPostStatus = fromEnum UnPublished
-      , tblPostPublishDate = Nothing
+      , tblPostStatus = status
+      , tblPostPublishDate = initPublishDate status now
       , tblPostCreateTime = now
       , tblPostUpdateTime = now
       , tblPostAuthorId = usrKey
@@ -209,6 +210,7 @@ updatePost post = runDB $ do
             , TblPostSlug =. unPostSlug post
             , TblPostUrlpath =. urlpath
             , TblPostInputType =. unPostInputType post
+            , TblPostStatus =. unPostStatus post
             , TblPostUpdateTime =. now
             , TblPostVersion +=. 1
             ]

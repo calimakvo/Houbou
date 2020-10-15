@@ -33,6 +33,7 @@ module Forms.CommonForm (
   , profileFieldSet
   , lineSelectTouple
   , getInputTypeTouple
+  , getStatusSelectTouple
   , postNumSelectTouple
   , userPermTouple
   , userIdFieldSet
@@ -40,6 +41,7 @@ module Forms.CommonForm (
   , mediaIdFieldSet
   , mediaTitleFieldSet
   , blogAdsFieldSet
+  , statusTypeRadioFieldSet
   , initFormUrlpath
   , formResultToId
   ) where
@@ -234,6 +236,19 @@ inputTypeRadioFieldSet = FieldSettings
     , fsTooltip = Nothing
     , fsId = Just "inputTypeId"
     , fsName = Just "input_type"
+    , fsAttrs =
+      [
+          ("class", "")
+      ]
+    }
+
+statusTypeRadioFieldSet :: FieldSettings master
+statusTypeRadioFieldSet = FieldSettings
+    {
+      fsLabel = ""
+    , fsTooltip = Nothing
+    , fsId = Just "statusTypeId"
+    , fsName = Just "status_type"
     , fsAttrs =
       [
           ("class", "")
@@ -448,6 +463,13 @@ mediaTitleFieldSet = FieldSettings {
 getInputTypeTouple ::
   Handler [(T.Text, Int)]
 getInputTypeTouple = return $ [("markdown", 1), ("html", 2)]
+
+getStatusSelectTouple ::
+  Handler [(T.Text, Int)]
+getStatusSelectTouple = return $ [
+    ("非公開", fromEnum UnPublished)
+  , ("公開", fromEnum Published)
+  ]
 
 postNumSelectTouple ::
   Int

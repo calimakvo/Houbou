@@ -114,6 +114,7 @@ updateFree free = runDB $ do
             , TblFreeUrlpath =. urlpath
             , TblFreeTags =. unFreeTags free
             , TblFreeInputType =. unFreeInputType free
+            , TblFreeStatus =. unFreeStatus free
             , TblFreeUpdateTime =. now
             , TblFreeVersion +=. 1
             ]
@@ -124,8 +125,8 @@ registerFree ::
   Key TblUser
   -> Free
   -> Handler (HResult Int64)
-
 registerFree usrKey free = runDB $ do
+  let status = unFreeStatus free
   html <- if unFreeInputType free == (fromEnum ContTypeMarkdown) then
               liftIO $ mdToHtml (unFreeContent free)
           else
@@ -141,8 +142,8 @@ registerFree usrKey free = runDB $ do
       , tblFreeUrlpath = unFreeUrlpath free
       , tblFreeInputType = unFreeInputType free
       , tblFreeTags = unFreeTags free
-      , tblFreeStatus = fromEnum UnPublished
-      , tblFreePublishDate = Nothing
+      , tblFreeStatus = status
+      , tblFreePublishDate = initPublishDate status now
       , tblFreeCreateTime = now
       , tblFreeUpdateTime = now
       , tblFreeAuthorId = usrKey

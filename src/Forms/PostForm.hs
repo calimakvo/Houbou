@@ -22,6 +22,7 @@ data PostForm = PostForm {
   , unPostFormSlug :: Maybe Text
   , unPostFormUrlpath :: Maybe Text
   , unPostFormInputType :: Int
+  , unPostFormStatus :: Int
   , unPostFormTags :: Maybe Text
   , unPostFormVersion :: Int
 } deriving(Eq, Show)
@@ -42,13 +43,16 @@ postForm post extra = do
       postId = fromMaybe 0 (unPostId <$> post)
       version = fromMaybe 0 (unPostVersion <$> post)
       selInpTyp = fromMaybe 1 (unPostInputType <$> post)
+      selStsTyp = fromMaybe (fromEnum UnPublished) (unPostStatus <$> post)
       urlpath = if postId > 0 then join (unPostUrlpath <$> post) else (Just $ toUrlPath t)
   inpTyp <- liftHandler getInputTypeTouple
+  stsTyp <- liftHandler getStatusSelectTouple
   (postIdRes, postIdView) <- mreq hiddenField postIdFieldSet (Just postId)
   (titleRes, titleView) <- mreq (titleField titleLen) titleFieldSet (unPostTitle <$> post)
   (textRes, textView) <- mreq (bodyField bodyLen) bodyFieldSet (Textarea <$> (unPostContent <$> post))
   (slugRes, slugView) <- mopt (slugPostField slugLen postIdRes urlpath) slugPostFieldSet (unPostSlug <$> post)
   (inpTypRes, inpTypView) <- mreq (radioFieldList inpTyp) inputTypeRadioFieldSet (unPostInputType <$> post)
+  (stsTypRes, stsTypView) <- mreq (radioFieldList stsTyp) statusTypeRadioFieldSet (unPostStatus <$> post)
   (tagRes, tagView) <- mopt (tagField tagLen tagOneLen) tagFieldSet (unPostTags <$> post)
   (verRes, verView) <- mreq hiddenIdField versionFieldSet (Just version)
   let formParam = PostForm
@@ -58,6 +62,7 @@ postForm post extra = do
                   <*> slugRes
                   <*> initFormUrlpath slugRes urlpath
                   <*> inpTypRes
+                  <*> stsTypRes
                   <*> tagRes
                   <*> verRes
       widget = do

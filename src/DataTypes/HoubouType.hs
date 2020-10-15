@@ -215,8 +215,8 @@ data Free = Free {
   , unFreeSlug :: Maybe Text
   , unFreeUrlpath :: Maybe Text
   , unFreeInputType :: Int
-  , unFreeTags :: Maybe Text
   , unFreeStatus :: Int
+  , unFreeTags :: Maybe Text
   , unFreePublishDate :: Maybe UTCTime
   , unFreeCreateTime :: UTCTime
   , unFreeUpdateTime :: UTCTime

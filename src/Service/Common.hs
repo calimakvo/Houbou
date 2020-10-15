@@ -55,6 +55,7 @@ module Service.Common (
   , eitherToBool
   , eitherToList
   , eitherToTouple
+  , initPublishDate
   ) where
 
 import Import
@@ -581,3 +582,13 @@ eitherToTouple :: MonadResource m =>
 eitherToTouple e = case e of
   Right (cnt, xs) -> return (cnt, xs)
   Left _ -> return (0, mempty)
+
+initPublishDate ::
+  Int
+  -> UTCTime
+  -> Maybe UTCTime
+initPublishDate state n =
+  if state == fromEnum Published then
+    (Just n)
+  else
+    Nothing
