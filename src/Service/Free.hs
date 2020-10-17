@@ -97,6 +97,8 @@ updateFree free = runDB $ do
                       unFreeUrlpath free
                     else
                       tblFreeUrlpath record
+          status = unFreeStatus free
+          pubDate = tblFreePublishDate record
       case checkVersion dver pver of
         False -> return $ Left ErrRecVersion
         _ -> do
@@ -114,7 +116,11 @@ updateFree free = runDB $ do
             , TblFreeUrlpath =. urlpath
             , TblFreeTags =. unFreeTags free
             , TblFreeInputType =. unFreeInputType free
-            , TblFreeStatus =. unFreeStatus free
+            , TblFreeStatus =. status
+            , TblFreePublishDate =. updatePublishDate status pubDate now
+            , TblFreeDescription =. unFreeDescription free
+            , TblFreeKeywords =. unFreeKeywords free
+            , TblFreeRobots =. unFreeRobots free
             , TblFreeUpdateTime =. now
             , TblFreeVersion +=. 1
             ]
@@ -144,6 +150,9 @@ registerFree usrKey free = runDB $ do
       , tblFreeTags = unFreeTags free
       , tblFreeStatus = status
       , tblFreePublishDate = initPublishDate status now
+      , tblFreeDescription = unFreeDescription free
+      , tblFreeKeywords = unFreeKeywords free
+      , tblFreeRobots = unFreeRobots free
       , tblFreeCreateTime = now
       , tblFreeUpdateTime = now
       , tblFreeAuthorId = usrKey
@@ -172,6 +181,9 @@ getFreeFromId (FreeId freeId) = runDB $ do
             , unFreeTags = tblFreeTags f
             , unFreeStatus = tblFreeStatus f
             , unFreePublishDate = tblFreePublishDate f
+            , unFreeDescription = tblFreeDescription f
+            , unFreeKeywords = tblFreeKeywords f
+            , unFreeRobots = tblFreeRobots f
             , unFreeCreateTime = tblFreeCreateTime f
             , unFreeUpdateTime = tblFreeUpdateTime f
             , unFreeAuthorId = unSqlBackendKey (unTblUserKey (tblFreeAuthorId f))
@@ -208,7 +220,9 @@ updateFreeStatus freeKey recver = runDB $ do
     Just free -> do
       let pver = unRecVersion recver
           dver = tblFreeVersion free
-          upPubDate = [ TblFreePublishDate =. (Just now) ]
+          upPubDate = if isNothing (tblFreePublishDate free)
+                      then [ TblFreePublishDate =. (Just now) ]
+                      else mempty
           newStatus = if tblFreeStatus free == (fromEnum Published)
                       then (fromEnum UnPublished)
                       else (fromEnum Published)

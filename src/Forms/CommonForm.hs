@@ -42,6 +42,9 @@ module Forms.CommonForm (
   , mediaTitleFieldSet
   , blogAdsFieldSet
   , statusTypeRadioFieldSet
+  , descriptionFieldSet
+  , keywordsFieldSet
+  , robotsFieldSet
   , initFormUrlpath
   , formResultToId
   ) where
@@ -457,6 +460,43 @@ mediaTitleFieldSet = FieldSettings {
   , fsAttrs = [
         ("class", "form-control")
       , ("placeholder", "メディアタイトル")
+    ]
+  }
+
+descriptionFieldSet :: FieldSettings master
+descriptionFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "descriptionInputId"
+  , fsName = Just "meta_description"
+  , fsAttrs = [
+        ("class", "form-control")
+      , ("placeholder", "meta description")
+      , ("rows", "10")
+    ]
+  }
+
+keywordsFieldSet :: FieldSettings master
+keywordsFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "keywordsInputId"
+  , fsName = Just "meta_keywords"
+  , fsAttrs = [
+        ("class", "form-control")
+      , ("placeholder", "meta keywords")
+    ]
+  }
+
+robotsFieldSet :: FieldSettings master
+robotsFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "robotsInputId"
+  , fsName = Just "meta_robots"
+  , fsAttrs = [
+        ("class", "form-control")
+      , ("placeholder", "meta index,follow")
     ]
   }
 

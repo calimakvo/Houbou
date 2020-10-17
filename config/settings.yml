@@ -69,6 +69,11 @@ slug-text-length: 1000
 tag-length: 600
 tag-one-length: 30
 
+# page meta
+meta-length-description: 300
+meta-length-keywords: 100
+meta-length-robots: 50
+
 # Frame html and Css Max String Len
 frame-name-length: 300
 frame-html-length: 100000

@@ -117,6 +117,12 @@ data AppSettings = AppSettings
     , appUserAccUserProfMaxLength :: Int
     -- ^ Set media title length
     , appMediaTitleMaxLength :: Int
+    -- ^ Set meta description length
+    , appMetaDescriptionMaxLength :: Int
+    -- ^ Set meta keywords length
+    , appMetaKeywordsMaxLength :: Int
+    -- ^ Set meta Robots length
+    , appMetaRobotsMaxLength :: Int
     }
 
 instance FromJSON AppSettings where
@@ -174,6 +180,9 @@ instance FromJSON AppSettings where
         appUserAccUserNameMaxLength <- o .: "user-acc-username-length"
         appUserAccUserProfMaxLength <- o .: "user-acc-profile-length"
         appMediaTitleMaxLength      <- o .: "media-title-length"
+        appMetaDescriptionMaxLength <- o .: "meta-length-description"
+        appMetaKeywordsMaxLength    <- o .: "meta-length-keywords"
+        appMetaRobotsMaxLength      <- o .: "meta-length-robots"
 
         return AppSettings {..}
 

@@ -56,6 +56,7 @@ module Service.Common (
   , eitherToList
   , eitherToTouple
   , initPublishDate
+  , updatePublishDate
   ) where
 
 import Import
@@ -313,6 +314,9 @@ toFree (Entity key entity) = Free {
   , unFreeTags = tblFreeTags entity
   , unFreeStatus = tblFreeStatus entity
   , unFreePublishDate = tblFreePublishDate entity
+  , unFreeDescription = tblFreeDescription entity
+  , unFreeKeywords = tblFreeKeywords entity
+  , unFreeRobots = tblFreeRobots entity
   , unFreeCreateTime = tblFreeCreateTime entity
   , unFreeUpdateTime = tblFreeUpdateTime entity
   , unFreeAuthorId = fromTblUserKey $ tblFreeAuthorId entity
@@ -438,6 +442,9 @@ toPost (Entity key entity) = Post {
   , unPostInputType = tblPostInputType entity
   , unPostStatus = tblPostStatus entity
   , unPostPublishDate = tblPostPublishDate entity
+  , unPostDescription = tblPostDescription entity
+  , unPostKeywords = tblPostKeywords entity
+  , unPostRobots = tblPostRobots entity
   , unPostCreateTime = tblPostCreateTime entity
   , unPostUpdateTime = tblPostUpdateTime entity
   , unPostAuthorId = fromTblUserKey $ tblPostAuthorId entity
@@ -588,7 +595,17 @@ initPublishDate ::
   -> UTCTime
   -> Maybe UTCTime
 initPublishDate state n =
-  if state == fromEnum Published then
-    (Just n)
+  case toEnum state of
+    Published -> Just n
+    _ -> Nothing
+
+updatePublishDate ::
+  Int
+  -> Maybe UTCTime
+  -> UTCTime
+  -> Maybe UTCTime
+updatePublishDate state cur n =
+  if state == fromEnum Published && isNothing cur then
+    Just n
   else
-    Nothing
+    cur

@@ -289,6 +289,9 @@ initContextPost pageMeta postedElms tags = H.fromList [
   , ("hb_blog_canonical_url", String $ unPageMetaCanonicalUrl pageMeta)
   , ("hb_blog_media_url", String $ unPageMetaMediaUrl pageMeta)
   , ("hb_posteds", Array $ fromList (initPostedList postedElms))
+  , ("hb_meta_description", String $ unPageMetaDescription pageMeta)
+  , ("hb_meta_keywords", String $ unPageMetaKeywords pageMeta)
+  , ("hb_meta_robots", String $ unPageMetaRobots pageMeta)
   , ("hb_tags", Array $ fromList (initMstTagList tags))]
 
 setContextPost ::
@@ -428,6 +431,9 @@ toFramePageMeta setting post frame = PageMeta {
   , unPageMetaFrameCss = maybeToText $ unFrameCss frame
   , unPageMetaMediaUrl = unBlogSettingMediaUrl setting
   , unPageMetaCanonicalUrl = canonicalPath CPost (unPostUrlpath post) (unPostSlug post)
+  , unPageMetaDescription = maybeToText $ rmLfCr <$> unPostDescription post
+  , unPageMetaKeywords = maybeToText $ (unPostKeywords post)
+  , unPageMetaRobots = maybeToText $ (unPostRobots post)
   }
 
 toTagContsFramePageMeta ::
@@ -441,6 +447,9 @@ toTagContsFramePageMeta setting frame = PageMeta {
   , unPageMetaFrameCss = maybeToText $ unFreeFrameCss frame
   , unPageMetaCanonicalUrl = ""
   , unPageMetaMediaUrl = unBlogSettingMediaUrl setting
+  , unPageMetaDescription = ""
+  , unPageMetaKeywords = ""
+  , unPageMetaRobots = "index,follow"
   }
 
 toFreeFramePageMeta ::
@@ -455,6 +464,9 @@ toFreeFramePageMeta setting free frame = PageMeta {
   , unPageMetaFrameCss = maybeToText $ unFreeFrameCss frame
   , unPageMetaCanonicalUrl = canonicalPath CFree (unFreeUrlpath free) (unFreeSlug free)
   , unPageMetaMediaUrl = unBlogSettingMediaUrl setting
+  , unPageMetaDescription = maybeToText $ rmLfCr <$> unFreeDescription free
+  , unPageMetaKeywords = maybeToText $ unFreeKeywords free
+  , unPageMetaRobots = maybeToText $ unFreeRobots free
   }
 
 getPutHtml ::

@@ -25,6 +25,9 @@ data FreeForm = FreeForm {
   , unFreeFormInputType :: Int
   , unFreeFormStatus :: Int
   , unFreeFormTags :: Maybe Text
+  , unFreeFormDescription :: Maybe Text
+  , unFreeFormKeywords :: Maybe Text
+  , unFreeFormRobots :: Maybe Text
   , unFreeFormVersion :: Int
 } deriving(Eq, Show)
 
@@ -38,7 +41,11 @@ freeForm free extra = do
       slugLen = appSlugTextMaxLength $ appSettings master
       tagLen = appTagMaxLength $ appSettings master
       tagOneLen = appTagOneMaxLength $ appSettings master
+      dscLen = appMetaDescriptionMaxLength $ appSettings master
+      kwdLen = appMetaKeywordsMaxLength $ appSettings master
+      robLen = appMetaRobotsMaxLength $ appSettings master
       freeId = fromMaybe 0 (unFreeId <$> free)
+      robots = fromMaybe (Just "index,follow") (unFreeRobots <$> free)
       version = fromMaybe 0 (unFreeVersion <$> free)
       selInpTyp = fromMaybe 1 (unFreeInputType <$> free)
       selStsTyp = fromMaybe (fromEnum UnPublished) (unFreeStatus <$> free)
@@ -53,17 +60,24 @@ freeForm free extra = do
   (inpTypRes, _) <- mreq (radioFieldList inpTyp) inputTypeRadioFieldSet (unFreeInputType <$> free)
   (stsTypRes, stsTypView) <- mreq (radioFieldList stsTyp) statusTypeRadioFieldSet (unFreeStatus <$> free)
   (tagRes, tagView) <- mopt (tagField tagLen tagOneLen) tagFieldSet (unFreeTags <$> free)
+  (dscRes, dscView) <- mopt (descriptionField dscLen)
+                           descriptionFieldSet (Just (Textarea <$> (join (unFreeDescription <$> free))))
+  (kwdRes, kwdView) <- mopt (keywordsField kwdLen) keywordsFieldSet (unFreeKeywords <$> free)
+  (robRes, robView) <- mopt (robotsField robLen) robotsFieldSet(Just robots)
   (verRes, verView) <- mreq hiddenIdField versionFieldSet (Just version)
   let formParam = FreeForm
-                    <$> freeIdRes
-                    <*> titleRes
-                    <*> (unTextarea <$> contRes)
-                    <*> slugRes
-                    <*> initFormUrlpath slugRes urlpath
-                    <*> (liftM unTextarea <$> cssRes)
-                    <*> inpTypRes
-                    <*> stsTypRes
-                    <*> tagRes
-                    <*> verRes
+                  <$> freeIdRes
+                  <*> titleRes
+                  <*> (unTextarea <$> contRes)
+                  <*> slugRes
+                  <*> initFormUrlpath slugRes urlpath
+                  <*> (liftM unTextarea <$> cssRes)
+                  <*> inpTypRes
+                  <*> stsTypRes
+                  <*> tagRes
+                  <*> ((fmap . fmap) unTextarea  dscRes)
+                  <*> kwdRes
+                  <*> robRes
+                  <*> verRes
       widget = $(whamletFile "templates/freepage_form.hamlet")
   return (formParam, widget)

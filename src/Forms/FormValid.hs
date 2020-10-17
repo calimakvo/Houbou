@@ -29,6 +29,9 @@ module Forms.FormValid (
   , userVerifyNewPasswdField
   , mediaTitleField
   , blogAdsField
+  , descriptionField
+  , keywordsField
+  , robotsField
   ) where
 
 import Import
@@ -389,6 +392,33 @@ mediaTitleValid :: Int -> Text -> Either Text Text
 mediaTitleValid len s
   | length(s) > len
     = Left $ ("メディアタイトルは" <> pack(show(len)) <> "文字まで入力可能です")
+  | otherwise = Right s
+
+descriptionField :: Int -> Field Handler Textarea
+descriptionField len = check (descriptionValid len) textareaField
+
+descriptionValid :: Int -> Textarea -> Either Text Textarea
+descriptionValid len s
+  | length(unTextarea s) > len
+    = Left $ ("descriptionは" <> pack(show(len)) <> "文字まで入力可能です")
+  | otherwise = Right s
+
+keywordsField :: Int -> Field Handler Text
+keywordsField len = check (keywordsValid len) textField
+
+keywordsValid :: Int -> Text -> Either Text Text
+keywordsValid len s
+  | length(s) > len
+    = Left $ ("keywordsは" <> pack(show(len)) <> "文字まで入力可能です")
+  | otherwise = Right s
+
+robotsField :: Int -> Field Handler Text
+robotsField len = check (robotsFieldValid len) textField
+
+robotsFieldValid :: Int -> Text -> Either Text Text
+robotsFieldValid len s
+  | length(s) > len
+    = Left $ ("robotsは" <> pack(show(len)) <> "文字まで入力可能です")
   | otherwise = Right s
 
 checkTemplate :: String -> IO (Maybe (Text, Text))

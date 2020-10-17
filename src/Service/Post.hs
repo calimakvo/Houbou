@@ -129,6 +129,9 @@ getPostFromId (PostId postId) = runDB $ do
             , unPostInputType = tblPostInputType p
             , unPostStatus = tblPostStatus p
             , unPostPublishDate = tblPostPublishDate p
+            , unPostDescription = tblPostDescription p
+            , unPostKeywords = tblPostKeywords p
+            , unPostRobots = tblPostRobots p
             , unPostCreateTime = tblPostCreateTime p
             , unPostUpdateTime = tblPostUpdateTime p
             , unPostAuthorId = unSqlBackendKey (unTblUserKey (tblPostAuthorId p))
@@ -173,6 +176,9 @@ registerPost usrKey post = runDB $ do
       , tblPostTags = unPostTags post
       , tblPostStatus = status
       , tblPostPublishDate = initPublishDate status now
+      , tblPostDescription = unPostDescription post
+      , tblPostKeywords = unPostKeywords post
+      , tblPostRobots = unPostRobots post
       , tblPostCreateTime = now
       , tblPostUpdateTime = now
       , tblPostAuthorId = usrKey
@@ -195,6 +201,8 @@ updatePost post = runDB $ do
                       unPostUrlpath post
                     else
                       tblPostUrlpath record
+          status = unPostStatus post
+          pubDate = tblPostPublishDate record
       case checkVersion dver pver of
         False -> return $ Left ErrRecVersion
         True -> do
@@ -210,7 +218,11 @@ updatePost post = runDB $ do
             , TblPostSlug =. unPostSlug post
             , TblPostUrlpath =. urlpath
             , TblPostInputType =. unPostInputType post
-            , TblPostStatus =. unPostStatus post
+            , TblPostStatus =. status
+            , TblPostPublishDate =. updatePublishDate status pubDate now
+            , TblPostDescription =. unPostDescription post
+            , TblPostKeywords =. unPostKeywords post
+            , TblPostRobots =. unPostRobots post
             , TblPostUpdateTime =. now
             , TblPostVersion +=. 1
             ]
@@ -229,7 +241,9 @@ updatePostStatus postKey recver = runDB $ do
     Just post -> do
         let pver = unRecVersion recver
             dver = tblPostVersion post
-            upPubDate = [ TblPostPublishDate =. (Just now) ]
+            upPubDate = if isNothing (tblPostPublishDate post)
+                        then [ TblPostPublishDate =. (Just now) ]
+                        else mempty
             newStatus = if tblPostStatus post == (fromEnum Published)
                         then (fromEnum UnPublished)
                         else (fromEnum Published)

@@ -33,6 +33,9 @@ TblPost
     tags Text sqltype=varchar(2048) Maybe
     status Int sqltype=smallint
     publishDate UTCTime sqltype=timestamptz Maybe
+    description Text sqltype=varchar(1024) Maybe
+    keywords Text sqltype=varchar(512) Maybe
+    robots Text sqltype=varchar(128) Maybe
     createTime UTCTime sqltype=timestamptz
     updateTime UTCTime sqltype=timestamptz default=now()
     authorId TblUserId
@@ -100,6 +103,9 @@ TblFree
     inputType Int sqltype=smallint
     status Int sqltype=smallint
     publishDate UTCTime sqltype=timestamptz Maybe
+    description Text sqltype=varchar(1024) Maybe
+    keywords Text sqltype=varchar(512) Maybe
+    robots Text sqltype=varchar(128) Maybe
     createTime UTCTime sqltype=timestamptz
     updateTime UTCTime sqltype=timestamptz default=now()
     authorId TblUserId

@@ -24,6 +24,9 @@ data PostForm = PostForm {
   , unPostFormInputType :: Int
   , unPostFormStatus :: Int
   , unPostFormTags :: Maybe Text
+  , unPostFormDescription :: Maybe Text
+  , unPostFormKeywords :: Maybe Text
+  , unPostFormRobots :: Maybe Text
   , unPostFormVersion :: Int
 } deriving(Eq, Show)
 
@@ -40,8 +43,13 @@ postForm post extra = do
       slugLen = appSlugTextMaxLength $ appSettings master
       tagLen = appTagMaxLength $ appSettings master
       tagOneLen = appTagOneMaxLength $ appSettings master
+      dscLen = appMetaDescriptionMaxLength $ appSettings master
+      kwdLen = appMetaKeywordsMaxLength $ appSettings master
+      robLen = appMetaRobotsMaxLength $ appSettings master
       postId = fromMaybe 0 (unPostId <$> post)
+      robots = fromMaybe (Just "index,follow") (unPostRobots <$> post)
       version = fromMaybe 0 (unPostVersion <$> post)
+
       selInpTyp = fromMaybe 1 (unPostInputType <$> post)
       selStsTyp = fromMaybe (fromEnum UnPublished) (unPostStatus <$> post)
       urlpath = if postId > 0 then join (unPostUrlpath <$> post) else (Just $ toUrlPath t)
@@ -54,6 +62,10 @@ postForm post extra = do
   (inpTypRes, inpTypView) <- mreq (radioFieldList inpTyp) inputTypeRadioFieldSet (unPostInputType <$> post)
   (stsTypRes, stsTypView) <- mreq (radioFieldList stsTyp) statusTypeRadioFieldSet (unPostStatus <$> post)
   (tagRes, tagView) <- mopt (tagField tagLen tagOneLen) tagFieldSet (unPostTags <$> post)
+  (dscRes, dscView) <- mopt (descriptionField dscLen)
+                           descriptionFieldSet (Just (Textarea <$> (join (unPostDescription <$> post))))
+  (kwdRes, kwdView) <- mopt (keywordsField kwdLen) keywordsFieldSet (unPostKeywords <$> post)
+  (robRes, robView) <- mopt (robotsField robLen) robotsFieldSet(Just robots)
   (verRes, verView) <- mreq hiddenIdField versionFieldSet (Just version)
   let formParam = PostForm
                   <$> postIdRes
@@ -64,7 +76,9 @@ postForm post extra = do
                   <*> inpTypRes
                   <*> stsTypRes
                   <*> tagRes
+                  <*> ((fmap . fmap) unTextarea  dscRes)
+                  <*> kwdRes
+                  <*> robRes
                   <*> verRes
-      widget = do
-        $(whamletFile "templates/post_form.hamlet")
+      widget = $(whamletFile "templates/post_form.hamlet")
   return (formParam, widget)

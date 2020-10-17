@@ -179,6 +179,9 @@ data Post = Post {
   , unPostInputType :: Int
   , unPostStatus :: Int
   , unPostPublishDate :: Maybe UTCTime
+  , unPostDescription :: Maybe Text
+  , unPostKeywords :: Maybe Text
+  , unPostRobots :: Maybe Text
   , unPostCreateTime :: UTCTime
   , unPostUpdateTime :: UTCTime
   , unPostAuthorId :: Int64
@@ -218,6 +221,9 @@ data Free = Free {
   , unFreeStatus :: Int
   , unFreeTags :: Maybe Text
   , unFreePublishDate :: Maybe UTCTime
+  , unFreeDescription :: Maybe Text
+  , unFreeKeywords :: Maybe Text
+  , unFreeRobots :: Maybe Text
   , unFreeCreateTime :: UTCTime
   , unFreeUpdateTime :: UTCTime
   , unFreeAuthorId :: Int64
@@ -356,6 +362,9 @@ data PageMeta = PageMeta {
   , unPageMetaFrameCss :: Text
   , unPageMetaMediaUrl :: Text
   , unPageMetaCanonicalUrl :: Text
+  , unPageMetaDescription :: Text
+  , unPageMetaKeywords :: Text
+  , unPageMetaRobots :: Text
   } deriving(Eq, Show)
 
 data MstTag = MstTag {

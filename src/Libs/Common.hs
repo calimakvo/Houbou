@@ -48,6 +48,7 @@ module Libs.Common (
   , createBar2Data
   , toUrlPath
   , parmErrToMsg
+  , rmLfCr
 ) where
 
 import Data.Int
@@ -374,3 +375,7 @@ parmErrToMsg err =
     ErrRecVersion -> "データが更新されています、一覧を再読み込みして実行してください"
     ErrRecNotUnique -> "パーマリンクURLが重複しています"
     _ -> "エラーが発生しました"
+
+rmLfCr :: Text -> Text
+rmLfCr txt =  replace "\r" "" (replace "\n" "" txt)
+

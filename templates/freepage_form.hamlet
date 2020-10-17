@@ -53,20 +53,44 @@
                     <span>#{contErr}
 
         <div .form-group>
-            <label>タグ
-            ^{fvInput tagView}
-        $maybe tagErr <- fvErrors tagView
-            <div .form-group>
-                <div .alert .alert-danger role="alert">
-                    <span>#{tagErr}
-
-        <div .form-group>
             <label>フリーページCSS
             ^{fvInput cssView}
         $maybe cssErr <- fvErrors cssView
             <div .form-group>
                 <div .alert .alert-danger role="alert">
                     <span>#{cssErr}
+
+        <div .form-group>
+            <label>description
+            ^{fvInput dscView}
+        $maybe dscErr <- fvErrors dscView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{dscErr}
+
+        <div .form-group>
+            <label>keywords
+            ^{fvInput kwdView}
+        $maybe kwdErr <- fvErrors kwdView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{kwdErr}
+
+        <div .form-group>
+            <label>robots
+            ^{fvInput robView}
+        $maybe robErr <- fvErrors robView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{robErr}
+
+        <div .form-group>
+            <label>タグ
+            ^{fvInput tagView}
+        $maybe tagErr <- fvErrors tagView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{tagErr}
 
         <div .col-sm-12>
             <div .form-group .text-center>
