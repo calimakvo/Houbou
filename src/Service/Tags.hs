@@ -38,11 +38,11 @@ getTagContents tagId = runDB $ do
   let tagid = fromJust $ _unUrlTagId tagId
       sql = "SELECT tid, rectype, tag_id, title, publish_date FROM " <>
             "((SELECT post_id AS tid, ? AS rectype, tag_id, t2.title, t2.publish_date FROM tbl_post_tag AS t1 " <>
-            "LEFT JOIN tbl_post AS t2 ON t1.post_id=t2.id WHERE t2.status=? AND t2.publish_date IS NOT NULL) " <>
+            "LEFT JOIN tbl_post AS t2 ON t1.post_id=t2.id WHERE t2.status=? AND t2.publish_date IS NOT NULL)" <>
             "UNION" <>
             "(SELECT free_id AS tid, ? AS rectype, tag_id, t4.title, t4.publish_date FROM tbl_free_tag AS t3 " <>
             "LEFT JOIN tbl_free AS t4 ON t3.free_id=t4.id WHERE t4.status=? AND t4.publish_date IS NOT NULL)) " <>
-            "AS tt WHERE tt.tag_id=?" :: Text
+            "AS tt WHERE tt.tag_id=? ORDER BY publish_date DESC" :: Text
   values <- getTagContRaw tagid sql
   return $ Right (map toTagCont values)
 
