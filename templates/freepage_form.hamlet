@@ -25,7 +25,7 @@
                     <span>#{titleErr}
 
         <div .form-group>
-            <label>スラッグ
+            <label>URLスラッグ
             ^{fvInput slugView}
         $maybe slugErr <- fvErrors slugView
             <div .form-group>

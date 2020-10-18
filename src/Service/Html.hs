@@ -228,6 +228,9 @@ initContextFree pageMeta postedElms tags = H.fromList [
   , ("hb_blog_canonical_url", String $ unPageMetaCanonicalUrl pageMeta)
   , ("hb_blog_media_url", String $ unPageMetaMediaUrl pageMeta)
   , ("hb_posteds", Array $ fromList (initPostedList postedElms))
+  , ("hb_meta_description", String $ unPageMetaDescription pageMeta)
+  , ("hb_meta_keywords", String $ unPageMetaKeywords pageMeta)
+  , ("hb_meta_robots", String $ unPageMetaRobots pageMeta)
   , ("hb_tags", Array $ fromList (initMstTagList tags)) ]
 
 initTagContList ::
