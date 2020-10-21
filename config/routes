@@ -29,6 +29,7 @@
 /admin/userdel UserDelR POST
 /admin/userdelreset UserDelResetR POST
 /admin/medialist/#Page MediaListR GET POST
+/admin/mediains/#Page MediaInsR GET POST
 /admin/medianew MediaNewR GET POST
 /admin/mediadel MediaDelR POST
 /admin/media/#MediaId MediaMdfR GET POST

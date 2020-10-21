@@ -15,6 +15,9 @@
             <div .form-group>
                 <div .alert .alert-danger role="alert">
                     <span>#{frameHtmlErr}
+        <div .form-group>
+            <button .btn .btn-default .btn-sm data-target-link-id="freeFrameHtmlId" .btnMediaInsert>
+                メディア挿入
 
         <div .form-group>
             <label>フリーページフレームCSS
@@ -23,6 +26,9 @@
             <div .form-group>
                 <div .alert .alert-danger role="alert">
                     <span>#{frameCssErr}
+        <div .form-group>
+            <button .btn .btn-default .btn-sm data-target-link-id="freeFrameCssId" .btnMediaInsert>
+                メディア挿入
 
         <div .col-sm-12>
             <div .form-group .text-center>
@@ -32,3 +38,5 @@
 
             ^{fvInput frameIdView}
             ^{fvInput frameVerView}
+
+    <script src="/static/js/houbou.js">

@@ -30,6 +30,10 @@
         <link href="/static/css/morris.css" rel="stylesheet">
         <!-- Custom Fonts -->
         <link href="/static/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <!-- Lightbox CSS -->
+        <link href="/static/css/lightbox.min.css" rel="stylesheet" />
+        <!-- Houbou CSS -->
+        <link href="/static/css/houbou.css" rel="stylesheet">
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js">
@@ -76,9 +80,11 @@
         <!-- Morris Charts JavaScript -->
         <script src="/static/js/raphael.min.js">
         <script src="/static/js/morris.min.js">
-        <script src="/static/js/morris-data.js">
+        <!-- <script src="/static/js/morris-data.js"> -->
         <!-- Custom Theme JavaScript -->
         <script src="/static/js/startmin.js">
 
     <body>
         ^{pageBody pc}
+
+        <script src="/static/js/lightbox.min.js">

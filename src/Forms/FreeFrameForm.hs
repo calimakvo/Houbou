@@ -32,8 +32,10 @@ freeFrameForm frame extra = do
       freeFrameId = fromMaybe 0 (unFreeFrameId <$> frame)
   (frameIdRes, frameIdView) <- mreq hiddenField frameIdFieldSet (Just freeFrameId)
   (frameNameRes, frameNameView) <- mopt (frameNameField nameLen) frameNameFieldSet (unFreeFrameName <$> frame)
-  (frameHtmlRes, frameHtmlView) <- mopt (frameHtmlField htmlLen) frameHtmlFieldSet ((Textarea <$>) <$> (unFreeFrameHtml <$> frame))
-  (frameCssRes, frameCssView) <- mopt (frameCssField cssLen) frameCssFieldSet ((Textarea <$>) <$> (unFreeFrameCss <$> frame))
+  (frameHtmlRes, frameHtmlView) <- mopt (frameHtmlField htmlLen) freeFrameHtmlFieldSet
+                                          ((Textarea <$>) <$> (unFreeFrameHtml <$> frame))
+  (frameCssRes, frameCssView) <- mopt (frameCssField cssLen) freeFrameCssFieldSet
+                                          ((Textarea <$>) <$> (unFreeFrameCss <$> frame))
   (frameVerRes, frameVerView) <- mreq hiddenIdField versionFieldSet (Just version)
   let formParam = FreeFrameForm
                     <$> frameIdRes

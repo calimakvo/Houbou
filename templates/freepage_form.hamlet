@@ -51,6 +51,9 @@
             <div .form-group>
                 <div .alert .alert-danger role="alert">
                     <span>#{contErr}
+        <div .form-group>
+            <button .btn .btn-default .btn-sm data-target-link-id="freeContentlId" .btnMediaInsert>
+                メディア挿入
 
         <div .form-group>
             <label>フリーページCSS
@@ -59,6 +62,9 @@
             <div .form-group>
                 <div .alert .alert-danger role="alert">
                     <span>#{cssErr}
+        <div .form-group>
+            <button .btn .btn-default .btn-sm data-target-link-id="freeCssId" .btnMediaInsert>
+                メディア挿入
 
         <div .form-group>
             <label>description
@@ -100,3 +106,5 @@
 
             ^{fvInput freeIdView}
             ^{fvInput verView}
+
+    <script src="/static/js/houbou.js">

@@ -6,7 +6,7 @@
   "scripts": {
     "build": "elm make src/MediaUpload.elm --output=../../static/js/hb_mediaupload.js"
   },
-  "author": "Empty Yoshida",
+  "author": "karky7",
   "license": "BSD-2-Clause",
   "dependencies": {
     "elm": "^0.19.1-3"

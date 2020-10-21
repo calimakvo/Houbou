@@ -173,6 +173,7 @@ instance Yesod App where
     isAuthorized UserDelR _= isAuthenticated
     isAuthorized UserDelResetR _ = isAuthenticated
     isAuthorized (MediaListR _) _ = isAuthenticated
+    isAuthorized (MediaInsR _) _ = isAuthenticated
     isAuthorized MediaNewR _ = isAuthenticated
     isAuthorized MediaDelR _ = isAuthenticated
     isAuthorized (MediaMdfR _) _ = isAuthenticated

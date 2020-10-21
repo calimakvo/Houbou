@@ -64,4 +64,32 @@ $(document).ready(function() {
             }
         });
     });
+
+    $('.btnMediaInsert').on('click', function(event) {
+        insTarget = document.getElementById(this.dataset.targetLinkId);
+        window.open(
+            '/admin/mediains/1',
+            'pop',
+            'width=1000, height=600'
+        );
+        return false;
+    });
+
+    $('.hbPasteLink').on('click', function(event) {
+        var ac = document.getElementById(this.dataset.linkId)
+        var insTarget = window.opener.insTarget
+        window.opener.onCallBack({"url": ac.href, target: insTarget});
+        window.close();
+    });
 });
+
+function onCallBack(data) {
+    var url = data.url
+    var area = data.target;
+    var pos = area.selectionStart
+    area.value = area.value.substr(0, pos)
+		+ url
+		+ area.value.substr(pos);
+    area.focus();
+    area.setSelectionRange(pos + url.length, pos + url.length);
+}

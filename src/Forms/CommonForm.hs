@@ -12,6 +12,8 @@ module Forms.CommonForm (
   , frameNameFieldSet
   , frameHtmlFieldSet
   , frameCssFieldSet
+  , freeFrameHtmlFieldSet
+  , freeFrameCssFieldSet
   , freeIdFieldSet
   , freeTitleFieldSet
   , freeContFieldSet
@@ -166,6 +168,34 @@ frameCssFieldSet = FieldSettings {
   , fsTooltip = Nothing
   , fsId = Just "frameCssId"
   , fsName = Just "frame_css"
+  , fsAttrs = [
+        ("style", "resize: vertical;")
+      , ("class", "form-control")
+      , ("placeholder", "フレームCSS")
+      , ("rows", "15")
+    ]
+ }
+
+freeFrameHtmlFieldSet :: FieldSettings master
+freeFrameHtmlFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "freeFrameHtmlId"
+  , fsName = Just "free_frame_html"
+  , fsAttrs = [
+        ("style", "resize: vertical;")
+      , ("class", "form-control")
+      , ("placeholder", "フレームHTML")
+      , ("rows", "15")
+    ]
+ }
+
+freeFrameCssFieldSet :: FieldSettings master
+freeFrameCssFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "freeFrameCssId"
+  , fsName = Just "free_frame_css"
   , fsAttrs = [
         ("style", "resize: vertical;")
       , ("class", "form-control")

@@ -6,7 +6,7 @@
   "scripts": {
     "build": "elm make src/UrlCpy.elm --output=../../static/js/hb_urlcpy.js"
   },
-  "author": "Empty Yoshida",
+  "author": "karky7",
   "license": "BSD-2-Clause",
   "dependencies": {},
   "devDependencies": {
