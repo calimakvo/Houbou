@@ -177,6 +177,8 @@ instance Yesod App where
     isAuthorized MediaNewR _ = isAuthenticated
     isAuthorized MediaDelR _ = isAuthenticated
     isAuthorized (MediaMdfR _) _ = isAuthenticated
+    isAuthorized PostPrevR _ = isAuthenticated
+    isAuthorized FreePrevR _ = isAuthenticated
     
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows

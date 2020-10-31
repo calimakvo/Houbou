@@ -9,6 +9,7 @@ module Handler.FreeNew where
 import Import
 import DataTypes.HoubouType
 import Libs.Common
+import Libs.CommonWidget
 import UrlParam.FreeId
 import Forms.FreeForm
 import Libs.Mapper
@@ -19,6 +20,8 @@ getFreeNewR ::
   Handler Html
 getFreeNewR = do
   msg <- getMessages
+  let tokenKey = defaultCsrfParamName
+  token <- getRequest >>= createCsrfToken
   (freeWidget, _) <- generateFormPost $ (freeForm Nothing)
   defaultLayout $ do
     setTitle title
@@ -28,6 +31,8 @@ postFreeNewR ::
   Handler Html
 postFreeNewR = do
   msg <- getMessages
+  let tokenKey = defaultCsrfParamName
+  token <- getRequest >>= createCsrfToken
   (usrKey, _) <- requireAuthPair
   ((res, freeWidget), _) <- runFormPost $ freeForm Nothing
   case res of

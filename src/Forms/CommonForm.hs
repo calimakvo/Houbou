@@ -47,6 +47,11 @@ module Forms.CommonForm (
   , descriptionFieldSet
   , keywordsFieldSet
   , robotsFieldSet
+  , prevBodyFieldSet
+  , prevTitleFieldSet
+  , prevCssFieldSet
+  , prevInputTypeFieldSet
+  , prevTypeFieldSet
   , initFormUrlpath
   , formResultToId
   ) where
@@ -226,7 +231,7 @@ freeTitleFieldSet :: FieldSettings master
 freeTitleFieldSet = FieldSettings {
     fsLabel = ""
   , fsTooltip = Nothing
-  , fsId = Just "freeTitleId"
+  , fsId = Just "freeTitleInputId"
   , fsName = Just "free_title"
   , fsAttrs = [
         ("class", "form-control")
@@ -238,7 +243,7 @@ freeContFieldSet :: FieldSettings master
 freeContFieldSet = FieldSettings {
     fsLabel = ""
   , fsTooltip = Nothing
-  , fsId = Just "freeContentlId"
+  , fsId = Just "freeContentInputId"
   , fsName = Just "free_content"
   , fsAttrs = [
         ("style", "resize: vertical;")
@@ -252,7 +257,7 @@ freeCssFieldSet :: FieldSettings master
 freeCssFieldSet = FieldSettings {
     fsLabel = ""
   , fsTooltip = Nothing
-  , fsId = Just "freeCssId"
+  , fsId = Just "freeCssInputId"
   , fsName = Just "freepage_css"
   , fsAttrs = [
         ("style", "resize: vertical;")
@@ -528,6 +533,51 @@ robotsFieldSet = FieldSettings {
         ("class", "form-control")
       , ("placeholder", "meta index,follow")
     ]
+  }
+
+prevBodyFieldSet :: FieldSettings master
+prevBodyFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "prevInputBodyId"
+  , fsName = Just "preview_body"
+  , fsAttrs = []
+  }
+
+prevTitleFieldSet :: FieldSettings master
+prevTitleFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "prevInputTitleId"
+  , fsName = Just "preview_title"
+  , fsAttrs = []
+  }
+
+prevCssFieldSet :: FieldSettings master
+prevCssFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "prevInputCssId"
+  , fsName = Just "preview_css"
+  , fsAttrs = []
+  }
+
+prevInputTypeFieldSet :: FieldSettings master
+prevInputTypeFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "prevInputTypeId"
+  , fsName = Just "input_type"
+  , fsAttrs = []
+  }
+
+prevTypeFieldSet :: FieldSettings master
+prevTypeFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "prevPreviewTypeId"
+  , fsName = Just "preview_type"
+  , fsAttrs = []
   }
 
 getInputTypeTouple ::

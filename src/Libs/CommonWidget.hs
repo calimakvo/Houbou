@@ -23,6 +23,7 @@ module Libs.CommonWidget (
   , toFreeUrlText
   , toTagListUrlText
   , canonicalPath
+  , chkForm
   ) where
 
 import Import
@@ -191,3 +192,8 @@ canonicalPath ctype urlpath slug =
       CPost -> toPostSlugUrlText slug urlpath
       CFree -> toFreeSlugUrlText slug urlpath
 
+chkForm :: (Maybe Text) -> Handler Text
+chkForm = \form ->
+  case form of
+    Just prev -> return prev
+    Nothing -> error "Preview: param error"

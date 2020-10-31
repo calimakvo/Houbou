@@ -21,6 +21,8 @@ getPostR ::
   -> Handler Html
 getPostR postId = do
   msg <- getMessages
+  let tokenKey = defaultCsrfParamName
+  token <- getRequest >>= createCsrfToken
   result <- getPostFromId postId
   case result of
     Left err -> do
@@ -37,6 +39,8 @@ postPostR ::
   -> Handler Html
 postPostR postId = do
   msg <- getMessages
+  let tokenKey = defaultCsrfParamName
+  token <- getRequest >>= createCsrfToken
   ((res, postWidget), _) <- runFormPost $ postForm Nothing
   case res of
    FormSuccess form -> do

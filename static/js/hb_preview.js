@@ -4530,286 +4530,7 @@ function _Http_track(router, xhr, tracker)
 			size: event.lengthComputable ? $elm$core$Maybe$Just(event.total) : $elm$core$Maybe$Nothing
 		}))));
 	});
-}
-
-
-// DECODER
-
-var _File_decoder = _Json_decodePrim(function(value) {
-	// NOTE: checks if `File` exists in case this is run on node
-	return (typeof File !== 'undefined' && value instanceof File)
-		? $elm$core$Result$Ok(value)
-		: _Json_expecting('a FILE', value);
-});
-
-
-// METADATA
-
-function _File_name(file) { return file.name; }
-function _File_mime(file) { return file.type; }
-function _File_size(file) { return file.size; }
-
-function _File_lastModified(file)
-{
-	return $elm$time$Time$millisToPosix(file.lastModified);
-}
-
-
-// DOWNLOAD
-
-var _File_downloadNode;
-
-function _File_getDownloadNode()
-{
-	return _File_downloadNode || (_File_downloadNode = document.createElement('a'));
-}
-
-var _File_download = F3(function(name, mime, content)
-{
-	return _Scheduler_binding(function(callback)
-	{
-		var blob = new Blob([content], {type: mime});
-
-		// for IE10+
-		if (navigator.msSaveOrOpenBlob)
-		{
-			navigator.msSaveOrOpenBlob(blob, name);
-			return;
-		}
-
-		// for HTML5
-		var node = _File_getDownloadNode();
-		var objectUrl = URL.createObjectURL(blob);
-		node.href = objectUrl;
-		node.download = name;
-		_File_click(node);
-		URL.revokeObjectURL(objectUrl);
-	});
-});
-
-function _File_downloadUrl(href)
-{
-	return _Scheduler_binding(function(callback)
-	{
-		var node = _File_getDownloadNode();
-		node.href = href;
-		node.download = '';
-		node.origin === location.origin || (node.target = '_blank');
-		_File_click(node);
-	});
-}
-
-
-// IE COMPATIBILITY
-
-function _File_makeBytesSafeForInternetExplorer(bytes)
-{
-	// only needed by IE10 and IE11 to fix https://github.com/elm/file/issues/10
-	// all other browsers can just run `new Blob([bytes])` directly with no problem
-	//
-	return new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-}
-
-function _File_click(node)
-{
-	// only needed by IE10 and IE11 to fix https://github.com/elm/file/issues/11
-	// all other browsers have MouseEvent and do not need this conditional stuff
-	//
-	if (typeof MouseEvent === 'function')
-	{
-		node.dispatchEvent(new MouseEvent('click'));
-	}
-	else
-	{
-		var event = document.createEvent('MouseEvents');
-		event.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-		document.body.appendChild(node);
-		node.dispatchEvent(event);
-		document.body.removeChild(node);
-	}
-}
-
-
-// UPLOAD
-
-var _File_node;
-
-function _File_uploadOne(mimes)
-{
-	return _Scheduler_binding(function(callback)
-	{
-		_File_node = document.createElement('input');
-		_File_node.type = 'file';
-		_File_node.accept = A2($elm$core$String$join, ',', mimes);
-		_File_node.addEventListener('change', function(event)
-		{
-			callback(_Scheduler_succeed(event.target.files[0]));
-		});
-		_File_click(_File_node);
-	});
-}
-
-function _File_uploadOneOrMore(mimes)
-{
-	return _Scheduler_binding(function(callback)
-	{
-		_File_node = document.createElement('input');
-		_File_node.type = 'file';
-		_File_node.multiple = true;
-		_File_node.accept = A2($elm$core$String$join, ',', mimes);
-		_File_node.addEventListener('change', function(event)
-		{
-			var elmFiles = _List_fromArray(event.target.files);
-			callback(_Scheduler_succeed(_Utils_Tuple2(elmFiles.a, elmFiles.b)));
-		});
-		_File_click(_File_node);
-	});
-}
-
-
-// CONTENT
-
-function _File_toString(blob)
-{
-	return _Scheduler_binding(function(callback)
-	{
-		var reader = new FileReader();
-		reader.addEventListener('loadend', function() {
-			callback(_Scheduler_succeed(reader.result));
-		});
-		reader.readAsText(blob);
-		return function() { reader.abort(); };
-	});
-}
-
-function _File_toBytes(blob)
-{
-	return _Scheduler_binding(function(callback)
-	{
-		var reader = new FileReader();
-		reader.addEventListener('loadend', function() {
-			callback(_Scheduler_succeed(new DataView(reader.result)));
-		});
-		reader.readAsArrayBuffer(blob);
-		return function() { reader.abort(); };
-	});
-}
-
-function _File_toUrl(blob)
-{
-	return _Scheduler_binding(function(callback)
-	{
-		var reader = new FileReader();
-		reader.addEventListener('loadend', function() {
-			callback(_Scheduler_succeed(reader.result));
-		});
-		reader.readAsDataURL(blob);
-		return function() { reader.abort(); };
-	});
-}
-
-
-
-// CREATE
-
-var _Regex_never = /.^/;
-
-var _Regex_fromStringWith = F2(function(options, string)
-{
-	var flags = 'g';
-	if (options.multiline) { flags += 'm'; }
-	if (options.caseInsensitive) { flags += 'i'; }
-
-	try
-	{
-		return $elm$core$Maybe$Just(new RegExp(string, flags));
-	}
-	catch(error)
-	{
-		return $elm$core$Maybe$Nothing;
-	}
-});
-
-
-// USE
-
-var _Regex_contains = F2(function(re, string)
-{
-	return string.match(re) !== null;
-});
-
-
-var _Regex_findAtMost = F3(function(n, re, str)
-{
-	var out = [];
-	var number = 0;
-	var string = str;
-	var lastIndex = re.lastIndex;
-	var prevLastIndex = -1;
-	var result;
-	while (number++ < n && (result = re.exec(string)))
-	{
-		if (prevLastIndex == re.lastIndex) break;
-		var i = result.length - 1;
-		var subs = new Array(i);
-		while (i > 0)
-		{
-			var submatch = result[i];
-			subs[--i] = submatch
-				? $elm$core$Maybe$Just(submatch)
-				: $elm$core$Maybe$Nothing;
-		}
-		out.push(A4($elm$regex$Regex$Match, result[0], result.index, number, _List_fromArray(subs)));
-		prevLastIndex = re.lastIndex;
-	}
-	re.lastIndex = lastIndex;
-	return _List_fromArray(out);
-});
-
-
-var _Regex_replaceAtMost = F4(function(n, re, replacer, string)
-{
-	var count = 0;
-	function jsReplacer(match)
-	{
-		if (count++ >= n)
-		{
-			return match;
-		}
-		var i = arguments.length - 3;
-		var submatches = new Array(i);
-		while (i > 0)
-		{
-			var submatch = arguments[i];
-			submatches[--i] = submatch
-				? $elm$core$Maybe$Just(submatch)
-				: $elm$core$Maybe$Nothing;
-		}
-		return replacer(A4($elm$regex$Regex$Match, match, arguments[arguments.length - 2], count, _List_fromArray(submatches)));
-	}
-	return string.replace(re, jsReplacer);
-});
-
-var _Regex_splitAtMost = F3(function(n, re, str)
-{
-	var string = str;
-	var out = [];
-	var start = re.lastIndex;
-	var restoreLastIndex = re.lastIndex;
-	while (n--)
-	{
-		var result = re.exec(string);
-		if (!result) break;
-		out.push(string.slice(start, result.index));
-		start = re.lastIndex;
-	}
-	out.push(string.slice(start));
-	re.lastIndex = restoreLastIndex;
-	return _List_fromArray(out);
-});
-
-var _Regex_infinity = Infinity;
-var $elm$core$List$cons = _List_cons;
+}var $elm$core$List$cons = _List_cons;
 var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
 var $elm$core$Array$foldr = F3(
 	function (func, baseCase, _v0) {
@@ -5600,95 +5321,70 @@ var $elm$core$Task$perform = F2(
 	});
 var $elm$browser$Browser$element = _Browser_element;
 var $elm$json$Json$Decode$field = _Json_decodeField;
-var $author$project$MediaUpload$Model = F6(
-	function (hover, files, contents, titles, token, err) {
-		return {contents: contents, err: err, files: files, hover: hover, titles: titles, token: token};
-	});
+var $elm$core$Basics$round = _Basics_round;
+var $author$project$Preview$calcHeight = function (height) {
+	return (height > 0) ? $elm$core$Basics$round(height * 0.75) : 600;
+};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$MediaUpload$init = function (token) {
+var $author$project$Preview$initialState = function (pInfo) {
 	return _Utils_Tuple2(
-		A6($author$project$MediaUpload$Model, false, _List_Nil, _List_Nil, _List_Nil, token, $elm$core$Maybe$Nothing),
+		{
+			err: $elm$core$Maybe$Nothing,
+			frameFlag: false,
+			height: $author$project$Preview$calcHeight(pInfo.height),
+			prevInfo: pInfo,
+			prevtype: '',
+			showDialog: false
+		},
 		$elm$core$Platform$Cmd$none);
 };
 var $elm$json$Json$Decode$int = _Json_decodeInt;
 var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$Preview$GetNewHeight = function (a) {
+	return {$: 'GetNewHeight', a: a};
+};
+var $author$project$Preview$LoadText = function (a) {
+	return {$: 'LoadText', a: a};
+};
 var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
-var $author$project$MediaUpload$subscriptions = function (model) {
-	return $elm$core$Platform$Sub$none;
-};
-var $author$project$MediaUpload$GotFiles = F2(
-	function (a, b) {
-		return {$: 'GotFiles', a: a, b: b};
+var $elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
 	});
-var $author$project$MediaUpload$HResp = function (a) {
-	return {$: 'HResp', a: a};
-};
-var $author$project$MediaUpload$ImageLoaded = function (a) {
-	return {$: 'ImageLoaded', a: a};
-};
-var $elm$http$Http$BadStatus_ = F2(
-	function (a, b) {
-		return {$: 'BadStatus_', a: a, b: b};
+var $elm$json$Json$Decode$decodeValue = _Json_run;
+var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $author$project$Preview$loadText = _Platform_incomingPort('loadText', $elm$json$Json$Decode$value);
+var $elm$browser$Browser$Events$Window = {$: 'Window'};
+var $elm$browser$Browser$Events$MySub = F3(
+	function (a, b, c) {
+		return {$: 'MySub', a: a, b: b, c: c};
 	});
-var $elm$http$Http$BadUrl_ = function (a) {
-	return {$: 'BadUrl_', a: a};
-};
-var $elm$http$Http$GoodStatus_ = F2(
-	function (a, b) {
-		return {$: 'GoodStatus_', a: a, b: b};
+var $elm$browser$Browser$Events$State = F2(
+	function (subs, pids) {
+		return {pids: pids, subs: subs};
 	});
-var $elm$http$Http$NetworkError_ = {$: 'NetworkError_'};
-var $elm$http$Http$Receiving = function (a) {
-	return {$: 'Receiving', a: a};
-};
-var $elm$http$Http$Sending = function (a) {
-	return {$: 'Sending', a: a};
-};
-var $elm$http$Http$Timeout_ = {$: 'Timeout_'};
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
-var $elm$core$Maybe$isJust = function (maybe) {
-	if (maybe.$ === 'Just') {
-		return true;
+var $elm$browser$Browser$Events$init = $elm$core$Task$succeed(
+	A2($elm$browser$Browser$Events$State, _List_Nil, $elm$core$Dict$empty));
+var $elm$browser$Browser$Events$nodeToKey = function (node) {
+	if (node.$ === 'Document') {
+		return 'd_';
 	} else {
-		return false;
+		return 'w_';
 	}
 };
-var $elm$core$Platform$sendToSelf = _Platform_sendToSelf;
-var $elm$core$Basics$compare = _Utils_compare;
-var $elm$core$Dict$get = F2(
-	function (targetKey, dict) {
-		get:
-		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
-				switch (_v1.$) {
-					case 'LT':
-						var $temp$targetKey = targetKey,
-							$temp$dict = left;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-					case 'EQ':
-						return $elm$core$Maybe$Just(value);
-					default:
-						var $temp$targetKey = targetKey,
-							$temp$dict = right;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-				}
-			}
-		}
-	});
+var $elm$browser$Browser$Events$addKey = function (sub) {
+	var node = sub.a;
+	var name = sub.b;
+	return _Utils_Tuple2(
+		_Utils_ap(
+			$elm$browser$Browser$Events$nodeToKey(node),
+			name),
+		sub);
+};
 var $elm$core$Dict$Black = {$: 'Black'};
 var $elm$core$Dict$RBNode_elm_builtin = F5(
 	function (a, b, c, d, e) {
@@ -5749,6 +5445,7 @@ var $elm$core$Dict$balance = F5(
 			}
 		}
 	});
+var $elm$core$Basics$compare = _Utils_compare;
 var $elm$core$Dict$insertHelp = F3(
 	function (key, value, dict) {
 		if (dict.$ === 'RBEmpty_elm_builtin') {
@@ -5795,6 +5492,377 @@ var $elm$core$Dict$insert = F3(
 		} else {
 			var x = _v0;
 			return x;
+		}
+	});
+var $elm$core$Dict$fromList = function (assocs) {
+	return A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v0, dict) {
+				var key = _v0.a;
+				var value = _v0.b;
+				return A3($elm$core$Dict$insert, key, value, dict);
+			}),
+		$elm$core$Dict$empty,
+		assocs);
+};
+var $elm$core$Process$kill = _Scheduler_kill;
+var $elm$core$Dict$foldl = F3(
+	function (func, acc, dict) {
+		foldl:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return acc;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var $temp$func = func,
+					$temp$acc = A3(
+					func,
+					key,
+					value,
+					A3($elm$core$Dict$foldl, func, acc, left)),
+					$temp$dict = right;
+				func = $temp$func;
+				acc = $temp$acc;
+				dict = $temp$dict;
+				continue foldl;
+			}
+		}
+	});
+var $elm$core$Dict$merge = F6(
+	function (leftStep, bothStep, rightStep, leftDict, rightDict, initialResult) {
+		var stepState = F3(
+			function (rKey, rValue, _v0) {
+				stepState:
+				while (true) {
+					var list = _v0.a;
+					var result = _v0.b;
+					if (!list.b) {
+						return _Utils_Tuple2(
+							list,
+							A3(rightStep, rKey, rValue, result));
+					} else {
+						var _v2 = list.a;
+						var lKey = _v2.a;
+						var lValue = _v2.b;
+						var rest = list.b;
+						if (_Utils_cmp(lKey, rKey) < 0) {
+							var $temp$rKey = rKey,
+								$temp$rValue = rValue,
+								$temp$_v0 = _Utils_Tuple2(
+								rest,
+								A3(leftStep, lKey, lValue, result));
+							rKey = $temp$rKey;
+							rValue = $temp$rValue;
+							_v0 = $temp$_v0;
+							continue stepState;
+						} else {
+							if (_Utils_cmp(lKey, rKey) > 0) {
+								return _Utils_Tuple2(
+									list,
+									A3(rightStep, rKey, rValue, result));
+							} else {
+								return _Utils_Tuple2(
+									rest,
+									A4(bothStep, lKey, lValue, rValue, result));
+							}
+						}
+					}
+				}
+			});
+		var _v3 = A3(
+			$elm$core$Dict$foldl,
+			stepState,
+			_Utils_Tuple2(
+				$elm$core$Dict$toList(leftDict),
+				initialResult),
+			rightDict);
+		var leftovers = _v3.a;
+		var intermediateResult = _v3.b;
+		return A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v4, result) {
+					var k = _v4.a;
+					var v = _v4.b;
+					return A3(leftStep, k, v, result);
+				}),
+			intermediateResult,
+			leftovers);
+	});
+var $elm$browser$Browser$Events$Event = F2(
+	function (key, event) {
+		return {event: event, key: key};
+	});
+var $elm$core$Platform$sendToSelf = _Platform_sendToSelf;
+var $elm$browser$Browser$Events$spawn = F3(
+	function (router, key, _v0) {
+		var node = _v0.a;
+		var name = _v0.b;
+		var actualNode = function () {
+			if (node.$ === 'Document') {
+				return _Browser_doc;
+			} else {
+				return _Browser_window;
+			}
+		}();
+		return A2(
+			$elm$core$Task$map,
+			function (value) {
+				return _Utils_Tuple2(key, value);
+			},
+			A3(
+				_Browser_on,
+				actualNode,
+				name,
+				function (event) {
+					return A2(
+						$elm$core$Platform$sendToSelf,
+						router,
+						A2($elm$browser$Browser$Events$Event, key, event));
+				}));
+	});
+var $elm$core$Dict$union = F2(
+	function (t1, t2) {
+		return A3($elm$core$Dict$foldl, $elm$core$Dict$insert, t2, t1);
+	});
+var $elm$browser$Browser$Events$onEffects = F3(
+	function (router, subs, state) {
+		var stepRight = F3(
+			function (key, sub, _v6) {
+				var deads = _v6.a;
+				var lives = _v6.b;
+				var news = _v6.c;
+				return _Utils_Tuple3(
+					deads,
+					lives,
+					A2(
+						$elm$core$List$cons,
+						A3($elm$browser$Browser$Events$spawn, router, key, sub),
+						news));
+			});
+		var stepLeft = F3(
+			function (_v4, pid, _v5) {
+				var deads = _v5.a;
+				var lives = _v5.b;
+				var news = _v5.c;
+				return _Utils_Tuple3(
+					A2($elm$core$List$cons, pid, deads),
+					lives,
+					news);
+			});
+		var stepBoth = F4(
+			function (key, pid, _v2, _v3) {
+				var deads = _v3.a;
+				var lives = _v3.b;
+				var news = _v3.c;
+				return _Utils_Tuple3(
+					deads,
+					A3($elm$core$Dict$insert, key, pid, lives),
+					news);
+			});
+		var newSubs = A2($elm$core$List$map, $elm$browser$Browser$Events$addKey, subs);
+		var _v0 = A6(
+			$elm$core$Dict$merge,
+			stepLeft,
+			stepBoth,
+			stepRight,
+			state.pids,
+			$elm$core$Dict$fromList(newSubs),
+			_Utils_Tuple3(_List_Nil, $elm$core$Dict$empty, _List_Nil));
+		var deadPids = _v0.a;
+		var livePids = _v0.b;
+		var makeNewPids = _v0.c;
+		return A2(
+			$elm$core$Task$andThen,
+			function (pids) {
+				return $elm$core$Task$succeed(
+					A2(
+						$elm$browser$Browser$Events$State,
+						newSubs,
+						A2(
+							$elm$core$Dict$union,
+							livePids,
+							$elm$core$Dict$fromList(pids))));
+			},
+			A2(
+				$elm$core$Task$andThen,
+				function (_v1) {
+					return $elm$core$Task$sequence(makeNewPids);
+				},
+				$elm$core$Task$sequence(
+					A2($elm$core$List$map, $elm$core$Process$kill, deadPids))));
+	});
+var $elm$core$List$maybeCons = F3(
+	function (f, mx, xs) {
+		var _v0 = f(mx);
+		if (_v0.$ === 'Just') {
+			var x = _v0.a;
+			return A2($elm$core$List$cons, x, xs);
+		} else {
+			return xs;
+		}
+	});
+var $elm$core$List$filterMap = F2(
+	function (f, xs) {
+		return A3(
+			$elm$core$List$foldr,
+			$elm$core$List$maybeCons(f),
+			_List_Nil,
+			xs);
+	});
+var $elm$browser$Browser$Events$onSelfMsg = F3(
+	function (router, _v0, state) {
+		var key = _v0.key;
+		var event = _v0.event;
+		var toMessage = function (_v2) {
+			var subKey = _v2.a;
+			var _v3 = _v2.b;
+			var node = _v3.a;
+			var name = _v3.b;
+			var decoder = _v3.c;
+			return _Utils_eq(subKey, key) ? A2(_Browser_decodeEvent, decoder, event) : $elm$core$Maybe$Nothing;
+		};
+		var messages = A2($elm$core$List$filterMap, toMessage, state.subs);
+		return A2(
+			$elm$core$Task$andThen,
+			function (_v1) {
+				return $elm$core$Task$succeed(state);
+			},
+			$elm$core$Task$sequence(
+				A2(
+					$elm$core$List$map,
+					$elm$core$Platform$sendToApp(router),
+					messages)));
+	});
+var $elm$browser$Browser$Events$subMap = F2(
+	function (func, _v0) {
+		var node = _v0.a;
+		var name = _v0.b;
+		var decoder = _v0.c;
+		return A3(
+			$elm$browser$Browser$Events$MySub,
+			node,
+			name,
+			A2($elm$json$Json$Decode$map, func, decoder));
+	});
+_Platform_effectManagers['Browser.Events'] = _Platform_createManager($elm$browser$Browser$Events$init, $elm$browser$Browser$Events$onEffects, $elm$browser$Browser$Events$onSelfMsg, 0, $elm$browser$Browser$Events$subMap);
+var $elm$browser$Browser$Events$subscription = _Platform_leaf('Browser.Events');
+var $elm$browser$Browser$Events$on = F3(
+	function (node, name, decoder) {
+		return $elm$browser$Browser$Events$subscription(
+			A3($elm$browser$Browser$Events$MySub, node, name, decoder));
+	});
+var $elm$browser$Browser$Events$onResize = function (func) {
+	return A3(
+		$elm$browser$Browser$Events$on,
+		$elm$browser$Browser$Events$Window,
+		'resize',
+		A2(
+			$elm$json$Json$Decode$field,
+			'target',
+			A3(
+				$elm$json$Json$Decode$map2,
+				func,
+				A2($elm$json$Json$Decode$field, 'innerWidth', $elm$json$Json$Decode$int),
+				A2($elm$json$Json$Decode$field, 'innerHeight', $elm$json$Json$Decode$int))));
+};
+var $author$project$Preview$PrevParam = F5(
+	function (title, body, css, inptype, prevtype) {
+		return {body: body, css: css, inptype: inptype, prevtype: prevtype, title: title};
+	});
+var $elm$json$Json$Decode$map5 = _Json_map5;
+var $author$project$Preview$prevParamDecoder = A6(
+	$elm$json$Json$Decode$map5,
+	$author$project$Preview$PrevParam,
+	A2($elm$json$Json$Decode$field, 'title', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'body', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'css', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'inptype', $elm$json$Json$Decode$int),
+	A2($elm$json$Json$Decode$field, 'prevtype', $elm$json$Json$Decode$string));
+var $author$project$Preview$subscriptions = function (model) {
+	return $elm$core$Platform$Sub$batch(
+		_List_fromArray(
+			[
+				$author$project$Preview$loadText(
+				A2(
+					$elm$core$Basics$composeR,
+					$elm$json$Json$Decode$decodeValue($author$project$Preview$prevParamDecoder),
+					$author$project$Preview$LoadText)),
+				$elm$browser$Browser$Events$onResize(
+				F2(
+					function (_v0, h) {
+						return $author$project$Preview$GetNewHeight(h);
+					}))
+			]));
+};
+var $author$project$Preview$HResp = function (a) {
+	return {$: 'HResp', a: a};
+};
+var $elm$json$Json$Encode$null = _Json_encodeNull;
+var $author$project$Preview$clickNotice = _Platform_outgoingPort(
+	'clickNotice',
+	function ($) {
+		return $elm$json$Json$Encode$null;
+	});
+var $elm$http$Http$BadStatus_ = F2(
+	function (a, b) {
+		return {$: 'BadStatus_', a: a, b: b};
+	});
+var $elm$http$Http$BadUrl_ = function (a) {
+	return {$: 'BadUrl_', a: a};
+};
+var $elm$http$Http$GoodStatus_ = F2(
+	function (a, b) {
+		return {$: 'GoodStatus_', a: a, b: b};
+	});
+var $elm$http$Http$NetworkError_ = {$: 'NetworkError_'};
+var $elm$http$Http$Receiving = function (a) {
+	return {$: 'Receiving', a: a};
+};
+var $elm$http$Http$Sending = function (a) {
+	return {$: 'Sending', a: a};
+};
+var $elm$http$Http$Timeout_ = {$: 'Timeout_'};
+var $elm$core$Maybe$isJust = function (maybe) {
+	if (maybe.$ === 'Just') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $elm$core$Dict$get = F2(
+	function (targetKey, dict) {
+		get:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
+				switch (_v1.$) {
+					case 'LT':
+						var $temp$targetKey = targetKey,
+							$temp$dict = left;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+					case 'EQ':
+						return $elm$core$Maybe$Just(value);
+					default:
+						var $temp$targetKey = targetKey,
+							$temp$dict = right;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+				}
+			}
 		}
 	});
 var $elm$core$Dict$getMin = function (dict) {
@@ -6170,7 +6238,6 @@ var $elm$core$Dict$update = F3(
 			return A2($elm$core$Dict$remove, targetKey, dictionary);
 		}
 	});
-var $elm$http$Http$filePart = _Http_pair;
 var $elm$http$Http$multipartBody = function (parts) {
 	return A2(
 		_Http_pair,
@@ -6178,29 +6245,23 @@ var $elm$http$Http$multipartBody = function (parts) {
 		_Http_toFormData(parts));
 };
 var $elm$http$Http$stringPart = _Http_pair;
-var $author$project$MediaUpload$createMultiPart = function (model) {
-	return $elm$http$Http$multipartBody(
-		_Utils_ap(
+var $author$project$Preview$createMultiPart = F2(
+	function (model, param) {
+		return $elm$http$Http$multipartBody(
 			_List_fromArray(
 				[
-					A2($elm$http$Http$stringPart, model.token.key, model.token.val)
-				]),
-			_Utils_ap(
-				A2(
-					$elm$core$List$map,
-					$elm$http$Http$filePart('file'),
-					model.files),
-				A2(
-					$elm$core$List$map,
-					$elm$http$Http$stringPart('media_title'),
-					model.titles))));
-};
-var $elm$json$Json$Decode$decodeString = _Json_runOnString;
-var $elm$core$Basics$composeR = F3(
-	function (f, g, x) {
-		return g(
-			f(x));
+					A2($elm$http$Http$stringPart, model.prevInfo.key, model.prevInfo.val),
+					A2($elm$http$Http$stringPart, 'preview_title', param.title),
+					A2($elm$http$Http$stringPart, 'preview_body', param.body),
+					A2($elm$http$Http$stringPart, 'preview_css', param.css),
+					A2(
+					$elm$http$Http$stringPart,
+					'input_type',
+					$elm$core$String$fromInt(param.inptype)),
+					A2($elm$http$Http$stringPart, 'preview_type', param.prevtype)
+				]));
 	});
+var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $elm$http$Http$expectStringResponse = F2(
 	function (toMsg, toResult) {
 		return A3(
@@ -6267,21 +6328,6 @@ var $elm$http$Http$expectJson = F2(
 						A2($elm$json$Json$Decode$decodeString, decoder, string));
 				}));
 	});
-var $elm$time$Time$Posix = function (a) {
-	return {$: 'Posix', a: a};
-};
-var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
-var $elm$file$File$Select$files = F2(
-	function (mimes, toMsg) {
-		return A2(
-			$elm$core$Task$perform,
-			function (_v0) {
-				var f = _v0.a;
-				var fs = _v0.b;
-				return A2(toMsg, f, fs);
-			},
-			_File_uploadOneOrMore(mimes));
-	});
 var $elm$browser$Browser$Navigation$load = _Browser_load;
 var $elm$http$Http$Request = function (a) {
 	return {$: 'Request', a: a};
@@ -6292,7 +6338,6 @@ var $elm$http$Http$State = F2(
 	});
 var $elm$http$Http$init = $elm$core$Task$succeed(
 	A2($elm$http$Http$State, $elm$core$Dict$empty, _List_Nil));
-var $elm$core$Process$kill = _Scheduler_kill;
 var $elm$core$Process$spawn = _Scheduler_spawn;
 var $elm$http$Http$updateReqs = F3(
 	function (router, cmds, reqs) {
@@ -6363,24 +6408,6 @@ var $elm$http$Http$onEffects = F4(
 					A2($elm$http$Http$State, reqs, subs));
 			},
 			A3($elm$http$Http$updateReqs, router, cmds, state.reqs));
-	});
-var $elm$core$List$maybeCons = F3(
-	function (f, mx, xs) {
-		var _v0 = f(mx);
-		if (_v0.$ === 'Just') {
-			var x = _v0.a;
-			return A2($elm$core$List$cons, x, xs);
-		} else {
-			return xs;
-		}
-	});
-var $elm$core$List$filterMap = F2(
-	function (f, xs) {
-		return A3(
-			$elm$core$List$foldr,
-			$elm$core$List$maybeCons(f),
-			_List_Nil,
-			xs);
 	});
 var $elm$http$Http$maybeSend = F4(
 	function (router, desiredTracker, progress, _v0) {
@@ -6455,62 +6482,7 @@ var $elm$http$Http$post = function (r) {
 	return $elm$http$Http$request(
 		{body: r.body, expect: r.expect, headers: _List_Nil, method: 'POST', timeout: $elm$core$Maybe$Nothing, tracker: $elm$core$Maybe$Nothing, url: r.url});
 };
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
-var $elm$core$Basics$neq = _Utils_notEqual;
-var $author$project$MediaUpload$removeObject = F2(
-	function (idx, xs) {
-		return A2(
-			$elm$core$List$map,
-			function (_v0) {
-				var t = _v0.b;
-				return t;
-			},
-			A2(
-				$elm$core$List$filter,
-				function (_v1) {
-					var index = _v1.a;
-					return (!_Utils_eq(idx, index)) ? true : false;
-				},
-				A2(
-					$elm$core$List$indexedMap,
-					F2(
-						function (index, o) {
-							return _Utils_Tuple2(index, o);
-						}),
-					xs)));
-	});
-var $elm$core$List$repeatHelp = F3(
-	function (result, n, value) {
-		repeatHelp:
-		while (true) {
-			if (n <= 0) {
-				return result;
-			} else {
-				var $temp$result = A2($elm$core$List$cons, value, result),
-					$temp$n = n - 1,
-					$temp$value = value;
-				result = $temp$result;
-				n = $temp$n;
-				value = $temp$value;
-				continue repeatHelp;
-			}
-		}
-	});
-var $elm$core$List$repeat = F2(
-	function (n, value) {
-		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
-	});
-var $author$project$MediaUpload$Upresult = F2(
+var $author$project$Preview$Upresult = F2(
 	function (result, msg) {
 		return {msg: msg, result: result};
 	});
@@ -6522,7 +6494,7 @@ var $NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required = F3(
 			A2($elm$json$Json$Decode$field, key, valDecoder),
 			decoder);
 	});
-var $author$project$MediaUpload$respDecoder = A3(
+var $author$project$Preview$respDecoder = A3(
 	$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 	'msg',
 	$elm$json$Json$Decode$string,
@@ -6530,123 +6502,73 @@ var $author$project$MediaUpload$respDecoder = A3(
 		$NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
 		'result',
 		$elm$json$Json$Decode$int,
-		$elm$json$Json$Decode$succeed($author$project$MediaUpload$Upresult)));
-var $elm$file$File$toUrl = _File_toUrl;
-var $author$project$MediaUpload$updateTitles = F3(
-	function (idx, str, titles) {
-		return A2(
-			$elm$core$List$map,
-			function (_v0) {
-				var t = _v0.b;
-				return t;
-			},
-			A2(
-				$elm$core$List$map,
-				function (_v1) {
-					var index = _v1.a;
-					var n = _v1.b;
-					return _Utils_eq(idx, index) ? _Utils_Tuple2(index, str) : _Utils_Tuple2(index, n);
-				},
-				A2(
-					$elm$core$List$indexedMap,
-					F2(
-						function (index, title) {
-							return _Utils_Tuple2(index, title);
-						}),
-					titles)));
-	});
-var $author$project$MediaUpload$update = F2(
+		$elm$json$Json$Decode$succeed($author$project$Preview$Upresult)));
+var $author$project$Preview$switchUrl = function (ptype) {
+	switch (ptype) {
+		case 'post':
+			return '/hb-admin/postprev';
+		case 'free':
+			return '/hb-admin/freeprev';
+		default:
+			return '/hb-admin/error';
+	}
+};
+var $elm$core$Debug$todo = _Debug_todo;
+var $author$project$Preview$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 'Pick':
+			case 'Open':
 				return _Utils_Tuple2(
 					model,
-					A2(
-						$elm$file$File$Select$files,
-						_List_fromArray(
-							['*/*']),
-						$author$project$MediaUpload$GotFiles));
-			case 'DragEnter':
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{hover: false}),
-					$elm$core$Platform$Cmd$none);
-			case 'DragLeave':
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{hover: false}),
-					$elm$core$Platform$Cmd$none);
-			case 'GotFiles':
-				var file = msg.a;
-				var files = msg.b;
+					$author$project$Preview$clickNotice(_Utils_Tuple0));
+			case 'GetNewHeight':
+				var h = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							files: A2($elm$core$List$cons, file, files),
-							hover: false,
-							titles: A2(
-								$elm$core$List$repeat,
-								$elm$core$List$length(
-									A2($elm$core$List$cons, file, files)),
-								'')
-						}),
-					A2(
-						$elm$core$Task$perform,
-						$author$project$MediaUpload$ImageLoaded,
-						$elm$core$Task$sequence(
-							A2(
-								$elm$core$List$map,
-								function (f) {
-									return $elm$file$File$toUrl(f);
-								},
-								A2($elm$core$List$cons, file, files)))));
-			case 'ImageLoaded':
-				var contents = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{contents: contents}),
-					$elm$core$Platform$Cmd$none);
-			case 'Input':
-				var idx = msg.a;
-				var str = msg.b;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							titles: A3($author$project$MediaUpload$updateTitles, idx, str, model.titles)
+							height: $author$project$Preview$calcHeight(h)
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 'Delete':
-				var idx = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							contents: A2($author$project$MediaUpload$removeObject, idx, model.contents),
-							err: $elm$core$Maybe$Nothing,
-							files: A2($author$project$MediaUpload$removeObject, idx, model.files),
-							titles: A2($author$project$MediaUpload$removeObject, idx, model.titles)
-						}),
-					$elm$core$Platform$Cmd$none);
-			case 'Upload':
-				return _Utils_Tuple2(
-					model,
-					$elm$http$Http$post(
-						{
-							body: $author$project$MediaUpload$createMultiPart(model),
-							expect: A2($elm$http$Http$expectJson, $author$project$MediaUpload$HResp, $author$project$MediaUpload$respDecoder),
-							url: '/hb-admin/medianew'
-						}));
-			default:
+			case 'LoadText':
+				var result = msg.a;
+				if (result.$ === 'Ok') {
+					var param = result.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{prevtype: param.prevtype, showDialog: true}),
+						$elm$http$Http$post(
+							{
+								body: A2($author$project$Preview$createMultiPart, model, param),
+								expect: A2($elm$http$Http$expectJson, $author$project$Preview$HResp, $author$project$Preview$respDecoder),
+								url: $author$project$Preview$switchUrl(param.prevtype)
+							}));
+				} else {
+					var error = result.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{
+								err: $elm$core$Maybe$Just(
+									$elm$json$Json$Decode$errorToString(error))
+							}),
+						_Debug_todo(
+							'Preview',
+							{
+								start: {line: 120, column: 23},
+								end: {line: 120, column: 33}
+							})(
+							$elm$json$Json$Decode$errorToString(error)));
+				}
+			case 'HResp':
 				if (msg.a.$ === 'Ok') {
 					var res = msg.a.a;
 					return (res.result === 1) ? _Utils_Tuple2(
-						model,
-						$elm$browser$Browser$Navigation$load('/hb-admin/medialist/1')) : _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{frameFlag: true}),
+						$elm$core$Platform$Cmd$none) : _Utils_Tuple2(
 						model,
 						$elm$browser$Browser$Navigation$load('/hb-admin/error'));
 				} else {
@@ -6683,7 +6605,7 @@ var $author$project$MediaUpload$update = F2(
 								_Utils_update(
 									model,
 									{
-										err: $elm$core$Maybe$Just('アップロードサイズが制限を越えているため削除してください')
+										err: $elm$core$Maybe$Just('転送データ超過')
 									}),
 								$elm$core$Platform$Cmd$none) : _Utils_Tuple2(
 								_Utils_update(
@@ -6704,19 +6626,15 @@ var $author$project$MediaUpload$update = F2(
 								$elm$core$Platform$Cmd$none);
 					}
 				}
+			default:
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{frameFlag: false, showDialog: false}),
+					$elm$core$Platform$Cmd$none);
 		}
 	});
-var $author$project$MediaUpload$DragEnter = {$: 'DragEnter'};
-var $author$project$MediaUpload$DragLeave = {$: 'DragLeave'};
-var $author$project$MediaUpload$Pick = {$: 'Pick'};
-var $elm$virtual_dom$VirtualDom$attribute = F2(
-	function (key, value) {
-		return A2(
-			_VirtualDom_attribute,
-			_VirtualDom_noOnOrFormAction(key),
-			_VirtualDom_noJavaScriptOrHtmlUri(value));
-	});
-var $elm$html$Html$Attributes$attribute = $elm$virtual_dom$VirtualDom$attribute;
+var $author$project$Preview$Open = {$: 'Open'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
@@ -6727,94 +6645,149 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			$elm$json$Json$Encode$string(string));
 	});
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
-var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$json$Json$Decode$at = F2(
-	function (fields, decoder) {
-		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
-	});
-var $elm$file$File$decoder = _File_decoder;
-var $elm$json$Json$Decode$list = _Json_decodeList;
-var $elm$json$Json$Decode$fail = _Json_fail;
-var $elm$json$Json$Decode$oneOrMoreHelp = F2(
-	function (toValue, xs) {
-		if (!xs.b) {
-			return $elm$json$Json$Decode$fail('a ARRAY with at least ONE element');
-		} else {
-			var y = xs.a;
-			var ys = xs.b;
-			return $elm$json$Json$Decode$succeed(
-				A2(toValue, y, ys));
-		}
-	});
-var $elm$json$Json$Decode$oneOrMore = F2(
-	function (toValue, decoder) {
-		return A2(
-			$elm$json$Json$Decode$andThen,
-			$elm$json$Json$Decode$oneOrMoreHelp(toValue),
-			$elm$json$Json$Decode$list(decoder));
-	});
-var $author$project$MediaUpload$dropDecoder = A2(
-	$elm$json$Json$Decode$at,
-	_List_fromArray(
-		['dataTransfer', 'files']),
-	A2($elm$json$Json$Decode$oneOrMore, $author$project$MediaUpload$GotFiles, $elm$file$File$decoder));
-var $author$project$MediaUpload$hijack = function (msg) {
-	return _Utils_Tuple2(msg, true);
-};
-var $elm$virtual_dom$VirtualDom$MayPreventDefault = function (a) {
-	return {$: 'MayPreventDefault', a: a};
+var $author$project$Preview$Close = {$: 'Close'};
+var $elm$virtual_dom$VirtualDom$Custom = function (a) {
+	return {$: 'Custom', a: a};
 };
 var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var $elm$html$Html$Events$preventDefaultOn = F2(
+var $elm$html$Html$Events$custom = F2(
 	function (event, decoder) {
 		return A2(
 			$elm$virtual_dom$VirtualDom$on,
 			event,
-			$elm$virtual_dom$VirtualDom$MayPreventDefault(decoder));
+			$elm$virtual_dom$VirtualDom$Custom(decoder));
 	});
-var $author$project$MediaUpload$hijackOn = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$html$Html$Events$preventDefaultOn,
-			event,
-			A2($elm$json$Json$Decode$map, $author$project$MediaUpload$hijack, decoder));
-	});
-var $author$project$MediaUpload$Delete = function (a) {
-	return {$: 'Delete', a: a};
-};
-var $author$project$MediaUpload$Input = F2(
-	function (a, b) {
-		return {$: 'Input', a: a, b: b};
-	});
-var $elm$core$Basics$ge = _Utils_ge;
-var $author$project$MediaUpload$adjustSize = function (size) {
-	return (_Utils_cmp(size, 1024 * 1024) < 0) ? ($elm$core$String$fromInt(
-		$elm$core$Basics$floor(size / 1024)) + 'KB') : ((_Utils_cmp(size, 1024 * 1024) > -1) ? ($elm$core$String$fromInt(
-		$elm$core$Basics$floor(size / (1024 * 1024))) + 'MB') : ($elm$core$String$fromInt(size) + 'B'));
-};
-var $elm$json$Json$Encode$bool = _Json_wrap;
-var $elm$html$Html$Attributes$boolProperty = F2(
-	function (key, bool) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$bool(bool));
-	});
-var $elm$html$Html$Attributes$autofocus = $elm$html$Html$Attributes$boolProperty('autofocus');
-var $elm$regex$Regex$Match = F4(
-	function (match, index, number, submatches) {
-		return {index: index, match: match, number: number, submatches: submatches};
-	});
-var $elm$regex$Regex$contains = _Regex_contains;
-var $elm$html$Html$img = _VirtualDom_node('img');
-var $elm$regex$Regex$fromStringWith = _Regex_fromStringWith;
-var $elm$regex$Regex$fromString = function (string) {
+var $author$project$Preview$onClickNoDefault = function (message) {
+	var config = {message: message, preventDefault: true, stopPropagation: true};
 	return A2(
-		$elm$regex$Regex$fromStringWith,
-		{caseInsensitive: false, multiline: false},
-		string);
+		$elm$html$Html$Events$custom,
+		'click',
+		$elm$json$Json$Decode$succeed(config));
 };
-var $elm$regex$Regex$never = _Regex_never;
+var $elm$virtual_dom$VirtualDom$attribute = F2(
+	function (key, value) {
+		return A2(
+			_VirtualDom_attribute,
+			_VirtualDom_noOnOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlUri(value));
+	});
+var $elm$html$Html$Attributes$attribute = $elm$virtual_dom$VirtualDom$attribute;
+var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
+var $elm$html$Html$iframe = _VirtualDom_node('iframe');
+var $elm$html$Html$Attributes$src = function (url) {
+	return A2(
+		$elm$html$Html$Attributes$stringProperty,
+		'src',
+		_VirtualDom_noJavaScriptOrHtmlUri(url));
+};
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
+var $author$project$Preview$showPreview = function (model) {
+	return model.frameFlag ? $elm$core$Maybe$Just(
+		A2(
+			$elm$html$Html$iframe,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$id('prevFrameId'),
+					$elm$html$Html$Attributes$src(
+					$author$project$Preview$switchUrl(model.prevtype)),
+					A2($elm$html$Html$Attributes$attribute, 'width', '100%'),
+					A2(
+					$elm$html$Html$Attributes$attribute,
+					'height',
+					$elm$core$String$fromInt(model.height) + 'px'),
+					A2($elm$html$Html$Attributes$style, 'border', '1px gray solid')
+				]),
+			_List_Nil)) : $elm$core$Maybe$Nothing;
+};
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$Preview$dialogConfig = function (model) {
+	return {
+		body: $author$project$Preview$showPreview(model),
+		closeMessage: $elm$core$Maybe$Just($author$project$Preview$Close),
+		containerClass: $elm$core$Maybe$Nothing,
+		footer: _List_fromArray(
+			[
+				A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('btn btn-default btn-block'),
+						$author$project$Preview$onClickNoDefault($author$project$Preview$Close)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('閉じる')
+					]))
+			]),
+		header: $elm$core$Maybe$Just(
+			$elm$html$Html$text('プレビュー'))
+	};
+};
+var $elm$html$Html$span = _VirtualDom_node('span');
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
+};
+var $elm$html$Html$Attributes$classList = function (classes) {
+	return $elm$html$Html$Attributes$class(
+		A2(
+			$elm$core$String$join,
+			' ',
+			A2(
+				$elm$core$List$map,
+				$elm$core$Tuple$first,
+				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
+};
+var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $author$project$Dialog$backdrop = function (config) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$classList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						'modal-backdrop fade in',
+						!_Utils_eq(config, $elm$core$Maybe$Nothing))
+					]))
+			]),
+		_List_Nil);
+};
+var $author$project$Dialog$empty = A2($elm$html$Html$span, _List_Nil, _List_Nil);
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
 var $elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
 		if (maybe.$ === 'Just') {
@@ -6824,19 +6797,25 @@ var $elm$core$Maybe$withDefault = F2(
 			return _default;
 		}
 	});
-var $author$project$MediaUpload$imgMimesRegex = A2(
-	$elm$core$Maybe$withDefault,
-	$elm$regex$Regex$never,
-	$elm$regex$Regex$fromString('image/*'));
-var $elm$html$Html$input = _VirtualDom_node('input');
-var $elm$html$Html$Attributes$maxlength = function (n) {
+var $author$project$Dialog$wrapBody = function (body) {
 	return A2(
-		_VirtualDom_attribute,
-		'maxlength',
-		$elm$core$String$fromInt(n));
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('modal-body')
+			]),
+		_List_fromArray(
+			[body]));
 };
-var $elm$file$File$mime = _File_mime;
-var $elm$file$File$name = _File_name;
+var $author$project$Dialog$wrapFooter = function (footer) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('modal-footer')
+			]),
+		footer);
+};
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -6853,320 +6832,163 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $elm$html$Html$Events$alwaysStop = function (x) {
-	return _Utils_Tuple2(x, true);
-};
-var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
-	return {$: 'MayStopPropagation', a: a};
-};
-var $elm$html$Html$Events$stopPropagationOn = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
-	});
-var $elm$html$Html$Events$targetValue = A2(
-	$elm$json$Json$Decode$at,
-	_List_fromArray(
-		['target', 'value']),
-	$elm$json$Json$Decode$string);
-var $elm$html$Html$Events$onInput = function (tagger) {
+var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
+var $author$project$Dialog$closeButton = function (closeMessage) {
 	return A2(
-		$elm$html$Html$Events$stopPropagationOn,
-		'input',
-		A2(
-			$elm$json$Json$Decode$map,
-			$elm$html$Html$Events$alwaysStop,
-			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
+		$elm$html$Html$button,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$type_('button'),
+				$elm$html$Html$Attributes$class('close'),
+				$elm$html$Html$Events$onClick(closeMessage)
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text('x')
+			]));
 };
-var $elm$html$Html$p = _VirtualDom_node('p');
-var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
-var $elm$file$File$size = _File_size;
-var $elm$html$Html$Attributes$src = function (url) {
-	return A2(
-		$elm$html$Html$Attributes$stringProperty,
-		'src',
-		_VirtualDom_noJavaScriptOrHtmlUri(url));
-};
-var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
-var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
-var $author$project$MediaUpload$mediaMap = F5(
-	function (maxlen, idx, file, content, title) {
-		return A2(
+var $elm$html$Html$h4 = _VirtualDom_node('h4');
+var $author$project$Dialog$wrapHeader = F2(
+	function (closeMessage, header) {
+		return (_Utils_eq(closeMessage, $elm$core$Maybe$Nothing) && _Utils_eq(header, $elm$core$Maybe$Nothing)) ? $author$project$Dialog$empty : A2(
 			$elm$html$Html$div,
 			_List_fromArray(
 				[
-					$elm$html$Html$Attributes$class('col-lg-3')
+					$elm$html$Html$Attributes$class('modal-header')
 				]),
 			_List_fromArray(
 				[
 					A2(
-					$elm$html$Html$div,
+					$elm$html$Html$h4,
 					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$class('panel panel-info')
+							$elm$html$Html$Attributes$class('modal-title')
 						]),
 					_List_fromArray(
 						[
+							A2($elm$core$Maybe$withDefault, $author$project$Dialog$empty, header),
 							A2(
-							$elm$html$Html$div,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$class('panel-heading')
-								]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text(
-									$elm$file$File$name(file))
-								])),
-							A2(
-							$elm$html$Html$div,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$class('panel-body')
-								]),
-							_List_fromArray(
-								[
-									A2(
-									$elm$html$Html$p,
-									_List_fromArray(
-										[
-											$elm$html$Html$Attributes$class('inpimg')
-										]),
-									_List_fromArray(
-										[
-											A2(
-											$elm$regex$Regex$contains,
-											$author$project$MediaUpload$imgMimesRegex,
-											$elm$file$File$mime(file)) ? A2(
-											$elm$html$Html$img,
-											_List_fromArray(
-												[
-													$elm$html$Html$Attributes$src(content),
-													$elm$html$Html$Attributes$class('img-responsive img-thumbnail center-block'),
-													A2($elm$html$Html$Attributes$style, 'max-height', '300px')
-												]),
-											_List_Nil) : A2(
-											$elm$html$Html$img,
-											_List_fromArray(
-												[
-													$elm$html$Html$Attributes$src('../static/images/noimage.png'),
-													$elm$html$Html$Attributes$class('img-responsive img-thumbnail center-block'),
-													A2($elm$html$Html$Attributes$style, 'max-height', '300px')
-												]),
-											_List_Nil)
-										])),
-									A2(
-									$elm$html$Html$p,
-									_List_Nil,
-									_List_fromArray(
-										[
-											$elm$html$Html$text(
-											$author$project$MediaUpload$adjustSize(
-												$elm$file$File$size(file)))
-										])),
-									A2(
-									$elm$html$Html$input,
-									_List_fromArray(
-										[
-											$elm$html$Html$Events$onInput(
-											$author$project$MediaUpload$Input(idx)),
-											$elm$html$Html$Attributes$class('form-control'),
-											$elm$html$Html$Attributes$placeholder('画像名'),
-											$elm$html$Html$Attributes$maxlength(maxlen),
-											$elm$html$Html$Attributes$autofocus(true),
-											$elm$html$Html$Attributes$value(title)
-										]),
-									_List_Nil)
-								])),
-							A2(
-							$elm$html$Html$div,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$class('panel-footer text-center')
-								]),
-							_List_fromArray(
-								[
-									A2(
-									$elm$html$Html$button,
-									_List_fromArray(
-										[
-											$elm$html$Html$Attributes$class('btn btn-warning'),
-											$elm$html$Html$Events$onClick(
-											$author$project$MediaUpload$Delete(idx))
-										]),
-									_List_fromArray(
-										[
-											$elm$html$Html$text('削除')
-										]))
-								]))
+							$elm$core$Maybe$withDefault,
+							$author$project$Dialog$empty,
+							A2($elm$core$Maybe$map, $author$project$Dialog$closeButton, closeMessage))
 						]))
 				]));
 	});
-var $elm$html$Html$span = _VirtualDom_node('span');
-var $author$project$MediaUpload$Upload = {$: 'Upload'};
-var $author$project$MediaUpload$btnDisabled = function (model) {
-	return (!_Utils_eq(model.err, $elm$core$Maybe$Nothing)) ? ' disabled' : '';
-};
-var $elm$core$List$isEmpty = function (xs) {
-	if (!xs.b) {
-		return true;
-	} else {
-		return false;
-	}
-};
-var $author$project$MediaUpload$submitBtn = function (model) {
-	return $elm$core$List$isEmpty(model.files) ? A2($elm$html$Html$div, _List_Nil, _List_Nil) : A2(
+var $author$project$Dialog$view = function (maybeConfig) {
+	var displayed = !_Utils_eq(maybeConfig, $elm$core$Maybe$Nothing);
+	return A2(
 		$elm$html$Html$div,
+		function () {
+			var _v0 = A2(
+				$elm$core$Maybe$andThen,
+				function ($) {
+					return $.containerClass;
+				},
+				maybeConfig);
+			if (_v0.$ === 'Nothing') {
+				return _List_Nil;
+			} else {
+				var containerClass = _v0.a;
+				return _List_fromArray(
+					[
+						$elm$html$Html$Attributes$class(containerClass)
+					]);
+			}
+		}(),
 		_List_fromArray(
 			[
-				$elm$html$Html$Attributes$class('well text-center')
-			]),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								_Utils_Tuple2('modal fade', true),
+								_Utils_Tuple2('in', displayed)
+							])),
+						A2(
+						$elm$html$Html$Attributes$style,
+						'display',
+						displayed ? 'block' : 'none')
+					]),
+				_List_fromArray(
+					[
+						$author$project$Dialog$backdrop(maybeConfig),
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('modal-dialog modal-lg')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$div,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('modal-content')
+									]),
+								function () {
+									if (maybeConfig.$ === 'Nothing') {
+										return _List_fromArray(
+											[$author$project$Dialog$empty]);
+									} else {
+										var config = maybeConfig.a;
+										return _List_fromArray(
+											[
+												A2($author$project$Dialog$wrapHeader, config.closeMessage, config.header),
+												A2(
+												$elm$core$Maybe$withDefault,
+												$author$project$Dialog$empty,
+												A2($elm$core$Maybe$map, $author$project$Dialog$wrapBody, config.body)),
+												$author$project$Dialog$wrapFooter(config.footer)
+											]);
+									}
+								}())
+							]))
+					]))
+			]));
+};
+var $author$project$Preview$view = function (model) {
+	return A2(
+		$elm$html$Html$span,
+		_List_Nil,
 		_List_fromArray(
 			[
 				A2(
 				$elm$html$Html$button,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class(
-						'btn btn-primary' + $author$project$MediaUpload$btnDisabled(model)),
-						$elm$html$Html$Events$onClick($author$project$MediaUpload$Upload)
+						$elm$html$Html$Attributes$class('btn btn-default btn-sm'),
+						$author$project$Preview$onClickNoDefault($author$project$Preview$Open)
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('アップロード')
-					]))
-			]));
-};
-var $elm$core$List$map3 = _List_map3;
-var $elm_community$list_extra$List$Extra$triple = F3(
-	function (a, b, c) {
-		return _Utils_Tuple3(a, b, c);
-	});
-var $elm_community$list_extra$List$Extra$zip3 = $elm$core$List$map3($elm_community$list_extra$List$Extra$triple);
-var $author$project$MediaUpload$view = function (model) {
-	return A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class('col-lg-12')
-			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('well well-lg'),
-						A2(
-						$author$project$MediaUpload$hijackOn,
-						'dragenter',
-						$elm$json$Json$Decode$succeed($author$project$MediaUpload$DragEnter)),
-						A2(
-						$author$project$MediaUpload$hijackOn,
-						'dragover',
-						$elm$json$Json$Decode$succeed($author$project$MediaUpload$DragEnter)),
-						A2(
-						$author$project$MediaUpload$hijackOn,
-						'dragleave',
-						$elm$json$Json$Decode$succeed($author$project$MediaUpload$DragLeave)),
-						A2($author$project$MediaUpload$hijackOn, 'drop', $author$project$MediaUpload$dropDecoder)
-					]),
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class('btn btn-default'),
-								$elm$html$Html$Events$onClick($author$project$MediaUpload$Pick)
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('ファイル選択')
-							])),
-						A2(
-						$elm$html$Html$span,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class('dragandrop')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('ここへドロップ')
-							]))
+						$elm$html$Html$text('プレビュー')
 					])),
-				function () {
-				var _v0 = model.err;
-				if (_v0.$ === 'Just') {
-					var msg = _v0.a;
-					return A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class('alert alert-danger alert-dismissible')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$class('close'),
-										A2($elm$html$Html$Attributes$attribute, 'data-dismiss', 'alert'),
-										A2($elm$html$Html$Attributes$attribute, 'aria-hidden', 'true')
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('×')
-									])),
-								$elm$html$Html$text(msg)
-							]));
-				} else {
-					return A2($elm$html$Html$div, _List_Nil, _List_Nil);
-				}
-			}(),
-				$author$project$MediaUpload$submitBtn(model),
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('row row-eq-height')
-					]),
-				A2(
-					$elm$core$List$indexedMap,
-					F2(
-						function (idx, _v1) {
-							var file = _v1.a;
-							var content = _v1.b;
-							var title = _v1.c;
-							return A5($author$project$MediaUpload$mediaMap, model.token.maxlen, idx, file, content, title);
-						}),
-					A3($elm_community$list_extra$List$Extra$zip3, model.files, model.contents, model.titles))),
-				$author$project$MediaUpload$submitBtn(model)
+				$author$project$Dialog$view(
+				model.showDialog ? $elm$core$Maybe$Just(
+					$author$project$Preview$dialogConfig(model)) : $elm$core$Maybe$Nothing)
 			]));
 };
-var $author$project$MediaUpload$main = $elm$browser$Browser$element(
-	{init: $author$project$MediaUpload$init, subscriptions: $author$project$MediaUpload$subscriptions, update: $author$project$MediaUpload$update, view: $author$project$MediaUpload$view});
-_Platform_export({'MediaUpload':{'init':$author$project$MediaUpload$main(
+var $author$project$Preview$main = $elm$browser$Browser$element(
+	{init: $author$project$Preview$initialState, subscriptions: $author$project$Preview$subscriptions, update: $author$project$Preview$update, view: $author$project$Preview$view});
+_Platform_export({'Preview':{'init':$author$project$Preview$main(
 	A2(
 		$elm$json$Json$Decode$andThen,
 		function (val) {
 			return A2(
 				$elm$json$Json$Decode$andThen,
-				function (maxlen) {
+				function (key) {
 					return A2(
 						$elm$json$Json$Decode$andThen,
-						function (key) {
+						function (height) {
 							return $elm$json$Json$Decode$succeed(
-								{key: key, maxlen: maxlen, val: val});
+								{height: height, key: key, val: val});
 						},
-						A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string));
+						A2($elm$json$Json$Decode$field, 'height', $elm$json$Json$Decode$int));
 				},
-				A2($elm$json$Json$Decode$field, 'maxlen', $elm$json$Json$Decode$int));
+				A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string));
 		},
 		A2($elm$json$Json$Decode$field, 'val', $elm$json$Json$Decode$string)))(0)}});}(this));

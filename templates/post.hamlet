@@ -47,6 +47,7 @@
                 <!-- /.container-fluid -->
             <!-- /#page-wrapper -->
             <script src="/static/js/hb_urlcpy.js">
+            <script src="/static/js/hb_preview.js">
             <script type="text/javascript">
                 var url = document.getElementById('postUrl');
                 var app = Elm.UrlCpy.init({
@@ -57,5 +58,28 @@
                    console.log('cpy0');
                    document.querySelector('#cpy0').select();
                    document.execCommand('copy');
-                })
-;
+                });
+
+                var height = $(window).height();
+                var prev = Elm.Preview.init({
+                      flags: {
+                          key: "#{tokenKey}"
+                        , val: "#{token}"
+                        , height: height
+                        }
+                    , node: document.getElementById('prevBtn')
+                });
+
+                prev.ports.clickNotice.subscribe(() => {
+                   var title = $('#postTitleInputId').val();
+                   var body = $('#postTextInputId').val();
+                   var inptype = $('input:radio[name="input_type"]:checked').val();
+                   var param = {
+                       title: title
+                     , body: body
+                     , css: ""
+                     , inptype: parseInt(inptype, 10)
+                     , prevtype: "post"
+                     };
+                   prev.ports.loadText.send(param);
+                });

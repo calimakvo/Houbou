@@ -61,10 +61,10 @@
                                             <table .table .table-striped .table-bordered .table-hover>
                                                 <thead>
                                                     <tr>
-                                                        <th .hb-td-min-size-100>メディア
+                                                        <th .hb-td-min-size-150>メディア
                                                         <th>メディアパス
-                                                        <th>サイズ
-                                                        <th>登録日/更新日
+                                                        <th .hb-td-size-50>サイズ
+                                                        <th .hb-td-size-150>登録日/更新日
                                                         <th .hb-td-size-50>操作
                                                 <tbody>
                                                     $forall (i, MediaList n mediaId title dir name size thflag ctime utime _ _ version) <- mediaList

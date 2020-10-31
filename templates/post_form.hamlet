@@ -62,6 +62,7 @@
         <div .form-group>
             <button .btn .btn-default .btn-sm data-target-link-id="postTextInputId" .btnMediaInsert>
                 メディア挿入
+            <div #prevBtn>
 
         <div .form-group>
             <label>description

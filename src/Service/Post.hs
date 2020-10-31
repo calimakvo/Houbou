@@ -24,7 +24,6 @@ import qualified Database.Esqueleto.Internal.Sql as E
 import DataTypes.HoubouType
 import UrlParam.PostId
 import Libs.Common
-import Libs.Template
 import Service.Common
 
 getPublishPostedList ::
@@ -162,9 +161,7 @@ registerPost ::
 registerPost usrKey post = runDB $ do
   let status = unPostStatus post
   now <- liftIO getTm
-  html <- if unPostInputType post == (fromEnum ContTypeMarkdown)
-          then liftIO $ mdToHtml (unPostContent post)
-          else return Nothing
+  html <- liftIO $ convertMarkdownContents (unPostContent post) (unPostInputType post)
   TblPostKey (SqlBackendKey postId) <- insert $
     TblPost {
         tblPostTitle = unPostTitle post
@@ -207,9 +204,7 @@ updatePost post = runDB $ do
         False -> return $ Left ErrRecVersion
         True -> do
           now <- liftIO getTm
-          html <- if unPostInputType post == (fromEnum ContTypeMarkdown)
-                  then liftIO $ mdToHtml (unPostContent post)
-                  else return Nothing
+          html <- liftIO $ convertMarkdownContents (unPostContent post) (unPostInputType post)
           update postKey [
               TblPostTitle =. unPostTitle post
             , TblPostContent =. unPostContent post

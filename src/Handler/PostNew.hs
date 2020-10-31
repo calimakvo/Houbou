@@ -9,6 +9,7 @@ module Handler.PostNew where
 import Import
 import DataTypes.HoubouType
 import Libs.Common
+import Libs.CommonWidget
 import UrlParam.PostId
 import Forms.PostForm
 import Libs.Mapper
@@ -19,6 +20,8 @@ getPostNewR ::
   Handler Html
 getPostNewR = do
   msg <- getMessages
+  let tokenKey = defaultCsrfParamName
+  token <- getRequest >>= createCsrfToken
   (postWidget, _) <- generateFormPost $ (postForm Nothing)
   defaultLayout $ do
     setTitle "投稿"
@@ -28,6 +31,8 @@ postPostNewR ::
   Handler Html
 postPostNewR = do
   msg <- getMessages
+  let tokenKey = defaultCsrfParamName
+  token <- getRequest >>= createCsrfToken
   (usrKey, _) <- requireAuthPair
   ((res, postWidget), _) <- runFormPost $ postForm Nothing
   case res of

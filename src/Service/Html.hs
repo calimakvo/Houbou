@@ -6,6 +6,8 @@ module Service.Html (
       createBlogContents
     , createBlogFreeContents
     , createTagListContents
+    , createPrevBlogContents
+    , createPrevBlogFreeContents
   ) where
 
 import Import
@@ -527,3 +529,35 @@ zoneTimeToValue (y, m, d, h, m', s) =
     , Number (fromIntegral h)
     , Number (fromIntegral m')
     , Number (fromIntegral s) ]
+
+createPrevBlogContents ::
+  Text
+  -> Post
+  -> Handler (HResult Html)
+createPrevBlogContents setId post = do
+  setting <- getBlogSetting setId
+  frame <- eitherToMaybe =<< readPostFrame
+  posted <- eitherToList =<< getPublishPostedList
+  tags <- eitherToList =<< getTagList
+  case (frame /= Nothing) of
+    False -> do
+      $(logInfo) $ "createPrevBlogContents': frame or posts undefined"
+      return $ Left ErrPostUnitialize
+    True -> do
+      html <- renderBlogContents setting (fromJust frame) [post] posted tags
+      return html
+
+createPrevBlogFreeContents ::
+  Text
+  -> Free
+  -> Handler (HResult Html)
+createPrevBlogFreeContents setId free = do
+  setting <- getBlogSetting setId
+  frame <- eitherToMaybe =<< readFreeFrame
+  posted <- eitherToList =<< getPublishPostedList
+  tags <- eitherToList =<< getTagList
+  case (frame /= Nothing) of
+    False -> return $ Left ErrFreeUnitialize
+    True -> do
+      html <- renderBlogFreeContents setting (fromJust frame) [free] posted tags
+      return html

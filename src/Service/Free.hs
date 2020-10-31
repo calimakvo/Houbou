@@ -21,7 +21,6 @@ import qualified Database.Esqueleto.Internal.Sql as E
 import DataTypes.HoubouType
 import UrlParam.FreeId
 import Libs.Common
-import Libs.Template
 import Service.Common
 
 getFreeList ::
@@ -103,10 +102,7 @@ updateFree free = runDB $ do
         False -> return $ Left ErrRecVersion
         _ -> do
           now <- liftIO getTm
-          html <- if unFreeInputType free == (fromEnum ContTypeMarkdown) then
-                      liftIO $ mdToHtml (unFreeContent free)
-                  else
-                      return Nothing
+          html <- liftIO $ convertMarkdownContents (unFreeContent free) (unFreeInputType free)
           update freeKey [
               TblFreeTitle =. unFreeTitle free
             , TblFreeContent =. unFreeContent free
@@ -133,10 +129,7 @@ registerFree ::
   -> Handler (HResult Int64)
 registerFree usrKey free = runDB $ do
   let status = unFreeStatus free
-  html <- if unFreeInputType free == (fromEnum ContTypeMarkdown) then
-              liftIO $ mdToHtml (unFreeContent free)
-          else
-              return Nothing
+  html <- liftIO $ convertMarkdownContents (unFreeContent free) (unFreeInputType free)
   now <- liftIO getTm
   (TblFreeKey (SqlBackendKey freeId)) <- insert $
     TblFree {

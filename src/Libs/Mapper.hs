@@ -9,8 +9,11 @@ module Libs.Mapper (
   , userFormToForm
   , userNewFormToForm
   , mediaFormToMedia
+  , prevFormToPost
+  , prevFormToFree
   ) where
 
+import Data.Default
 import Data.Text
 import DataTypes.HoubouType
 import Libs.Common
@@ -22,6 +25,7 @@ import Forms.BlogSettingForm
 import Forms.UserForm
 import Forms.UserNewForm
 import Forms.MediaMdfForm
+import Forms.PrevForm
 
 postFormToPost ::
   PostForm
@@ -44,6 +48,31 @@ postFormToPost form = Post {
   , unPostUpdateTime = dummyUtc
   , unPostAuthorId = 0
   , unPostVersion = unPostFormVersion form
+  }
+
+prevFormToPost ::
+  PrevForm
+  -> Post
+prevFormToPost form = def {
+    unPostTitle = maybeToText $ unPrevFormPreviewTiele form
+  , unPostContent = maybeToText $ unPrevFormPreviewContent form
+  , unPostHtml = Nothing
+  , unPostInputType = unPrevFormPreviewInputType form
+  , unPostCreateTime = unPrevFormCreateTime form
+  , unPostUpdateTime = unPrevFormUpdateTime form
+  }
+
+prevFormToFree ::
+  PrevForm
+  -> Free
+prevFormToFree form = def {
+    unFreeTitle = maybeToText $ unPrevFormPreviewTiele form
+  , unFreeContent = maybeToText $ unPrevFormPreviewContent form
+  , unFreeHtml = Nothing
+  , unFreeCss = unPrevFormPreviewCss form
+  , unFreeInputType = unPrevFormPreviewInputType form
+  , unFreeCreateTime = unPrevFormCreateTime form
+  , unFreeUpdateTime = unPrevFormUpdateTime form
   }
 
 freeFormToFree ::

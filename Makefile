@@ -1,6 +1,7 @@
 build:
 	make imgup
 	make urlcpy
+	make prev
 	stack build
 
 imgup:
@@ -8,6 +9,9 @@ imgup:
 
 urlcpy:
 	cd jssrc/urlcpy && echo "javascript build..." && npm run build
+
+prev:
+	cd jssrc/preview && echo "javascript build..." && npm run build
 
 run:
 	./bin/rundev.sh

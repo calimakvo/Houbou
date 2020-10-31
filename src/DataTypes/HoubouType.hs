@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module DataTypes.HoubouType (
@@ -39,9 +41,17 @@ module DataTypes.HoubouType (
   , PageCanonicalType(..)
 ) where
 
+import Data.Default
 import Import.NoFoundation
 import qualified Prelude as P
 import Data.Maybe
+import Data.Text
+
+instance Default Text where
+    def = Data.Text.empty
+
+instance Default UTCTime where
+    def = (P.read "2020-08-04 06:44:18.000000 UTC") :: UTCTime
 
 type HResult a = Either ErrHoubou a
 type HResultErrParam a b = Either (ErrHoubou, a) b
@@ -186,7 +196,7 @@ data Post = Post {
   , unPostUpdateTime :: UTCTime
   , unPostAuthorId :: Int64
   , unPostVersion :: Int
-} deriving(Eq, Show)
+} deriving(Eq, Show, Default, Generic)
 
 data Posted = Posted {
     unPostedDate :: Text
@@ -228,7 +238,7 @@ data Free = Free {
   , unFreeUpdateTime :: UTCTime
   , unFreeAuthorId :: Int64
   , unFreeVersion :: Int
-} deriving(Eq, Show)
+} deriving(Eq, Show, Default, Generic)
 
 data FrameList = FrameList {
     unFrameListRowNum :: Int

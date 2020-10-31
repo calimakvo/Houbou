@@ -57,12 +57,14 @@ module Service.Common (
   , eitherToTouple
   , initPublishDate
   , updatePublishDate
+  , convertMarkdownContents
   ) where
 
 import Import
 import Database.Persist.Sql (BackendKey(..))
 import qualified Database.Esqueleto as E
 import DataTypes.HoubouType
+import Libs.Template
 
 toFreeList ::
   (
@@ -609,3 +611,9 @@ updatePublishDate state cur n =
     Just n
   else
     cur
+
+convertMarkdownContents :: Text -> Int -> IO (Maybe Text)
+convertMarkdownContents src contType =
+  if contType == (fromEnum ContTypeMarkdown)
+  then mdToHtml src
+  else return Nothing

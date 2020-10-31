@@ -68,7 +68,7 @@ $(document).ready(function() {
     $('.btnMediaInsert').on('click', function(event) {
         insTarget = document.getElementById(this.dataset.targetLinkId);
         window.open(
-            '/admin/mediains/1',
+            '/hb-admin/mediains/1',
             'pop',
             'width=1000, height=600'
         );

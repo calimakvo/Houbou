@@ -35,3 +35,29 @@
                     <!-- /.row -->
                 <!-- /.container-fluid -->
             <!-- /#page-wrapper -->
+            <script src="/static/js/hb_preview.js">
+            <script type="text/javascript">
+                var height = $(window).height();
+                var prev = Elm.Preview.init({
+                      flags: {
+                          key: "#{tokenKey}"
+                        , val: "#{token}"
+                        , height: height
+                        }
+                    , node: document.getElementById('prevBtn')
+                });
+
+                prev.ports.clickNotice.subscribe(() => {
+                   var title = $('#freeTitleInputId').val();
+                   var body = $('#freeContentInputId').val();
+                   var css =  $('#freeCssInputId').val();
+                   var inptype = $('input:radio[name="input_type"]:checked').val();
+                   var param = {
+                       title: title
+                     , body: body
+                     , css: css
+                     , inptype: parseInt(inptype, 10)
+                     , prevtype: "free"
+                     };
+                   prev.ports.loadText.send(param);
+                });

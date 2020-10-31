@@ -1,38 +1,40 @@
 -- By default this file is used by `parseRoutesFile` in Foundation.hs
 -- Syntax for this file here: https://www.yesodweb.com/book/routing-and-handlers
-/admin/auth   AuthR   Auth   getAuth
-/admin/dashboard DashboardR GET
-/admin/postlist/#Int/#Page PostListR GET POST
-/admin/post/#PostId PostR GET POST
-/admin/postdel/#Int PostDelR POST
-/admin/newpost PostNewR GET POST
-/admin/freelist/#Int/#Page FreeListR GET POST
-/admin/free/#FreeId FreeR GET POST
-/admin/freedel/#Int FreeDelR POST
-/admin/freenew FreeNewR GET POST
-/admin/freeframelist/#Page FreeFrameListR GET POST
-/admin/freeframe/#FreeFrameId FreeFrameR GET POST
-/admin/freeframenew FreeFrameNewR GET POST
-/admin/freeframedel FreeFrameDelR POST
-/admin/framelist/#Page FrameListR GET POST
-/admin/frame/#FrameId FrameR GET POST
-/admin/framenew FrameNewR GET POST
-/admin/framedel FrameDelR POST
-/admin/frmchg FrameChangeR POST
-/admin/stchg StatusChangeR POST
-/admin/freestchg FreeStatusChangeR POST
-/admin/freefrmchg FreeFrameChangeR POST
-/admin/blogsetting BlogSettingR GET POST
-/admin/userlist/#Page UserListR GET POST
-/admin/user/#UserId UserR GET POST
-/admin/usernew UserNewR GET POST
-/admin/userdel UserDelR POST
-/admin/userdelreset UserDelResetR POST
-/admin/medialist/#Page MediaListR GET POST
-/admin/mediains/#Page MediaInsR GET POST
-/admin/medianew MediaNewR GET POST
-/admin/mediadel MediaDelR POST
-/admin/media/#MediaId MediaMdfR GET POST
+/hb-admin/auth   AuthR   Auth   getAuth
+/hb-admin/dashboard DashboardR GET
+/hb-admin/postlist/#Int/#Page PostListR GET POST
+/hb-admin/post/#PostId PostR GET POST
+/hb-admin/postdel/#Int PostDelR POST
+/hb-admin/newpost PostNewR GET POST
+/hb-admin/freelist/#Int/#Page FreeListR GET POST
+/hb-admin/free/#FreeId FreeR GET POST
+/hb-admin/freedel/#Int FreeDelR POST
+/hb-admin/freenew FreeNewR GET POST
+/hb-admin/freeframelist/#Page FreeFrameListR GET POST
+/hb-admin/freeframe/#FreeFrameId FreeFrameR GET POST
+/hb-admin/freeframenew FreeFrameNewR GET POST
+/hb-admin/freeframedel FreeFrameDelR POST
+/hb-admin/framelist/#Page FrameListR GET POST
+/hb-admin/frame/#FrameId FrameR GET POST
+/hb-admin/framenew FrameNewR GET POST
+/hb-admin/framedel FrameDelR POST
+/hb-admin/frmchg FrameChangeR POST
+/hb-admin/stchg StatusChangeR POST
+/hb-admin/freestchg FreeStatusChangeR POST
+/hb-admin/freefrmchg FreeFrameChangeR POST
+/hb-admin/blogsetting BlogSettingR GET POST
+/hb-admin/userlist/#Page UserListR GET POST
+/hb-admin/user/#UserId UserR GET POST
+/hb-admin/usernew UserNewR GET POST
+/hb-admin/userdel UserDelR POST
+/hb-admin/userdelreset UserDelResetR POST
+/hb-admin/medialist/#Page MediaListR GET POST
+/hb-admin/mediains/#Page MediaInsR GET POST
+/hb-admin/medianew MediaNewR GET POST
+/hb-admin/mediadel MediaDelR POST
+/hb-admin/media/#MediaId MediaMdfR GET POST
+/hb-admin/postprev PostPrevR GET POST
+/hb-admin/freeprev FreePrevR GET POST
 
 / HomeR GET
 /p/#PostId PutR GET
@@ -44,4 +46,3 @@
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
 /static StaticR Static appStatic
-

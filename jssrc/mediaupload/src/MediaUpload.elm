@@ -116,7 +116,7 @@ update msg model =
         ( model
         , Http.post
           {
-            url = "/admin/medianew"
+            url = "/hb-admin/medianew"
           , body = createMultiPart model
           , expect = Http.expectJson HResp respDecoder
           }
@@ -124,9 +124,9 @@ update msg model =
 
     HResp (Ok res) ->
         if res.result == 1 then
-            ( model, Nav.load "/admin/medialist/1" )
+            ( model, Nav.load "/hb-admin/medialist/1" )
         else
-            ( model, Nav.load "/admin/error" )
+            ( model, Nav.load "/hb-admin/error" )
 
     HResp (Err error) ->
         case error of

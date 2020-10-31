@@ -52,8 +52,9 @@
                 <div .alert .alert-danger role="alert">
                     <span>#{contErr}
         <div .form-group>
-            <button .btn .btn-default .btn-sm data-target-link-id="freeContentlId" .btnMediaInsert>
+            <button .btn .btn-default .btn-sm data-target-link-id="freeContentInputId" .btnMediaInsert>
                 メディア挿入
+            <div #prevBtn>
 
         <div .form-group>
             <label>フリーページCSS
@@ -63,7 +64,7 @@
                 <div .alert .alert-danger role="alert">
                     <span>#{cssErr}
         <div .form-group>
-            <button .btn .btn-default .btn-sm data-target-link-id="freeCssId" .btnMediaInsert>
+            <button .btn .btn-default .btn-sm data-target-link-id="freeCssInputId" .btnMediaInsert>
                 メディア挿入
 
         <div .form-group>

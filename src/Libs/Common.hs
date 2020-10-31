@@ -24,6 +24,8 @@ module Libs.Common (
   , userparline
   , framepageperline
   , freepageperline
+  , prevpostform
+  , prevfreeform
   , maybeToText
   , toMaybeText
   , toText
@@ -232,6 +234,14 @@ freepageperline ::
   Text
 freepageperline = "freeppline"
 
+prevpostform ::
+  Text
+prevpostform = "prevpostform"
+
+prevfreeform ::
+  Text
+prevfreeform = "prevfreeform"
+
 maybeToText ::
   Maybe Text
   -> Text
@@ -378,4 +388,3 @@ parmErrToMsg err =
 
 rmLfCr :: Text -> Text
 rmLfCr txt =  replace "\r" "" (replace "\n" "" txt)
-

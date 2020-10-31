@@ -21,6 +21,8 @@ getFreeR ::
   -> Handler Html
 getFreeR freeId = do
   msg <- getMessages
+  let tokenKey = defaultCsrfParamName
+  token <- getRequest >>= createCsrfToken
   result <- getFreeFromId freeId
   case result of
     Left err -> do
@@ -37,6 +39,8 @@ postFreeR ::
   -> Handler Html
 postFreeR freeId = do
   msg <- getMessages
+  let tokenKey = defaultCsrfParamName
+  token <- getRequest >>= createCsrfToken
   ((res, freeWidget), _) <- runFormPost $ freeForm Nothing
   case res of
    FormSuccess form -> do
