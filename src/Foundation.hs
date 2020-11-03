@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
@@ -23,10 +24,14 @@ import Text.Email.Validate (isValid)
 import qualified Yesod.Auth.Message as M
 import Yesod.Auth.HashDB (authHashDBWithForm, HashDBUser(..))
 import Database.Persist.Sql (BackendKey(..))
+import qualified Database.Redis as R
+import Database.Redis.Config (RedisConfig (..))
+import Web.ServerSession.Backend.Redis (RedisStorage(..))
 
 import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
+import qualified Web.ServerSession.Frontend.Yesod as S
 import qualified Data.CaseInsensitive as CI
 import qualified Data.Text.Encoding as TE
 
@@ -98,9 +103,7 @@ instance Yesod App where
     -- Store session data on the client in encrypted cookies,
     -- default session idle timeout is 120 minutes
     makeSessionBackend :: App -> IO (Maybe SessionBackend)
-    makeSessionBackend master = do
-      let sestimeout = appSessionTimeOut $ appSettings master
-      Just <$> defaultClientSessionBackend sestimeout "config/client_session_key.aes"
+    makeSessionBackend = makeSessionBackendRedis
 
     -- Yesod Middleware allows you to run code before and after each handler function.
     -- The defaultYesodMiddleware adds the response header "Vary: Accept, Accept-Language" and performs authorization checks.
@@ -295,9 +298,24 @@ isAuthenticated = do
         Nothing -> AuthenticationRequired
         Just _ -> Authorized
 
+-- | Session Settings
+makeSessionBackendRedis :: App -> IO (Maybe SessionBackend)
+makeSessionBackendRedis app = do
+    let redisConf = appRedisConf $ appSettings app
+    S.simpleBackend opts =<< redisStorage redisConf
+        where opts = S.setIdleTimeout     (Just $  30 * 60)           -- 30  minutes
+                    . S.setAbsoluteTimeout (Just $  2 * 60 * 60 * 24) -- 2 days minutes
+                    . S.setCookieName sessionCookieName
+
+-- | Session strage for redis connection
+redisStorage :: RedisConfig -> IO (RedisStorage sess)
+redisStorage rc = do
+    conn <- R.connect $ getConnectInfo rc
+    return $ RedisStorage conn Nothing Nothing
+
 -- | Cookie name used for the sessions of this example app.
 sessionCookieName :: Text
-sessionCookieName = "HBU_SESSION"
+sessionCookieName = "HB_SESSION"
 
 instance YesodAuthPersist App
 

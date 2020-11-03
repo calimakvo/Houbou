@@ -11,6 +11,7 @@ import DataTypes.HoubouType
 import Libs.Common
 import Libs.CommonWidget
 import Libs.Mapper
+import Libs.Template
 import Forms.PrevForm
 import Service.Html
 import Service.Preview
@@ -21,12 +22,22 @@ getFreePrevR = do
   form <- lookupSession prevfreeform >>= chkForm
   let prev = toPrevForm form
       defFree = prevFormToFree prev
+      contents = maybeToText $ unPrevFormPreviewContent prev
+      css =  maybeToText $ unPrevFormPreviewCss prev
       setId = appBlogSettingId $ appSettings master
-  free <- createPrevFree defFree
-  res <- createPrevBlogFreeContents setId free
-  case res of
-    Right html -> return html
-    Left _ -> return "プレビューできません"
+  chk <- liftIO $ checkTemplate (unpack contents)
+  chkcss <- liftIO $ checkTemplate (unpack css)
+  case chk of
+    Nothing ->
+      case chkcss of
+        Nothing -> do
+          free <- createPrevFree defFree
+          res <- createPrevBlogFreeContents setId free
+          case res of
+            Right html -> return html
+            Left _ -> return "プレビューできません"
+        Just err -> return $ toHtml (errPrevText err)
+    Just err -> return $ toHtml (errPrevText err)
 
 postFreePrevR ::
   Handler TypedContent
@@ -40,4 +51,3 @@ postFreePrevR = do
 
 title :: Html
 title = "プレビュー"
-

@@ -3,6 +3,7 @@ port module Preview exposing (..)
 import Browser
 import Browser.Events as BE
 import Browser.Navigation as Nav
+import Random
 import Dialog
 import Json.Decode
 import Html exposing (..)
@@ -18,6 +19,7 @@ type Msg
     | Close
     | LoadText (Result Json.Decode.Error PrevParam)
     | GetNewHeight Int
+    | RandVal Int
     | HResp (Result Error Upresult)
 
 type alias Upresult =
@@ -45,6 +47,7 @@ type alias Model =
     , prevInfo : PrevInfo
     , height: Int
     , prevtype : String
+    , randnum : Int
     , err : Maybe String
     }
 
@@ -77,6 +80,7 @@ initialState pInfo =
       , frameFlag = False
       , height = calcHeight pInfo.height
       , prevtype = ""
+      , randnum = 1
       , err = Nothing
       }
     , Cmd.none
@@ -121,9 +125,12 @@ update msg model =
 
         HResp (Ok res) ->
             if res.result == 1 then
-                ( { model | frameFlag = True }, Cmd.none )
+                ( { model | frameFlag = True }, Random.generate RandVal (Random.int 1 1000000) )
             else
                 ( model, Nav.load "/hb-admin/error" )
+
+        RandVal num ->
+            ( { model | randnum = num}, Cmd.none )
 
         HResp (Err error) ->
             case error of
@@ -180,7 +187,7 @@ showPreview : Model -> Maybe (Html msg)
 showPreview model =
     if model.frameFlag == True then
         Just (iframe [ id "prevFrameId"
-                     , src (switchUrl model.prevtype)
+                     , src ((switchUrl model.prevtype) ++ ("?n=") ++ (String.fromInt model.randnum))
                      , attribute "width" "100%"
                      , attribute "height" ((String.fromInt model.height) ++ "px")
                      , style "border" "1px gray solid"

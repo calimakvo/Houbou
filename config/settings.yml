@@ -37,6 +37,15 @@ database:
   database: "_env:YESOD_PGDATABASE:dbname"
   poolsize: "_env:YESOD_PGPOOLSIZE:10"
 
+redis:
+  host:      "_env:REDIS_HOST:localhost"          # host name or address
+  port:      "_env:REDIS_PORT:6379"               # you can specify either port
+  # socket: /run/redis.socket                     # or unix socket path
+  password:  "_env:REDIS_PASSWORD:"               # if not specified then no password used
+  database:  "_env:REDIS_DATABASE:0"              # database number to connect to
+  max-connections: "_env:REDIS_MAX_CONNECTIONS:5" # max 5 connections in pool
+  max-idle-time:   "_env:REDIS_MAX_IDLE_TIME:30"  # max 30 idle time in pool
+
 copyright: Insert copyright statement here
 #analytics: UA-YOURCODE
 

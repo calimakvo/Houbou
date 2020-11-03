@@ -11,6 +11,7 @@ import DataTypes.HoubouType
 import Libs.Common
 import Libs.CommonWidget
 import Libs.Mapper
+import Libs.Template
 import Forms.PrevForm
 import Service.Html
 import Service.Preview
@@ -21,12 +22,17 @@ getPostPrevR = do
   form <- lookupSession prevpostform >>= chkForm
   let prev = toPrevForm form
       defPost = prevFormToPost prev
+      contents = maybeToText $ unPrevFormPreviewContent prev
       setId = appBlogSettingId $ appSettings master
-  post <- createPrevPost defPost
-  res <- createPrevBlogContents setId post
-  case res of
-    Right html -> return html
-    Left _ -> return "プレビューできません"
+  chk <- liftIO $ checkTemplate (unpack contents)
+  case chk of
+    Nothing -> do
+      post <- createPrevPost defPost
+      res <- createPrevBlogContents setId post
+      case res of
+        Right html -> return html
+        Left _ -> return "プレビューできません"
+    Just err -> return $ toHtml (errPrevText err)
 
 postPostPrevR ::
   Handler TypedContent

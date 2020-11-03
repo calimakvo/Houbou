@@ -22,6 +22,7 @@ data PrevForm = PrevForm {
   , unPrevFormPreviewCss :: Maybe Text
   , unPrevFormPreviewInputType :: Int
   , unPrevFormPreviewType :: Text
+  , unPrevFormPublishDate :: Maybe UTCTime
   , unPrevFormCreateTime :: UTCTime
   , unPrevFormUpdateTime :: UTCTime
 } deriving(Eq, Show, Read)
@@ -40,6 +41,7 @@ prevForm _ = do
                     <*> cssRes
                     <*> inptypeRes
                     <*> typeRes
+                    <*> FormSuccess (Just now)
                     <*> FormSuccess now
                     <*> FormSuccess now
       widget = return ()
@@ -52,17 +54,19 @@ instance FromJSON PrevForm where
              <*> val .: "unPrevFormPreviewCss"
              <*> val .: "unPrevFormPreviewInputType"
              <*> val .: "unPrevFormPreviewType"
+             <*> val .: "unPrevFormPublishDate"
              <*> val .: "unPrevFormCreateTime"
              <*> val .: "unPrevFormUpdateTime"
 
 instance ToJSON PrevForm where
-  toJSON (PrevForm title content css inptype prevtype ct ut) = object 
+  toJSON (PrevForm title content css inptype prevtype pd ct ut) = object 
     [   "type" .= ("PrevForm" :: Text)
       , "unPrevFormPreviewTiele" .= title
       , "unPrevFormPreviewContent" .= content
       , "unPrevFormPreviewCss" .= css
       , "unPrevFormPreviewInputType" .= inptype
       , "unPrevFormPreviewType" .= prevtype
+      , "unPrevFormPublishDate" .= pd
       , "unPrevFormCreateTime" .= ct
       , "unPrevFormUpdateTime" .= ut
     ]

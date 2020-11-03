@@ -43,7 +43,6 @@ import DataTypes.HoubouType
 import Libs.Common
 import Libs.Template
 import Forms.CommonForm
-import qualified Text.Ginger as G
 import qualified Database.Esqueleto as E
 import Service.Common
 
@@ -420,16 +419,6 @@ robotsFieldValid len s
   | length(s) > len
     = Left $ ("robotsは" <> pack(show(len)) <> "文字まで入力可能です")
   | otherwise = Right s
-
-checkTemplate :: String -> IO (Maybe (Text, Text))
-checkTemplate s = do
-  template <- createTemplate Nothing s
-  case template of
-    Right _ -> return Nothing
-    Left err -> do
-      let pe = pack (G.peErrorMessage err)
-          srcpos = pack $ fromMaybe "なし" (show <$> G.peSourcePosition err)
-      return $ Just (pe, srcpos)
 
 checkLengthSlug :: Int -> Text -> Bool
 checkLengthSlug len' s = if length s > len' then False else True

@@ -49,7 +49,6 @@ postForm post extra = do
       postId = fromMaybe 0 (unPostId <$> post)
       robots = fromMaybe (Just "index,follow") (unPostRobots <$> post)
       version = fromMaybe 0 (unPostVersion <$> post)
-
       selInpTyp = fromMaybe 1 (unPostInputType <$> post)
       selStsTyp = fromMaybe (fromEnum UnPublished) (unPostStatus <$> post)
       urlpath = if postId > 0 then join (unPostUrlpath <$> post) else (Just $ toUrlPath t)

@@ -43,6 +43,13 @@ extra-deps:
 - ginger-0.10.1.0
 - datetime-0.3.1
 - hzenhan-0.0.4
+- git: https://github.com/karky7/serversession
+  commit: 4a31a18fe74bed006af8c6266518cb3f85303880
+  subdirs:
+    - serversession-frontend-yesod
+    - serversession-backend-redis
+- git: https://karky7@bitbucket.org/karky7/hedis-config.git
+  commit: 88d19b2d7342146b17ffb3f1d992930baff154f8
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

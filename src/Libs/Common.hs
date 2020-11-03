@@ -51,6 +51,7 @@ module Libs.Common (
   , toUrlPath
   , parmErrToMsg
   , rmLfCr
+  , errPrevText
 ) where
 
 import Data.Int
@@ -388,3 +389,6 @@ parmErrToMsg err =
 
 rmLfCr :: Text -> Text
 rmLfCr txt =  replace "\r" "" (replace "\n" "" txt)
+
+errPrevText :: (Text, Text) -> Text
+errPrevText (pe, srcpos) = "テンプレートが不正です、err=" <> pe <> " エラー内容:　" <> srcpos

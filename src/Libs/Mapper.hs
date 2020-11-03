@@ -58,6 +58,7 @@ prevFormToPost form = def {
   , unPostContent = maybeToText $ unPrevFormPreviewContent form
   , unPostHtml = Nothing
   , unPostInputType = unPrevFormPreviewInputType form
+  , unPostPublishDate = unPrevFormPublishDate form
   , unPostCreateTime = unPrevFormCreateTime form
   , unPostUpdateTime = unPrevFormUpdateTime form
   }
@@ -71,6 +72,7 @@ prevFormToFree form = def {
   , unFreeHtml = Nothing
   , unFreeCss = unPrevFormPreviewCss form
   , unFreeInputType = unPrevFormPreviewInputType form
+  , unFreePublishDate = unPrevFormPublishDate form
   , unFreeCreateTime = unPrevFormCreateTime form
   , unFreeUpdateTime = unPrevFormUpdateTime form
   }

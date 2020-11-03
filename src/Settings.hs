@@ -23,6 +23,7 @@ import           Yesod.Default.Config2       (applyEnvValue, configSettingsYml)
 import           Yesod.Default.Util          (WidgetFileSettings,
                                               widgetFileNoReload,
                                               widgetFileReload)
+import           Database.Redis.Config (RedisConfig (..))
 
 -- | Runtime settings to configure this application. These settings can be
 -- loaded from various sources: defaults, environment variables, config files,
@@ -32,6 +33,8 @@ data AppSettings = AppSettings
     -- ^ Directory from which to serve static files.
     , appDatabaseConf           :: PostgresConf
     -- ^ Configuration settings for accessing the database.
+    , appRedisConf              :: RedisConfig
+    -- ^ Configuration settings for accessing the redis.
     , appRoot                   :: Maybe Text
     -- ^ Base for all generated URLs. If @Nothing@, determined
     -- from the request headers.
@@ -135,6 +138,7 @@ instance FromJSON AppSettings where
 #endif
         appStaticDir              <- o .: "static-dir"
         appDatabaseConf           <- o .: "database"
+        fromYamlAppRedisConf      <- o .: "redis"
         appRoot                   <- o .:? "approot"
         appHost                   <- fromString <$> o .: "host"
         appPort                   <- o .: "port"
@@ -183,6 +187,11 @@ instance FromJSON AppSettings where
         appMetaDescriptionMaxLength <- o .: "meta-length-description"
         appMetaKeywordsMaxLength    <- o .: "meta-length-keywords"
         appMetaRobotsMaxLength      <- o .: "meta-length-robots"
+
+        let appRedisConf =
+              RedisConfig {
+                getConnectInfo = getConnectInfo fromYamlAppRedisConf
+                }
 
         return AppSettings {..}
 

@@ -4,6 +4,7 @@ module Libs.Template (
     createTemplate
   , mdToHtml
   , render
+  , checkTemplate
   ) where
 
 import System.IO (IOMode(ReadMode), openFile, hGetContents)
@@ -11,6 +12,7 @@ import System.IO.Error (tryIOError)
 import qualified Text.Ginger as G
 import Text.Ginger.Html (htmlSource)
 import qualified Data.HashMap.Strict as H
+import Data.Maybe
 import Data.Aeson
 import Data.Hashable
 import Data.Text
@@ -29,6 +31,25 @@ mdToHtml ::
 mdToHtml mdTxt = runIOorExplode $ readMarkdown defReaderOpt mdTxt >>=
   writeHtml5String defWriterOpt >>= return . toMaybeText
 
+checkTemplate :: String -> IO (Maybe (Text, Text))
+checkTemplate s = do
+  template <- createTemplate Nothing s
+  case template of
+    Right _ -> return Nothing
+    Left err -> do
+      let pe = pack (G.peErrorMessage err)
+          srcpos = pack $ fromMaybe "なし" (show <$> G.peSourcePosition err)
+      return $ Just (pe, srcpos)
+
+render ::
+  G.Template G.SourcePos
+  -> H.HashMap G.VarName Value
+  -> Text
+render template contextMap =
+  let contextLookup = flip scopeLookup contextMap
+      context = G.makeContextHtml contextLookup
+  in htmlSource $ G.runGinger context template
+
 defReaderOpt ::
   ReaderOptions
 defReaderOpt = def {
@@ -42,15 +63,6 @@ defWriterOpt = def {
       -- import Text.Pandoc.Highlighting (pygments)
       -- , writerHighlightStyle = Just pygments
   }
-
-render ::
-  G.Template G.SourcePos
-  -> H.HashMap G.VarName Value
-  -> Text
-render template contextMap =
-  let contextLookup = flip scopeLookup contextMap
-      context = G.makeContextHtml contextLookup
-  in htmlSource $ G.runGinger context template
 
 scopeLookup :: (Hashable k, Eq k, G.ToGVal m b) =>
   k
