@@ -55,6 +55,15 @@
                 <div .alert .alert-danger role="alert">
                     <span>#{sizeErr}
     <div .form-group>
+        <label>セッションタイムアウト
+        ^{fvInput sessView}
+        <p .help-block>
+            <small>セッション時間制限(最小&nbsp;#{sessTimeoutMin}分&nbsp;～最大&nbsp;#{sessTimeoutMax}分&nbsp;設定可能)
+        $maybe sessErr <- fvErrors sessView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{sessErr}
+    <div .form-group>
         <label>ads.txt
         ^{fvInput adsView}
         <p .help-block>

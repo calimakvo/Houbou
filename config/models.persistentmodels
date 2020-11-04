@@ -122,6 +122,7 @@ TblBlogSetting
     mediaDir Text sqltype=varchar(2048)
     uploadSize Int
     adstxt Text Maybe sqltype=varchar(512)
+    sessionTimeout Int sqltype=smallint
     createTime UTCTime sqltype=timestamptz
     updateTime UTCTime sqltype=timestamptz default=now()
     version Int

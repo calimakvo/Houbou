@@ -124,7 +124,10 @@
     
                                     <!-- /.panel-body -->
                             <!-- /.panel -->
-                            <button .btn .btn-default .btn-block  onclick=" window.close();">戻る
+                            <p>
+                                <button .btn .btn-default .btn-block  onclick=" window.close();">戻る
+                                <br>
+                                <br>
                         <!-- /.col-lg-12 -->
                     <!-- /.row -->
                 <!-- /.container-fluid -->

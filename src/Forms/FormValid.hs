@@ -32,6 +32,7 @@ module Forms.FormValid (
   , descriptionField
   , keywordsField
   , robotsField
+  , sessTimeoutField
   ) where
 
 import Import
@@ -210,6 +211,19 @@ uploadSizeField upsize = check (uploadSizeValid upsize) intField
 uploadSizeValid :: Int -> Int -> Either Text Int
 uploadSizeValid upsize s = if s >= uploadSizeMin && s < upsize then Right s else sizeerr
   where sizeerr = Left $ ("アップロードサイズは" <> pack(show(upsize)) <> "MBまで入力可能です")
+
+sessTimeoutField :: Int -> Int -> Field Handler Int
+sessTimeoutField sessTimeoutMin sessTimeoutMax =
+  check (sessionTimeoutValid sessTimeoutMin sessTimeoutMax) intField
+
+sessionTimeoutValid :: Int -> Int -> Int -> Either Text Int
+sessionTimeoutValid sessTimeoutMin sessTimeoutMax sto =
+  if sto >= sessTimeoutMin && sto <= sessTimeoutMax then
+    Right sto
+  else
+    Left $ "セッションタイムアウト値は" <>
+              pack(show(sessTimeoutMin)) <>
+              "から" <> pack(show(sessTimeoutMax)) <> "の間で入力してください"
 
 frameNameField :: Int -> Field Handler Text
 frameNameField len = check (frameNameValid len) textField

@@ -284,6 +284,7 @@ data BlogSetting = BlogSetting {
   , unBlogSettingMediaUrl :: Text
   , unBlogSettingMediaDir :: Text
   , unBlogSettingUploadSize :: Int
+  , unBlogSettingSessionTimeout :: Int
   , unBlogSettingAdstxt :: Maybe Text
   , unBlogSettingCreateTime :: UTCTime
   , unBlogSettingUpdateTime :: UTCTime

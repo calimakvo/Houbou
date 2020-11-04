@@ -146,6 +146,7 @@ instance Yesod App where
     isAuthorized RobotsR _ = return Authorized
     isAuthorized (StaticR _) _ = return Authorized
     isAuthorized AdstxtR _ = return Authorized
+    isAuthorized HbAdminRootR _ = return Authorized
 
     -- Admin
     isAuthorized DashboardR _ = isAuthenticated
@@ -300,12 +301,35 @@ isAuthenticated = do
 
 -- | Session Settings
 makeSessionBackendRedis :: App -> IO (Maybe SessionBackend)
-makeSessionBackendRedis app = do
-    let redisConf = appRedisConf $ appSettings app
-    S.simpleBackend opts =<< redisStorage redisConf
-        where opts = S.setIdleTimeout     (Just $  30 * 60)           -- 30  minutes
-                    . S.setAbsoluteTimeout (Just $  2 * 60 * 60 * 24) -- 2 days minutes
-                    . S.setCookieName sessionCookieName
+makeSessionBackendRedis master = do
+    let redisConf = appRedisConf $ appSettings master
+    timeOut <- getHbSessionTimeout master
+    S.simpleBackend (opts timeOut) =<< redisStorage redisConf
+        where opts to =
+                S.setIdleTimeout (Just $ (fromIntegral to) * 60)  -- minutes
+                . S.setAbsoluteTimeout (Just $  2 * 60 * 60 * 24) -- 2 days minutes
+                . S.setCookieName sessionCookieName
+                . S.setHttpOnlyCookies True
+                . S.setSecureCookies True
+
+getHbSessionTimeout :: App -> IO Int
+getHbSessionTimeout master = do
+  let setId = appBlogSettingId $ appSettings master
+  result <- runSqlPool (getBy $ UniIdent setId) (appConnPool master)
+  case result of
+    Just (Entity _ setting) -> return $ tblBlogSettingSessionTimeout setting
+    Nothing -> error "Uninitialized blog setting."
+{-
+    
+    let so = case result of
+        Just (Entity _ setting) -> tblBlogSettingSessionTimeout setting
+        Nothing -> error "Uninitialized blog setting."
+
+                      let so = case result of
+        Just (Entity _ setting) -> tblBlogSettingSessionTimeout setting
+        Nothing -> error "Uninitialized blog setting."
+-}
+
 
 -- | Session strage for redis connection
 redisStorage :: RedisConfig -> IO (RedisStorage sess)

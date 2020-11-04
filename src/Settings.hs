@@ -106,6 +106,10 @@ data AppSettings = AppSettings
     , appBlogSetMediaDirMaxLength :: Int
     -- ^ Blog set upload request size max
     , appBlogSetUploadSizeMax :: Int
+    -- ^ Blog set session timeout min
+    , appBlogSetSessionTimeoutMin :: Int
+    -- ^ Blog set session timeout max
+    , appBlogSetSessionTimeoutMax :: Int
     -- ^ Blog set adstxt length
     , appBlogSetAdsTxtMaxLength :: Int
     -- ^ Blog set user account email length
@@ -177,6 +181,8 @@ instance FromJSON AppSettings where
         appBlogSetMediaUrlMaxLength <- o .: "blog-set-media-url-length"
         appBlogSetMediaDirMaxLength <- o .: "blog-set-media-dir-length"
         appBlogSetUploadSizeMax     <- o .: "blog-set-upload-size-max"
+        appBlogSetSessionTimeoutMin <- o .: "blog-set-sesstion-timeout-min"
+        appBlogSetSessionTimeoutMax <- o .: "blog-set-sesstion-timeout-max"
         appBlogSetAdsTxtMaxLength   <- o .: "blog-set-adstxt-length"
         appUserAccEmailMaxLength    <- o .: "user-acc-email-length"
         appUserAccPasswdMinLength   <- o .: "user-acc-passwd-min-length"

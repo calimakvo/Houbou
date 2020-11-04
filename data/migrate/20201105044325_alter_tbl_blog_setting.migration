@@ -1,0 +1,3 @@
+ALTER TABLE tbl_blog_setting ADD COLUMN session_timeout SMALLINT;
+UPDATE tbl_blog_setting SET session_timeout=30 WHERE ident='HB_BLOG_SETTING';
+ALTER TABLE tbl_blog_setting ALTER COLUMN session_timeout SET NOT NULL;

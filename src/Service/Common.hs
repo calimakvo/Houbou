@@ -352,6 +352,7 @@ toBlogSetting (Entity key entity) = BlogSetting {
   , unBlogSettingMediaUrl = tblBlogSettingMediaUrl entity
   , unBlogSettingMediaDir = tblBlogSettingMediaDir entity
   , unBlogSettingUploadSize = tblBlogSettingUploadSize entity
+  , unBlogSettingSessionTimeout = tblBlogSettingSessionTimeout entity
   , unBlogSettingAdstxt = tblBlogSettingAdstxt entity
   , unBlogSettingCreateTime = tblBlogSettingCreateTime entity
   , unBlogSettingUpdateTime = tblBlogSettingUpdateTime entity

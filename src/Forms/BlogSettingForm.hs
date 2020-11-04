@@ -21,6 +21,7 @@ data BlogSettingForm = BlogSettingForm {
   , unBlogSettingFormMediaUrl :: Text
   , unBlogSettingFormMediaDir :: Text
   , unBlogSettingFormUploadSize :: Int
+  , unBlogSettingFormSessionTimeout :: Int
   , unBlogSettingFormAdstxt :: Maybe Text
   , unBlogSettingFormVersion :: Int
 } deriving(Eq, Show)
@@ -37,6 +38,8 @@ blogSettingForm setting extra = do
       blogDirLen = appBlogSetMediaDirMaxLength $ appSettings master
       postNumMax = appBlogSetPostNumMax $ appSettings master
       uploadSizeMax = appBlogSetUploadSizeMax $ appSettings master
+      sessTimeoutMin = appBlogSetSessionTimeoutMin $ appSettings master
+      sessTimeoutMax = appBlogSetSessionTimeoutMax $ appSettings master
       adstxtLen = appBlogSetAdsTxtMaxLength $ appSettings master
   selector <- liftHandler $ postNumSelectTouple postNumMax
   (nameRes, nameView) <- mreq (blogNameField blogNameLen) blogNameFieldSet (unBlogSettingBlogName <$> setting)
@@ -45,6 +48,8 @@ blogSettingForm setting extra = do
   (dirRes, dirView) <- mreq (blogMediaDirField blogDirLen) blogMdaDirFieldSet (unBlogSettingMediaDir <$> setting)
   (sizeRes, sizeView) <- mreq (uploadSizeField uploadSizeMax) uploadSizeFieldSet (unBlogSettingUploadSize <$> setting)
   (numRes, numView) <- mreq (selectFieldList selector) lineSelectFieldSet (unBlogSettingPostNum <$> setting)
+  (sessRes, sessView) <- mreq (sessTimeoutField sessTimeoutMin sessTimeoutMax)
+                           sessTimeoutFieldSet (unBlogSettingSessionTimeout <$> setting)
   (adsRes, adsView) <- mopt (blogAdsField adstxtLen) blogAdsFieldSet (unBlogSettingAdstxt <$> setting)
   (verRes, verView) <- mreq hiddenIdField versionFieldSet (unBlogSettingVersion <$> setting)
   let formParam = BlogSettingForm
@@ -54,6 +59,7 @@ blogSettingForm setting extra = do
                     <*> mdaRes
                     <*> dirRes
                     <*> sizeRes
+                    <*> sessRes
                     <*> adsRes
                     <*> verRes
       widget = $(whamletFile "templates/setting_form.hamlet")

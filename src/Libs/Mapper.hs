@@ -143,6 +143,7 @@ blogSettingFormToBlogSetting form = BlogSetting {
   , unBlogSettingMediaUrl = unBlogSettingFormMediaUrl form
   , unBlogSettingMediaDir = unBlogSettingFormMediaDir form
   , unBlogSettingUploadSize = unBlogSettingFormUploadSize form
+  , unBlogSettingSessionTimeout = unBlogSettingFormSessionTimeout form
   , unBlogSettingAdstxt = unBlogSettingFormAdstxt form
   , unBlogSettingCreateTime = dummyUtc
   , unBlogSettingUpdateTime = dummyUtc

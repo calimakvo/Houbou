@@ -99,6 +99,8 @@ blog-set-blog-url-length: 300
 blog-set-post-num-max: 10
 blog-set-media-url-length: 300
 blog-set-media-dir-length: 300
+blog-set-sesstion-timeout-min: 30
+blog-set-sesstion-timeout-max: 360
 blog-set-adstxt-length: 300
 # 1024 x 1024  = 1048576M MAX
 blog-set-upload-size-max: 1048576

@@ -1,5 +1,6 @@
 -- By default this file is used by `parseRoutesFile` in Foundation.hs
 -- Syntax for this file here: https://www.yesodweb.com/book/routing-and-handlers
+/hb-admin HbAdminRootR GET
 /hb-admin/auth   AuthR   Auth   getAuth
 /hb-admin/dashboard DashboardR GET
 /hb-admin/postlist/#Int/#Page PostListR GET POST
@@ -46,3 +47,4 @@
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
 /static StaticR Static appStatic
+

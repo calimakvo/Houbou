@@ -43,6 +43,7 @@ module Forms.CommonForm (
   , mediaIdFieldSet
   , mediaTitleFieldSet
   , blogAdsFieldSet
+  , sessTimeoutFieldSet
   , statusTypeRadioFieldSet
   , descriptionFieldSet
   , keywordsFieldSet
@@ -315,7 +316,7 @@ blogNameFieldSet = FieldSettings {
  }
 
 blogAdsFieldSet :: FieldSettings master
-blogAdsFieldSet =  FieldSettings {
+blogAdsFieldSet = FieldSettings {
     fsLabel = ""
   , fsTooltip = Nothing
   , fsId = Just "adsTxtId"
@@ -365,7 +366,7 @@ blogMdaDirFieldSet = FieldSettings {
  }
 
 uploadSizeFieldSet :: FieldSettings master
-uploadSizeFieldSet  = FieldSettings {
+uploadSizeFieldSet = FieldSettings {
     fsLabel = ""
   , fsTooltip = Nothing
   , fsId = Just "uploadSizeId"
@@ -377,7 +378,7 @@ uploadSizeFieldSet  = FieldSettings {
   }
 
 blogPostNumSelectFieldSet :: FieldSettings master
-blogPostNumSelectFieldSet  = FieldSettings {
+blogPostNumSelectFieldSet = FieldSettings {
     fsLabel = ""
   , fsTooltip = Nothing
   , fsId = Just "postNumId"
@@ -388,8 +389,20 @@ blogPostNumSelectFieldSet  = FieldSettings {
     ]
   }
 
+sessTimeoutFieldSet  :: FieldSettings master
+sessTimeoutFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "sessTimeoutId"
+  , fsName = Just "sess_timeout"
+  , fsAttrs =
+    [
+      ("class", "form-control")
+    ]
+  }
+
 lineSelectFieldSet :: FieldSettings master
-lineSelectFieldSet  = FieldSettings {
+lineSelectFieldSet = FieldSettings {
     fsLabel = ""
   , fsTooltip = Nothing
   , fsId = Just "pageperline"
@@ -467,7 +480,7 @@ userIdFieldSet = FieldSettings {
   }
 
 userPermSelectFieldSet :: FieldSettings master
-userPermSelectFieldSet  = FieldSettings {
+userPermSelectFieldSet = FieldSettings {
     fsLabel = ""
   , fsTooltip = Nothing
   , fsId = Just "userPermSelectId"
