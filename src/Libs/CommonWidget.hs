@@ -180,17 +180,17 @@ toFreeUrlText fid =
   in T.intercalate "/" urls
 
 canonicalPath ::
-  PageCanonicalType
+  PageType
   -> Maybe Text
   -> Maybe Text
   -> Text
-canonicalPath ctype urlpath slug =
+canonicalPath pttype urlpath slug =
   if P.all isJust [urlpath, slug] == False
   then ""
   else
-    case ctype of
-      CPost -> toPostSlugUrlText slug urlpath
-      CFree -> toFreeSlugUrlText slug urlpath
+    case pttype of
+      PTPost -> toPostSlugUrlText slug urlpath
+      PTFree -> toFreeSlugUrlText slug urlpath
 
 chkForm :: (Maybe Text) -> Handler Text
 chkForm = \form ->

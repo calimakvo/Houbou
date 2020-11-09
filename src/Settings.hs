@@ -130,6 +130,18 @@ data AppSettings = AppSettings
     , appMetaKeywordsMaxLength :: Int
     -- ^ Set meta Robots length
     , appMetaRobotsMaxLength :: Int
+    -- ^ Set meta OG Image length
+    , appMetaOgImageMaxLength :: Int
+    -- ^ Set meta OG Title length
+    , appMetaOgTitleMaxLength :: Int
+    -- ^ Set meta OG URL length
+    , appMetaOgUrlMaxLength :: Int
+    -- ^ Set meta OG SiteName length
+    , appMetaOgSiteNameMaxLength :: Int
+    -- ^ Set meta OG Description length
+    , appMetaOgDescMaxLength :: Int
+    -- ^ Set meta OG PageType length
+    , appMetaOgPageTypeMaxLength :: Int
     }
 
 instance FromJSON AppSettings where
@@ -193,6 +205,12 @@ instance FromJSON AppSettings where
         appMetaDescriptionMaxLength <- o .: "meta-length-description"
         appMetaKeywordsMaxLength    <- o .: "meta-length-keywords"
         appMetaRobotsMaxLength      <- o .: "meta-length-robots"
+        appMetaOgImageMaxLength     <- o .: "og-image-length"
+        appMetaOgTitleMaxLength     <- o .: "og-title-length"
+        appMetaOgUrlMaxLength       <- o .: "og-url-length"
+        appMetaOgSiteNameMaxLength  <- o .: "og-sitename-length"
+        appMetaOgDescMaxLength      <- o .: "og-desc-length"
+        appMetaOgPageTypeMaxLength  <- o .: "og-pagetype-length"
 
         let appRedisConf =
               RedisConfig {

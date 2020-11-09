@@ -48,6 +48,12 @@ module Forms.CommonForm (
   , descriptionFieldSet
   , keywordsFieldSet
   , robotsFieldSet
+  , ogImgFieldSet
+  , ogTitleFieldSet
+  , ogUrlFieldSet
+  , ogSiteNameFieldSet
+  , ogDescFieldSet
+  , ogPageTypeFieldSet
   , prevBodyFieldSet
   , prevTitleFieldSet
   , prevCssFieldSet
@@ -591,6 +597,78 @@ prevTypeFieldSet = FieldSettings {
   , fsId = Just "prevPreviewTypeId"
   , fsName = Just "preview_type"
   , fsAttrs = []
+  }
+
+ogImgFieldSet :: FieldSettings master
+ogImgFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "ogImageUrlInputId"
+  , fsName = Just "og_img"
+  , fsAttrs = [
+        ("class", "form-control")
+      , ("placeholder", "og:image")
+      ]
+  }
+
+ogTitleFieldSet :: FieldSettings master
+ogTitleFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "ogTitleId"
+  , fsName = Just "og_title"
+  , fsAttrs = [
+        ("class", "form-control")
+      , ("placeholder", "og:title")
+      ]
+  }
+
+ogUrlFieldSet :: FieldSettings master
+ogUrlFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "ogUrlId"
+  , fsName = Just "og_url"
+  , fsAttrs = [
+        ("class", "form-control")
+      , ("placeholder", "og:url")
+      ]
+  }
+
+ogSiteNameFieldSet :: FieldSettings master
+ogSiteNameFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "ogSiteNameId"
+  , fsName = Just "og_sitename"
+  , fsAttrs = [
+        ("class", "form-control")
+      , ("placeholder", "og:site_name")
+      ]
+  }
+
+ogDescFieldSet :: FieldSettings master
+ogDescFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "ogDescriptionId"
+  , fsName = Just "og_description"
+  , fsAttrs = [
+        ("class", "form-control")
+      , ("placeholder", "og:description")
+      ]
+  }
+
+ogPageTypeFieldSet :: FieldSettings master
+ogPageTypeFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "ogPageId"
+  , fsName = Just "og_pagetype"
+  , fsAttrs = [
+        ("class", "form-control")
+      , ("placeholder", "og:type")
+      ]
   }
 
 getInputTypeTouple ::

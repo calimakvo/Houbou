@@ -1,11 +1,13 @@
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE TemplateHaskell #-}
-
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Forms.PostForm (
     postForm
-  , PostForm(..)
   ) where
 
 import Import
@@ -14,21 +16,6 @@ import Forms.CommonForm
 import DataTypes.HoubouType
 import UrlParam.Page
 import Libs.Common
-
-data PostForm = PostForm {
-    unPostFormId :: Int64
-  , unPostFormTitle :: Text
-  , unPostFormContent :: Text
-  , unPostFormSlug :: Maybe Text
-  , unPostFormUrlpath :: Maybe Text
-  , unPostFormInputType :: Int
-  , unPostFormStatus :: Int
-  , unPostFormTags :: Maybe Text
-  , unPostFormDescription :: Maybe Text
-  , unPostFormKeywords :: Maybe Text
-  , unPostFormRobots :: Maybe Text
-  , unPostFormVersion :: Int
-} deriving(Eq, Show)
 
 postForm ::
   Maybe Post
@@ -46,8 +33,15 @@ postForm post extra = do
       dscLen = appMetaDescriptionMaxLength $ appSettings master
       kwdLen = appMetaKeywordsMaxLength $ appSettings master
       robLen = appMetaRobotsMaxLength $ appSettings master
+      ogImgLen = appMetaOgImageMaxLength $ appSettings master
+      ogTtlLen = appMetaOgTitleMaxLength $ appSettings master
+      ogUrlLen = appMetaOgUrlMaxLength $ appSettings master
+      ogSnmLen = appMetaOgSiteNameMaxLength $ appSettings master
+      ogDscLen = appMetaOgDescMaxLength $ appSettings master
+      ogPgtLen = appMetaOgPageTypeMaxLength $ appSettings master
       postId = fromMaybe 0 (unPostId <$> post)
       robots = fromMaybe (Just "index,follow") (unPostRobots <$> post)
+      ogpgt = fromMaybe (Just "blog") (unPostOgPageType <$> post)
       version = fromMaybe 0 (unPostVersion <$> post)
       selInpTyp = fromMaybe 1 (unPostInputType <$> post)
       selStsTyp = fromMaybe (fromEnum UnPublished) (unPostStatus <$> post)
@@ -64,7 +58,13 @@ postForm post extra = do
   (dscRes, dscView) <- mopt (descriptionField dscLen)
                            descriptionFieldSet (Just (Textarea <$> (join (unPostDescription <$> post))))
   (kwdRes, kwdView) <- mopt (keywordsField kwdLen) keywordsFieldSet (unPostKeywords <$> post)
-  (robRes, robView) <- mopt (robotsField robLen) robotsFieldSet(Just robots)
+  (robRes, robView) <- mopt (robotsField robLen) robotsFieldSet (Just robots)
+  (ogImgRes, ogImgView) <- mopt (ogImgField ogImgLen) ogImgFieldSet (unPostOgImg <$> post)
+  (ogTtlRes, ogTtlView) <- mopt (ogTitleField ogTtlLen) ogTitleFieldSet (unPostOgTitle <$> post)
+  (ogUrlRes, ogUrlView) <- mopt (ogUrlField ogUrlLen) ogUrlFieldSet (unPostOgUrl <$> post)
+  (ogSnmRes, ogSnmView) <- mopt (ogSiteNameField ogSnmLen) ogSiteNameFieldSet (unPostOgSiteName <$> post)
+  (odDscRes, odDscView) <- mopt (ogDescField ogDscLen) ogDescFieldSet (unPostOgDesc <$> post)
+  (odPgtRes, odPgtView) <- mopt (ogPageTypeField ogPgtLen) ogPageTypeFieldSet (Just ogpgt)
   (verRes, verView) <- mreq hiddenIdField versionFieldSet (Just version)
   let formParam = PostForm
                   <$> postIdRes
@@ -78,6 +78,12 @@ postForm post extra = do
                   <*> ((fmap . fmap) unTextarea  dscRes)
                   <*> kwdRes
                   <*> robRes
+                  <*> ogImgRes
+                  <*> ogTtlRes
+                  <*> ogUrlRes
+                  <*> ogSnmRes
+                  <*> odDscRes
+                  <*> odPgtRes
                   <*> verRes
       widget = $(whamletFile "templates/post_form.hamlet")
   return (formParam, widget)

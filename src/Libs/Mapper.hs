@@ -17,8 +17,6 @@ import Data.Default
 import Data.Text
 import DataTypes.HoubouType
 import Libs.Common
-import Forms.PostForm
-import Forms.FreeForm
 import Forms.FrameForm
 import Forms.FreeFrameForm
 import Forms.BlogSettingForm
@@ -44,12 +42,18 @@ postFormToPost form = Post {
   , unPostDescription = unPostFormDescription form
   , unPostKeywords = unPostFormKeywords form
   , unPostRobots = unPostFormRobots form
+  , unPostOgImg = unPostFormOgImg form
+  , unPostOgTitle = unPostFormOgTitle form
+  , unPostOgUrl = unPostFormOgUrl form
+  , unPostOgSiteName = unPostFormOgSiteName form
+  , unPostOgDesc = unPostFormOgDesc form
+  , unPostOgPageType = unPostFormOgPageType form
   , unPostCreateTime = dummyUtc
   , unPostUpdateTime = dummyUtc
   , unPostAuthorId = 0
   , unPostVersion = unPostFormVersion form
   }
-
+  
 prevFormToPost ::
   PrevForm
   -> Post
@@ -95,6 +99,12 @@ freeFormToFree form = Free {
   , unFreeDescription = unFreeFormDescription form
   , unFreeKeywords = unFreeFormKeywords form
   , unFreeRobots = unFreeFormRobots form
+  , unFreeOgImg = unFreeFormOgImg form
+  , unFreeOgTitle = unFreeFormOgTitle form
+  , unFreeOgUrl = unFreeFormOgUrl form
+  , unFreeOgSiteName = unFreeFormOgSiteName form
+  , unFreeOgDesc = unFreeFormOgDesc form
+  , unFreeOgPageType = unFreeFormOgPageType form
   , unFreeCreateTime = dummyUtc
   , unFreeUpdateTime = dummyUtc
   , unFreeAuthorId = 0

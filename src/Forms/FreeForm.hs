@@ -5,7 +5,6 @@
 
 module Forms.FreeForm (
     freeForm
-  , FreeForm(..)
   ) where
 
 import Import
@@ -14,22 +13,6 @@ import Forms.FormValid
 import Forms.CommonForm
 import UrlParam.Page
 import Libs.Common
-
-data FreeForm = FreeForm {
-    unFreeFormId :: Int64
-  , unFreeFormTitle :: Text
-  , unFreeFormContent :: Text
-  , unFreeFormSlug :: Maybe Text
-  , unFreeFormUrlpath :: Maybe Text
-  , unFreeFormCss :: Maybe Text
-  , unFreeFormInputType :: Int
-  , unFreeFormStatus :: Int
-  , unFreeFormTags :: Maybe Text
-  , unFreeFormDescription :: Maybe Text
-  , unFreeFormKeywords :: Maybe Text
-  , unFreeFormRobots :: Maybe Text
-  , unFreeFormVersion :: Int
-} deriving(Eq, Show)
 
 freeForm :: Maybe Free -> Html -> MForm Handler (FormResult FreeForm, Widget)
 freeForm free extra = do
@@ -44,8 +27,15 @@ freeForm free extra = do
       dscLen = appMetaDescriptionMaxLength $ appSettings master
       kwdLen = appMetaKeywordsMaxLength $ appSettings master
       robLen = appMetaRobotsMaxLength $ appSettings master
+      ogImgLen = appMetaOgImageMaxLength $ appSettings master
+      ogTtlLen = appMetaOgTitleMaxLength $ appSettings master
+      ogUrlLen = appMetaOgUrlMaxLength $ appSettings master
+      ogSnmLen = appMetaOgSiteNameMaxLength $ appSettings master
+      ogDscLen = appMetaOgDescMaxLength $ appSettings master
+      ogPgtLen = appMetaOgPageTypeMaxLength $ appSettings master
       freeId = fromMaybe 0 (unFreeId <$> free)
       robots = fromMaybe (Just "index,follow") (unFreeRobots <$> free)
+      ogpgt = fromMaybe (Just "article") (unFreeOgPageType <$> free)
       version = fromMaybe 0 (unFreeVersion <$> free)
       selInpTyp = fromMaybe 1 (unFreeInputType <$> free)
       selStsTyp = fromMaybe (fromEnum UnPublished) (unFreeStatus <$> free)
@@ -64,6 +54,12 @@ freeForm free extra = do
                            descriptionFieldSet (Just (Textarea <$> (join (unFreeDescription <$> free))))
   (kwdRes, kwdView) <- mopt (keywordsField kwdLen) keywordsFieldSet (unFreeKeywords <$> free)
   (robRes, robView) <- mopt (robotsField robLen) robotsFieldSet(Just robots)
+  (ogImgRes, ogImgView) <- mopt (ogImgField ogImgLen) ogImgFieldSet (unFreeOgImg <$> free)
+  (ogTtlRes, ogTtlView) <- mopt (ogTitleField ogTtlLen) ogTitleFieldSet (unFreeOgTitle <$> free)
+  (ogUrlRes, ogUrlView) <- mopt (ogUrlField ogUrlLen) ogUrlFieldSet (unFreeOgUrl <$> free)
+  (ogSnmRes, ogSnmView) <- mopt (ogSiteNameField ogSnmLen) ogSiteNameFieldSet (unFreeOgSiteName <$> free)
+  (odDscRes, odDscView) <- mopt (ogDescField ogDscLen) ogDescFieldSet (unFreeOgDesc <$> free)
+  (odPgtRes, odPgtView) <- mopt (ogPageTypeField ogPgtLen) ogPageTypeFieldSet (Just ogpgt)
   (verRes, verView) <- mreq hiddenIdField versionFieldSet (Just version)
   let formParam = FreeForm
                   <$> freeIdRes
@@ -78,6 +74,12 @@ freeForm free extra = do
                   <*> ((fmap . fmap) unTextarea  dscRes)
                   <*> kwdRes
                   <*> robRes
+                  <*> ogImgRes
+                  <*> ogTtlRes
+                  <*> ogUrlRes
+                  <*> ogSnmRes
+                  <*> odDscRes
+                  <*> odPgtRes
                   <*> verRes
       widget = $(whamletFile "templates/freepage_form.hamlet")
   return (formParam, widget)

@@ -39,7 +39,9 @@ module DataTypes.HoubouType (
   , HResultErrParam
   , TagStr
   , TagList
-  , PageCanonicalType(..)
+  , PageType(..)
+  , PostForm(..)
+  , FreeForm(..)
 ) where
 
 import Data.Default
@@ -193,6 +195,12 @@ data Post = Post {
   , unPostDescription :: Maybe Text
   , unPostKeywords :: Maybe Text
   , unPostRobots :: Maybe Text
+  , unPostOgImg :: Maybe Text
+  , unPostOgTitle :: Maybe Text
+  , unPostOgUrl :: Maybe Text
+  , unPostOgSiteName :: Maybe Text
+  , unPostOgDesc :: Maybe Text
+  , unPostOgPageType :: Maybe Text
   , unPostCreateTime :: UTCTime
   , unPostUpdateTime :: UTCTime
   , unPostAuthorId :: Int64
@@ -235,6 +243,12 @@ data Free = Free {
   , unFreeDescription :: Maybe Text
   , unFreeKeywords :: Maybe Text
   , unFreeRobots :: Maybe Text
+  , unFreeOgImg :: Maybe Text
+  , unFreeOgTitle :: Maybe Text
+  , unFreeOgUrl :: Maybe Text
+  , unFreeOgSiteName :: Maybe Text
+  , unFreeOgDesc :: Maybe Text
+  , unFreeOgPageType :: Maybe Text
   , unFreeCreateTime :: UTCTime
   , unFreeUpdateTime :: UTCTime
   , unFreeAuthorId :: Int64
@@ -377,6 +391,12 @@ data PageMeta = PageMeta {
   , unPageMetaDescription :: Text
   , unPageMetaKeywords :: Text
   , unPageMetaRobots :: Text
+  , unPageMetaOgImg :: Text
+  , unPageMetaOgTitle :: Text
+  , unPageMetaOgUrl :: Text
+  , unPageMetaOgSiteName :: Text
+  , unPageMetaOgDesc :: Text
+  , unPageMetaOgPageType :: Text
   } deriving(Eq, Show)
 
 data MstTag = MstTag {
@@ -410,4 +430,47 @@ data BlogAccess = BlogAccess {
   , unBlogAccessTatolCnt :: Int
   } deriving(Show, Eq)
 
-data PageCanonicalType = CPost | CFree deriving(Show, Eq)
+data PageType = PTPost | PTFree deriving(Show, Eq)
+
+data PostForm = PostForm {
+    unPostFormId :: Int64
+  , unPostFormTitle :: Text
+  , unPostFormContent :: Text
+  , unPostFormSlug :: Maybe Text
+  , unPostFormUrlpath :: Maybe Text
+  , unPostFormInputType :: Int
+  , unPostFormStatus :: Int
+  , unPostFormTags :: Maybe Text
+  , unPostFormDescription :: Maybe Text
+  , unPostFormKeywords :: Maybe Text
+  , unPostFormRobots :: Maybe Text
+  , unPostFormOgImg :: Maybe Text
+  , unPostFormOgTitle :: Maybe Text
+  , unPostFormOgUrl :: Maybe Text
+  , unPostFormOgSiteName :: Maybe Text
+  , unPostFormOgDesc :: Maybe Text
+  , unPostFormOgPageType :: Maybe Text
+  , unPostFormVersion :: Int
+}
+
+data FreeForm = FreeForm {
+    unFreeFormId :: Int64
+  , unFreeFormTitle :: Text
+  , unFreeFormContent :: Text
+  , unFreeFormSlug :: Maybe Text
+  , unFreeFormUrlpath :: Maybe Text
+  , unFreeFormCss :: Maybe Text
+  , unFreeFormInputType :: Int
+  , unFreeFormStatus :: Int
+  , unFreeFormTags :: Maybe Text
+  , unFreeFormDescription :: Maybe Text
+  , unFreeFormKeywords :: Maybe Text
+  , unFreeFormRobots :: Maybe Text
+  , unFreeFormOgImg :: Maybe Text
+  , unFreeFormOgTitle :: Maybe Text
+  , unFreeFormOgUrl :: Maybe Text
+  , unFreeFormOgSiteName :: Maybe Text
+  , unFreeFormOgDesc :: Maybe Text
+  , unFreeFormOgPageType :: Maybe Text
+  , unFreeFormVersion :: Int
+}

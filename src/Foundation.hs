@@ -319,17 +319,6 @@ getHbSessionTimeout master = do
   case result of
     Just (Entity _ setting) -> return $ tblBlogSettingSessionTimeout setting
     Nothing -> error "Uninitialized blog setting."
-{-
-    
-    let so = case result of
-        Just (Entity _ setting) -> tblBlogSettingSessionTimeout setting
-        Nothing -> error "Uninitialized blog setting."
-
-                      let so = case result of
-        Just (Entity _ setting) -> tblBlogSettingSessionTimeout setting
-        Nothing -> error "Uninitialized blog setting."
--}
-
 
 -- | Session strage for redis connection
 redisStorage :: RedisConfig -> IO (RedisStorage sess)

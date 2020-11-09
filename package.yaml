@@ -73,6 +73,7 @@ dependencies:
 - hedis-config
 - serversession-backend-redis
 - serversession-frontend-yesod
+- regex-pcre
 
 # The library contains all of our application code. The executable
 # defined below is just a thin wrapper.
@@ -90,7 +91,7 @@ library:
       ghc-options:
       - -Wall
       - -fwarn-tabs
-      - -O2
+      - -O0
 
 # Runnable executable for our application
 executables:

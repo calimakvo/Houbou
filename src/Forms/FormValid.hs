@@ -32,6 +32,12 @@ module Forms.FormValid (
   , descriptionField
   , keywordsField
   , robotsField
+  , ogImgField
+  , ogTitleField
+  , ogUrlField
+  , ogSiteNameField
+  , ogDescField
+  , ogPageTypeField
   , sessTimeoutField
   ) where
 
@@ -432,6 +438,60 @@ robotsFieldValid :: Int -> Text -> Either Text Text
 robotsFieldValid len s
   | length(s) > len
     = Left $ ("robotsは" <> pack(show(len)) <> "文字まで入力可能です")
+  | otherwise = Right s
+
+ogImgField :: Int -> Field Handler Text
+ogImgField len = check (ogImgFieldValid len) textField
+
+ogImgFieldValid :: Int -> Text -> Either Text Text
+ogImgFieldValid len s
+  | length(s) > len
+    = Left $ ("ogイメージは" <> pack(show(len)) <> "文字まで入力可能です")
+  | otherwise = Right s
+
+ogTitleField :: Int -> Field Handler Text
+ogTitleField len = check (ogTitleFieldValid len) textField
+
+ogTitleFieldValid :: Int -> Text -> Either Text Text
+ogTitleFieldValid len s
+  | length(s) > len
+    = Left $ ("ogタイトルは" <> pack(show(len)) <> "文字まで入力可能です")
+  | otherwise = Right s
+
+ogUrlField :: Int -> Field Handler Text
+ogUrlField len = check (ogUrlFieldValid len) textField
+
+ogUrlFieldValid :: Int -> Text -> Either Text Text
+ogUrlFieldValid len s
+  | length(s) > len
+    = Left $ ("ogURLは" <> pack(show(len)) <> "文字まで入力可能です")
+  | otherwise = Right s
+
+ogSiteNameField :: Int -> Field Handler Text
+ogSiteNameField len = check (ogSiteNameFieldValid len) textField
+
+ogSiteNameFieldValid :: Int -> Text -> Either Text Text
+ogSiteNameFieldValid len s
+  | length(s) > len
+    = Left $ ("ogサイト名は" <> pack(show(len)) <> "文字まで入力可能です")
+  | otherwise = Right s
+
+ogDescField :: Int -> Field Handler Text
+ogDescField len = check (ogDescFieldValid len) textField
+
+ogDescFieldValid :: Int -> Text -> Either Text Text
+ogDescFieldValid len s
+  | length(s) > len
+    = Left $ ("ogディスクリプション名は" <> pack(show(len)) <> "文字まで入力可能です")
+  | otherwise = Right s
+
+ogPageTypeField :: Int -> Field Handler Text
+ogPageTypeField len = check (ogPageTypeFieldValid len) textField
+
+ogPageTypeFieldValid :: Int -> Text -> Either Text Text
+ogPageTypeFieldValid len s
+  | length(s) > len
+    = Left $ ("ogページタイプ名は" <> pack(show(len)) <> "文字まで入力可能です")
   | otherwise = Right s
 
 checkLengthSlug :: Int -> Text -> Bool

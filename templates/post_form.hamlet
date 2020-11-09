@@ -96,10 +96,81 @@
                 <div .alert .alert-danger role="alert">
                     <span>#{tagErr}
 
+        <div .panel .panel-default>
+            <div .panel-heading>
+                <h3 .panel-title>
+                    <a data-toggle="collapse" data-parent="#ogImputAccordion" href="#ogInputField">
+                        OpenGraph設定(og設定)
+            <div #ogInputField .panel-collapse .collapse>
+                <div .panel-body>
+
+                    <div .form-group>
+                        <label>og:image
+                        ^{fvInput ogImgView}
+                        <p .help-block>
+                            <small>httpまたはhttpsから始まる場合そのままURLを出力します、相対パスの場合ブログURLを自動で出力します
+                    $maybe ogImgErr <- fvErrors ogImgView
+                        <div .form-group>
+                            <div .alert .alert-danger role="alert">
+                                <span>#{ogImgErr}
+                    <div .form-group>
+                        <button .btn .btn-default .btn-sm data-target-link-id="ogImageUrlInputId" .btnMediaInsert>
+                            メディア挿入
+    
+                    <div .form-group>
+                        <label>og:title
+                        ^{fvInput ogTtlView}
+                        <p .help-block>
+                            <small>設定されていない場合は記事のタイトルを出力します
+                    $maybe ogTtlErr <- fvErrors ogTtlView
+                        <div .form-group>
+                            <div .alert .alert-danger role="alert">
+                                <span>#{ogTtlErr}
+            
+                    <div .form-group>
+                        <label>og:url
+                        ^{fvInput ogUrlView}
+                        <p .help-block>
+                            <small>設定されていない場合は記事のURLを出力します
+                    $maybe ogUrlErr <- fvErrors ogUrlView
+                        <div .form-group>
+                            <div .alert .alert-danger role="alert">
+                                <span>#{ogUrlErr}
+            
+                    <div .form-group>
+                        <label>og:site_name
+                        ^{fvInput ogSnmView}
+                        <p .help-block>
+                            <small>設定されていない場合はブログ名を出力します
+                    $maybe ogSnmErr <- fvErrors ogSnmView
+                        <div .form-group>
+                            <div .alert .alert-danger role="alert">
+                                <span>#{ogSnmErr}
+            
+                    <div .form-group>
+                        <label>og:description
+                        ^{fvInput odDscView}
+                        <p .help-block>
+                            <small>og:description
+                    $maybe ogDscErr <- fvErrors odDscView
+                        <div .form-group>
+                            <div .alert .alert-danger role="alert">
+                                <span>#{ogDscErr}
+            
+                    <div .form-group>
+                        <label>og:type
+                        ^{fvInput odPgtView}
+                        <p .help-block>
+                            <small>website or blog or article ..
+                    $maybe ogPgtErr <- fvErrors odPgtView
+                        <div .form-group>
+                            <div .alert .alert-danger role="alert">
+                                <span>#{ogPgtErr}
+
         <div .col-sm-12>
             <div .form-group .text-center>
                 $maybe backType <- backListPageType
-                    <a href=@{PostListR (textToInt backType) (Page Nothing)} .btn .btn-warning .>一覧へ戻る
+                    <a href=@{PostListR (textToInt backType) (Page Nothing)} .btn .btn-warning>一覧へ戻る
                 <button type="submit" .btn .btn-primary>
                     登　　録
     

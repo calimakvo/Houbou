@@ -33,9 +33,15 @@ TblPost
     tags Text sqltype=varchar(2048) Maybe
     status Int sqltype=smallint
     publishDate UTCTime sqltype=timestamptz Maybe
-    description Text sqltype=varchar(1024) Maybe
+    description Text sqltype=varchar(4096) Maybe
     keywords Text sqltype=varchar(512) Maybe
     robots Text sqltype=varchar(128) Maybe
+    ogImg Text sqltype=varchar(2048) Maybe
+    ogTitle Text sqltype=varchar(2048) Maybe
+    ogUrl Text sqltype=varchar(2048) Maybe
+    ogSiteName Text sqltype=varchar(2048) Maybe
+    ogDesc Text sqltype=varchar(1024) Maybe
+    ogPageType Text sqltype=varchar(16) Maybe
     createTime UTCTime sqltype=timestamptz
     updateTime UTCTime sqltype=timestamptz default=now()
     authorId TblUserId
@@ -106,6 +112,12 @@ TblFree
     description Text sqltype=varchar(1024) Maybe
     keywords Text sqltype=varchar(512) Maybe
     robots Text sqltype=varchar(128) Maybe
+    ogImg Text sqltype=varchar(2048) Maybe
+    ogTitle Text sqltype=varchar(2048) Maybe
+    ogUrl Text sqltype=varchar(2048) Maybe
+    ogSiteName Text sqltype=varchar(2048) Maybe
+    ogDesc Text sqltype=varchar(1024) Maybe
+    ogPageType Text sqltype=varchar(16) Maybe
     createTime UTCTime sqltype=timestamptz
     updateTime UTCTime sqltype=timestamptz default=now()
     authorId TblUserId

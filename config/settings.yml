@@ -77,9 +77,15 @@ post-text-length: 100000
 slug-text-length: 1000
 tag-length: 600
 tag-one-length: 30
+og-image-length: 600
+og-title-length: 300
+og-url-length: 600
+og-sitename-length: 300
+og-desc-length: 300
+og-pagetype-length: 16
 
 # page meta
-meta-length-description: 300
+meta-length-description: 1200
 meta-length-keywords: 100
 meta-length-robots: 50
 
@@ -97,8 +103,8 @@ free-css-length: 100000
 blog-set-blog-name-length: 300
 blog-set-blog-url-length: 300
 blog-set-post-num-max: 10
-blog-set-media-url-length: 300
-blog-set-media-dir-length: 300
+blog-set-media-url-length: 600
+blog-set-media-dir-length: 600
 blog-set-sesstion-timeout-min: 30
 blog-set-sesstion-timeout-max: 360
 blog-set-adstxt-length: 300

@@ -39,6 +39,7 @@ module Libs.Common (
   , showSize
   , showImgUrl
   , mediaPath
+  , blogPath
   , pagePath
   , utcToJpTime
   , toGrecoFull
@@ -285,6 +286,15 @@ toUrlPath ::
   UTCTime
   -> Text
 toUrlPath t = rmSlash $ dateFormat t <> "/"
+
+blogPath ::
+  Text
+  -> Text
+  -> Text
+blogPath blogUrl path =
+  case takeEnd 1 blogUrl of
+    "/" -> blogUrl <> (rmSlash path)
+    _ -> blogUrl <> (rmSlash $ "/" <> path)
 
 mediaPath ::
   Text

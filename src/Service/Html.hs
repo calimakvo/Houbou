@@ -14,6 +14,7 @@ import Import
 import qualified Prelude as P
 import Data.Maybe
 import qualified Data.Text as T
+import Text.Regex.PCRE
 import Text.Blaze.Html
 import qualified Data.HashMap.Strict as H
 import DataTypes.HoubouType
@@ -233,7 +234,14 @@ initContextFree pageMeta postedElms tags = H.fromList [
   , ("hb_meta_description", String $ unPageMetaDescription pageMeta)
   , ("hb_meta_keywords", String $ unPageMetaKeywords pageMeta)
   , ("hb_meta_robots", String $ unPageMetaRobots pageMeta)
-  , ("hb_tags", Array $ fromList (initMstTagList tags)) ]
+  , ("hb_tags", Array $ fromList (initMstTagList tags))
+  , ("hb_meta_og_image", String $ unPageMetaOgImg pageMeta)
+  , ("hb_meta_og_title", String $ unPageMetaOgTitle pageMeta)
+  , ("hb_meta_og_url", String $ unPageMetaOgUrl pageMeta)
+  , ("hb_meta_og_site_name", String $ unPageMetaOgSiteName pageMeta)
+  , ("hb_meta_og_desc", String $ unPageMetaOgDesc pageMeta)
+  , ("hb_meta_og_page_type", String $ unPageMetaOgPageType pageMeta)
+  ]
 
 initTagContList ::
   [TagContent]
@@ -297,7 +305,14 @@ initContextPost pageMeta postedElms tags = H.fromList [
   , ("hb_meta_description", String $ unPageMetaDescription pageMeta)
   , ("hb_meta_keywords", String $ unPageMetaKeywords pageMeta)
   , ("hb_meta_robots", String $ unPageMetaRobots pageMeta)
-  , ("hb_tags", Array $ fromList (initMstTagList tags))]
+  , ("hb_tags", Array $ fromList (initMstTagList tags))
+  , ("hb_meta_og_image", String $ unPageMetaOgImg pageMeta)
+  , ("hb_meta_og_title", String $ unPageMetaOgTitle pageMeta)
+  , ("hb_meta_og_url", String $ unPageMetaOgUrl pageMeta)
+  , ("hb_meta_og_site_name", String $ unPageMetaOgSiteName pageMeta)
+  , ("hb_meta_og_desc", String $ unPageMetaOgDesc pageMeta)
+  , ("hb_meta_og_page_type", String $ unPageMetaOgPageType pageMeta)
+  ]
 
 setContextPost ::
   H.HashMap Text Value
@@ -411,11 +426,7 @@ initPostedList postedElms =
                  [
                       ("post_title", String $ unPostTitle post)
                     , ("post_id", Number $ (fromIntegral $ unPostId post))
-                    , ("post_slug_url",
-                       if isJust (unPostSlug post) && isJust (unPostUrlpath post) then
-                         String $ toPostSlugUrlText (unPostSlug post) (unPostUrlpath post)
-                       else
-                         String $ "")
+                    , ("post_slug_url", String $ initSlugUrlPost post)
                  ]
                )
              ) (unPostedPosts elm))
@@ -435,11 +446,76 @@ toFramePageMeta setting post frame = PageMeta {
   , unPageMetaBlogUrl = unBlogSettingBlogUrl setting
   , unPageMetaFrameCss = maybeToText $ unFrameCss frame
   , unPageMetaMediaUrl = unBlogSettingMediaUrl setting
-  , unPageMetaCanonicalUrl = canonicalPath CPost (unPostUrlpath post) (unPostSlug post)
+  , unPageMetaCanonicalUrl = canonicalPath PTPost (unPostUrlpath post) (unPostSlug post)
   , unPageMetaDescription = maybeToText $ rmLfCr <$> unPostDescription post
-  , unPageMetaKeywords = maybeToText $ (unPostKeywords post)
-  , unPageMetaRobots = maybeToText $ (unPostRobots post)
+  , unPageMetaKeywords = maybeToText $ unPostKeywords post
+  , unPageMetaRobots = maybeToText $ unPostRobots post
+  , unPageMetaOgImg = initOgImage setting (unPostOgImg post)
+  , unPageMetaOgTitle = initOgTitle (unPostTitle post) (unPostOgTitle post)
+  , unPageMetaOgUrl = initOgUrl PTPost
+                                setting
+                                (unPostId post)
+                                (unPostSlug post)
+                                (unPostUrlpath post)
+                                (unPostOgUrl post)
+  , unPageMetaOgSiteName = initOgSiteName setting (unPostOgSiteName post)
+  , unPageMetaOgDesc = maybeToText $ unPostOgDesc post
+  , unPageMetaOgPageType = maybeToText $ unPostOgPageType post
   }
+
+initOgImage ::
+  BlogSetting
+  -> Maybe Text
+  -> Text
+initOgImage setting ogImgPath =
+  case ogImgPath of
+    Nothing -> ""
+    Just imgpath  ->
+      if unpack imgpath =~ ("https?://" :: String) then
+        imgpath
+      else
+        blogPath (unBlogSettingMediaUrl setting) imgpath
+
+initOgSiteName ::
+    BlogSetting
+  -> Maybe Text
+  -> Text
+initOgSiteName setting ogSiteName =
+  case ogSiteName of
+    Nothing -> unBlogSettingBlogName setting
+    Just sitename -> sitename
+
+initOgTitle ::
+  Text
+  -> Maybe Text
+  -> Text
+initOgTitle title ogTitle =
+  case ogTitle of
+    Nothing -> title
+    Just title' -> title'
+
+initOgUrl ::
+  PageType
+  -> BlogSetting
+  -> Int64
+  -> Maybe Text
+  -> Maybe Text
+  -> Maybe Text
+  -> Text
+initOgUrl pt setting fpid slug urlpath ogUrl =
+  case ogUrl of
+    Nothing ->
+      if isJust slug then
+        case pt of
+          PTPost -> setBlogUrl $ toPostSlugUrlText slug urlpath
+          PTFree -> setBlogUrl $ toFreeSlugUrlText slug urlpath
+      else
+        case pt of
+          PTPost -> setBlogUrl $ toPostUrlText fpid
+          PTFree -> setBlogUrl $ toFreeUrlText fpid
+    Just ogurl -> ogurl
+  where
+    setBlogUrl url = blogPath (unBlogSettingBlogUrl setting) url
 
 toTagContsFramePageMeta ::
   BlogSetting
@@ -455,6 +531,12 @@ toTagContsFramePageMeta setting frame = PageMeta {
   , unPageMetaDescription = ""
   , unPageMetaKeywords = ""
   , unPageMetaRobots = "index,follow"
+  , unPageMetaOgImg = ""
+  , unPageMetaOgTitle = "タグ一覧"
+  , unPageMetaOgUrl = ""
+  , unPageMetaOgSiteName = ""
+  , unPageMetaOgDesc = ""
+  , unPageMetaOgPageType = ""
   }
 
 toFreeFramePageMeta ::
@@ -467,11 +549,22 @@ toFreeFramePageMeta setting free frame = PageMeta {
   , unPageMetaTitle = unFreeTitle free
   , unPageMetaBlogUrl = unBlogSettingBlogUrl setting
   , unPageMetaFrameCss = maybeToText $ unFreeFrameCss frame
-  , unPageMetaCanonicalUrl = canonicalPath CFree (unFreeUrlpath free) (unFreeSlug free)
+  , unPageMetaCanonicalUrl = canonicalPath PTFree (unFreeUrlpath free) (unFreeSlug free)
   , unPageMetaMediaUrl = unBlogSettingMediaUrl setting
   , unPageMetaDescription = maybeToText $ rmLfCr <$> unFreeDescription free
   , unPageMetaKeywords = maybeToText $ unFreeKeywords free
   , unPageMetaRobots = maybeToText $ unFreeRobots free
+  , unPageMetaOgImg = initOgImage setting (unFreeOgImg free)
+  , unPageMetaOgTitle = initOgTitle (unFreeTitle free) (unFreeOgTitle free)
+  , unPageMetaOgUrl = initOgUrl PTFree
+                                setting
+                                (unFreeId free)
+                                (unFreeSlug free)
+                                (unFreeUrlpath free)
+                                (unFreeOgUrl free)
+  , unPageMetaOgSiteName = initOgSiteName setting (unFreeOgSiteName free)
+  , unPageMetaOgDesc = maybeToText $ unFreeOgDesc free
+  , unPageMetaOgPageType = maybeToText $ unFreeOgPageType free
   }
 
 getPutHtml ::
@@ -561,3 +654,10 @@ createPrevBlogFreeContents setId free = do
     True -> do
       html <- renderBlogFreeContents setting (fromJust frame) [free] posted tags
       return html
+
+initSlugUrlPost :: Post -> Text
+initSlugUrlPost post =
+  if isJust (unPostSlug post) && isJust (unPostUrlpath post) then
+    toPostSlugUrlText (unPostSlug post) (unPostUrlpath post)
+  else
+    ""
