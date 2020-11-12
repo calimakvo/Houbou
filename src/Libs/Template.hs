@@ -59,9 +59,14 @@ defReaderOpt = def {
 defWriterOpt ::
   WriterOptions
 defWriterOpt = def {
-  writerExtensions = enableExtension Ext_smart pandocExtensions
-      -- import Text.Pandoc.Highlighting (pygments)
-      -- , writerHighlightStyle = Just pygments
+    writerExtensions = enableExtension Ext_smart pandocExtensions
+  , writerHTMLMathMethod = MathJax "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+  -- Add to
+  -- <script id="MathJax-script" async
+  --   src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js">
+  -- </script> to html header
+  -- import Text.Pandoc.Highlighting (pygments)
+  -- , writerHighlightStyle = Just pygments
   }
 
 scopeLookup :: (Hashable k, Eq k, G.ToGVal m b) =>

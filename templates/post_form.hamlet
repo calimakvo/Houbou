@@ -100,7 +100,7 @@
             <div .panel-heading>
                 <h3 .panel-title>
                     <a data-toggle="collapse" data-parent="#ogImputAccordion" href="#ogInputField">
-                        OpenGraph設定(og設定)
+                        Open Graph設定
             <div #ogInputField .panel-collapse .collapse>
                 <div .panel-body>
 
@@ -108,7 +108,7 @@
                         <label>og:image
                         ^{fvInput ogImgView}
                         <p .help-block>
-                            <small>httpまたはhttpsから始まる場合そのままURLを出力します、相対パスの場合ブログURLを自動で出力します
+                            <small>httpまたはhttpsから始まる場合そのままURLを出力します、相対パスの場合メディアURLを補完して自動で出力します
                     $maybe ogImgErr <- fvErrors ogImgView
                         <div .form-group>
                             <div .alert .alert-danger role="alert">
