@@ -24,7 +24,7 @@
                         <div .col-lg-12>
                             <div .panel .panel-default>
                                 <div .panel-heading>
-                                    メディア挿入
+                                    <a href=@{MediaNewPopR} .btn .btn-default>新規登録
                                 <!-- /.panel-heading -->
                                 $if null medias
                                     <div .panel-body>

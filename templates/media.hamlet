@@ -14,8 +14,10 @@
             <script type="text/javascript">
                 var app = Elm.MediaUpload.init({
                       flags: {
-                          "key": "#{tokenKey}"
-                        , "val": "#{token}"
-                        , "maxlen": #{titleLen} }
+                          key: "#{tokenKey}"
+                        , val: "#{token}"
+                        , maxlen: #{titleLen}
+                        , succurl: "@{MediaListR $ Page Nothing}"
+                        }
                     , node: document.getElementById('fileUploader')
                 });

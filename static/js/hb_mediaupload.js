@@ -6646,7 +6646,7 @@ var $author$project$MediaUpload$update = F2(
 					var res = msg.a.a;
 					return (res.result === 1) ? _Utils_Tuple2(
 						model,
-						$elm$browser$Browser$Navigation$load('/hb-admin/medialist/1')) : _Utils_Tuple2(
+						$elm$browser$Browser$Navigation$load(model.token.succurl)) : _Utils_Tuple2(
 						model,
 						$elm$browser$Browser$Navigation$load('/hb-admin/error'));
 				} else {
@@ -7007,7 +7007,6 @@ var $author$project$MediaUpload$mediaMap = F5(
 						]))
 				]));
 	});
-var $elm$html$Html$span = _VirtualDom_node('span');
 var $author$project$MediaUpload$Upload = {$: 'Upload'};
 var $author$project$MediaUpload$btnDisabled = function (model) {
 	return (!_Utils_eq(model.err, $elm$core$Maybe$Nothing)) ? ' disabled' : '';
@@ -7082,7 +7081,7 @@ var $author$project$MediaUpload$view = function (model) {
 						$elm$html$Html$button,
 						_List_fromArray(
 							[
-								$elm$html$Html$Attributes$class('btn btn-default'),
+								$elm$html$Html$Attributes$class('btn btn-default center-block'),
 								$elm$html$Html$Events$onClick($author$project$MediaUpload$Pick)
 							]),
 						_List_fromArray(
@@ -7090,10 +7089,10 @@ var $author$project$MediaUpload$view = function (model) {
 								$elm$html$Html$text('ファイル選択')
 							])),
 						A2(
-						$elm$html$Html$span,
+						$elm$html$Html$div,
 						_List_fromArray(
 							[
-								$elm$html$Html$Attributes$class('dragandrop')
+								$elm$html$Html$Attributes$class('dragandrop center-block')
 							]),
 						_List_fromArray(
 							[
@@ -7158,15 +7157,20 @@ _Platform_export({'MediaUpload':{'init':$author$project$MediaUpload$main(
 		function (val) {
 			return A2(
 				$elm$json$Json$Decode$andThen,
-				function (maxlen) {
+				function (succurl) {
 					return A2(
 						$elm$json$Json$Decode$andThen,
-						function (key) {
-							return $elm$json$Json$Decode$succeed(
-								{key: key, maxlen: maxlen, val: val});
+						function (maxlen) {
+							return A2(
+								$elm$json$Json$Decode$andThen,
+								function (key) {
+									return $elm$json$Json$Decode$succeed(
+										{key: key, maxlen: maxlen, succurl: succurl, val: val});
+								},
+								A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string));
 						},
-						A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string));
+						A2($elm$json$Json$Decode$field, 'maxlen', $elm$json$Json$Decode$int));
 				},
-				A2($elm$json$Json$Decode$field, 'maxlen', $elm$json$Json$Decode$int));
+				A2($elm$json$Json$Decode$field, 'succurl', $elm$json$Json$Decode$string));
 		},
 		A2($elm$json$Json$Decode$field, 'val', $elm$json$Json$Decode$string)))(0)}});}(this));

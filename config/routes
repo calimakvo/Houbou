@@ -33,6 +33,7 @@
 /hb-admin/medialist/#Page MediaListR GET POST
 /hb-admin/mediains/#Page MediaInsR GET POST
 /hb-admin/medianew MediaNewR GET POST
+/hb-admin/medianewpop MediaNewPopR GET
 /hb-admin/mediadel MediaDelR POST
 /hb-admin/media/#MediaId MediaMdfR GET POST
 /hb-admin/postprev PostPrevR GET POST

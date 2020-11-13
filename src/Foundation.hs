@@ -73,7 +73,7 @@ data App = App
 -- This function also generates the following type synonyms:
 -- type Handler = HandlerFor App
 -- type Widget = WidgetFor App ()
-mkYesodData "App" $(parseRoutesFile "config/routes.yesodroutes")
+mkYesodData "App" $(parseRoutesFile "config/routes")
 
 -- | A convenient synonym for creating forms.
 type Form x = Html -> MForm (HandlerFor App) (FormResult x, Widget)
@@ -179,6 +179,7 @@ instance Yesod App where
     isAuthorized (MediaListR _) _ = isAuthenticated
     isAuthorized (MediaInsR _) _ = isAuthenticated
     isAuthorized MediaNewR _ = isAuthenticated
+    isAuthorized MediaNewPopR _ = isAuthenticated
     isAuthorized MediaDelR _ = isAuthenticated
     isAuthorized (MediaMdfR _) _ = isAuthenticated
     isAuthorized PostPrevR _ = isAuthenticated

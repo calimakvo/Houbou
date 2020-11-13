@@ -46,12 +46,17 @@
 }
 
 .dragandrop {
+    font-size: 24px;
+    font-weight: 700;
     color:#92AAB0;
-    text-align: left;
+    text-align: center;
     vertical-align: middle;
-    padding: 10px 10px 10px 10px;
-    margin-left: 30px;
-    margin-bottom: 10px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    border: dashed 2px #92AAB0;
+    border-radius: 6px;
+    height: 100px;
+    line-height: 100px;
 }
 
 .hb_tags {

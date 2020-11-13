@@ -28,6 +28,7 @@ type alias Token =
     { key : String
     , val : String
     , maxlen : Int
+    , succurl : String
     }
 
 type alias Upresult =
@@ -124,7 +125,7 @@ update msg model =
 
     HResp (Ok res) ->
         if res.result == 1 then
-            ( model, Nav.load "/hb-admin/medialist/1" )
+            ( model, Nav.load model.token.succurl )
         else
             ( model, Nav.load "/hb-admin/error" )
 
@@ -187,8 +188,8 @@ view model =
          , hijackOn "drop" dropDecoder
          ]
          [
-           button [ class "btn btn-default", onClick Pick ] [ text "ファイル選択" ]
-         , span [ class "dragandrop" ] [ text "ここへドロップ" ]
+           button [ class "btn btn-default center-block", onClick Pick ] [ text "ファイル選択" ]
+         , div [ class "dragandrop center-block" ] [ text "ここへドロップ" ]
          ]
      ,
      case model.err of

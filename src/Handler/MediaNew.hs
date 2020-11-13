@@ -8,6 +8,7 @@ module Handler.MediaNew where
 
 import Import
 import DataTypes.HoubouType
+import UrlParam.Page
 import Libs.Common
 import Libs.CommonWidget
 import Service.BlogSetting
@@ -53,4 +54,3 @@ hrespJson res msg = selectRep $ provideRep $ return ( object [ "result" .= res, 
 
 title :: Html
 title = "メディアアップロード"
-
