@@ -353,7 +353,7 @@ initPostShareUrl posts pageMeta =
   in
     if length posts > 1 then
       String baseUrl
-    else if all (==True) [isJust slug, isJust urlpath] then
+    else if all isJust [slug, urlpath] == True then
       String $ rmSlash (baseUrl <> "/" <> toPostSlugUrlText slug urlpath)
     else
       String $ rmSlash (baseUrl <> "/" <> toPostUrlText pid)
@@ -368,7 +368,7 @@ initFreeShareUrl frees pageMeta =
   in
     if length frees > 1 then
       String baseUrl
-    else if all (==True) [isJust slug, isJust urlpath] then
+    else if all isJust [slug, urlpath] == True then
       String $ rmSlash (baseUrl <> "/" <> toFreeSlugUrlText slug urlpath)
     else
       String $ rmSlash (baseUrl <> "/" <> toFreeUrlText fid)
@@ -505,7 +505,7 @@ initOgUrl ::
 initOgUrl pt setting fpid slug urlpath ogUrl =
   case ogUrl of
     Nothing ->
-      if isJust slug then
+      if all isJust [urlpath, slug] == True then
         case pt of
           PTPost -> setBlogUrl $ toPostSlugUrlText slug urlpath
           PTFree -> setBlogUrl $ toFreeSlugUrlText slug urlpath

@@ -31,8 +31,10 @@ getFreeList freeViewStatus pageInfo = runDB $ do
   let pageNum = unPageNum pageInfo
       pagePerLine = fromIntegral $ unPagePerLine pageInfo
       freeWhere status tbl = case status of
-        ViewAll -> E.val True
+        ViewAll ->  (tbl E.^. TblFreeStatus E.==. E.val (fromEnum Published)
+                    E.||. tbl E.^. TblFreeStatus E.==. E.val (fromEnum UnPublished))
         ViewPublished -> tbl E.^. TblFreeStatus E.==. E.val (fromEnum Published)
+        ViewDraft -> tbl E.^. TblFreeStatus E.==. E.val (fromEnum Draft)
       countQuery = E.from $ \tblFree -> do
         E.where_ $ do freeWhere freeViewStatus tblFree
         return $ E.count(tblFree E.^. TblFreeId)
@@ -92,10 +94,12 @@ updateFree free = runDB $ do
     Just record -> do
       let pver = unFreeVersion free
           dver = tblFreeVersion record
-          urlpath = if isJust (unFreeSlug free) && isNothing (tblFreeUrlpath record) then
-                      unFreeUrlpath free
-                    else
+          urlpath = if isJust (tblFreeUrlpath record) then
                       tblFreeUrlpath record
+                    else if unFreeStatus free == fromEnum Draft then
+                      Nothing
+                    else
+                      unFreeUrlpath free
           status = unFreeStatus free
           pubDate = tblFreePublishDate record
       case checkVersion dver pver of
@@ -135,6 +139,11 @@ registerFree ::
   -> Handler (HResult Int64)
 registerFree usrKey free = runDB $ do
   let status = unFreeStatus free
+      urlpath =
+        if unFreeStatus free == fromEnum Draft then
+          Nothing
+        else
+          unFreeUrlpath free
   html <- liftIO $ convertMarkdownContents (unFreeContent free) (unFreeInputType free)
   now <- liftIO getTm
   (TblFreeKey (SqlBackendKey freeId)) <- insert $
@@ -144,7 +153,7 @@ registerFree usrKey free = runDB $ do
       , tblFreeHtml = html
       , tblFreeCss = unFreeCss free
       , tblFreeSlug = unFreeSlug free
-      , tblFreeUrlpath = unFreeUrlpath free
+      , tblFreeUrlpath = urlpath
       , tblFreeInputType = unFreeInputType free
       , tblFreeTags = unFreeTags free
       , tblFreeStatus = status

@@ -39,5 +39,5 @@ getBlogContRaw :: MonadIO m =>
   Text
   -> ReaderT E.SqlBackend m [
   ( E.Single Day
-  , E.Single Int)]
+  , E.Single Int )]
 getBlogContRaw sql = E.rawSql sql []

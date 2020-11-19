@@ -10,6 +10,10 @@
     width: 50px !important;
 }
 
+.hb-td-size-60 {
+    width: 60px !important;
+}
+
 .hb-td-size-70 {
     width: 70px !important;
 }
@@ -74,3 +78,10 @@
     color: #fff !important;
 }
 
+.hb_hcenter {
+    text-align: center !important;
+}
+
+.hb_vcenter {
+    vertical-align: middle !important;
+}

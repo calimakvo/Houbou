@@ -44,8 +44,10 @@ getPostList blogViewStatus pageInfo = runDB $ do
   let pageNum = unPageNum pageInfo
       pagePerLine = fromIntegral $ unPagePerLine pageInfo
       blogWhere status tbl = case status of
-        ViewAll -> E.val True
+        ViewAll -> (tbl E.^. TblPostStatus E.==. E.val (fromEnum Published)
+                    E.||. tbl E.^. TblPostStatus E.==. E.val (fromEnum UnPublished))
         ViewPublished -> tbl E.^. TblPostStatus E.==. E.val (fromEnum Published)
+        ViewDraft -> tbl E.^. TblPostStatus E.==. E.val (fromEnum Draft)
       countQuery = E.from $ \tblPost -> do
         E.where_ $ do blogWhere blogViewStatus tblPost
         return $ E.count(tblPost E.^. TblPostId)
@@ -166,6 +168,11 @@ registerPost ::
   -> Handler (HResult Int64)
 registerPost usrKey post = runDB $ do
   let status = unPostStatus post
+      urlpath =
+        if unPostStatus post == fromEnum Draft then
+          Nothing
+        else
+          unPostUrlpath post
   now <- liftIO getTm
   html <- liftIO $ convertMarkdownContents (unPostContent post) (unPostInputType post)
   TblPostKey (SqlBackendKey postId) <- insert $
@@ -175,7 +182,7 @@ registerPost usrKey post = runDB $ do
       , tblPostInputType = unPostInputType post
       , tblPostHtml = html
       , tblPostSlug = unPostSlug post
-      , tblPostUrlpath = unPostUrlpath post
+      , tblPostUrlpath = urlpath
       , tblPostTags = unPostTags post
       , tblPostStatus = status
       , tblPostPublishDate = initPublishDate status now
@@ -206,10 +213,12 @@ updatePost post = runDB $ do
     Just record -> do
       let pver = unPostVersion post
           dver = tblPostVersion record
-          urlpath = if isJust (unPostSlug post) && isNothing (tblPostUrlpath record) then
-                      unPostUrlpath post
-                    else
+          urlpath = if isJust (tblPostUrlpath record) then
                       tblPostUrlpath record
+                    else if unPostStatus post == fromEnum Draft then
+                      Nothing
+                    else
+                      unPostUrlpath post
           status = unPostStatus post
           pubDate = tblPostPublishDate record
       case checkVersion dver pver of

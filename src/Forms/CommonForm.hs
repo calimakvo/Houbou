@@ -680,6 +680,7 @@ getStatusSelectTouple ::
 getStatusSelectTouple = return $ [
     ("非公開", fromEnum UnPublished)
   , ("公開", fromEnum Published)
+  , ("下書き", fromEnum Draft)
   ]
 
 postNumSelectTouple ::

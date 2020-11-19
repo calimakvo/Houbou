@@ -61,9 +61,12 @@
                                 <span .fa .arrow>
                             <ul .nav .nav-second-level>
                                 <li>
-                                    <a href=@{PostListR 1 $ Page Nothing}>すべて
+                                    <a href=@{PostListR (fromEnum ViewAll) $ Page Nothing}>すべて&nbsp;（#{pall}）
                                 <li>
-                                    <a href=@{PostListR 2 $ Page Nothing}>公開済
+                                    <a href=@{PostListR (fromEnum ViewPublished) $ Page Nothing}>公開済&nbsp;（#{ppub}）
+                                $if pdra > 0
+                                    <li>
+                                        <a href=@{PostListR (fromEnum ViewDraft) $ Page Nothing}>下書き&nbsp;（#{pdra}）
                         <li>
                             <a href="#">
                                <i .fa .fa-file-text .fa-fw>
@@ -71,9 +74,12 @@
                                 <span .fa .arrow>
                             <ul .nav .nav-second-level>
                                 <li>
-                                    <a href=@{FreeListR 1 $ Page Nothing}>すべて
+                                    <a href=@{FreeListR (fromEnum ViewAll) $ Page Nothing}>すべて&nbsp;（#{fall}）
                                 <li>
-                                    <a href=@{FreeListR 2 $ Page Nothing}>公開済
+                                    <a href=@{FreeListR (fromEnum ViewPublished) $ Page Nothing}>公開済&nbsp;（#{fpub}）
+                                $if fdra > 0
+                                    <li>
+                                        <a href=@{FreeListR (fromEnum ViewDraft) $ Page Nothing}>下書き&nbsp;（#{fdra}）
                         $maybe (_, loginUsr) <- muser
                             $if tblUserUserPermId loginUsr == TblMstUserPermKey (SqlBackendKey rootUserId)
                                 <li>

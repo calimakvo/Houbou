@@ -71,6 +71,7 @@ tblResult = [(Success, 1), (Failure, 0)]
 data PublishStatus =
     Published
   | UnPublished
+  | Draft
   | UnkStatus
   deriving(Show, Eq)
 
@@ -79,11 +80,17 @@ instance Enum PublishStatus where
     toEnum = fromJust . flip lookup (P.map swap tblPublishStatus)
 
 tblPublishStatus :: [(PublishStatus, Int)]
-tblPublishStatus = [(Published, 2), (UnPublished, 1), (UnkStatus, -1)]
+tblPublishStatus = [
+    (Draft, 3)
+  , (Published, 2)
+  , (UnPublished, 1)
+  , (UnkStatus, -1)
+  ]
 
 data PubViewStatus =
     ViewAll
   | ViewPublished
+  | ViewDraft
   deriving(Show, Eq)
 
 instance Enum PubViewStatus where
@@ -91,7 +98,12 @@ instance Enum PubViewStatus where
     toEnum = fromJust . flip lookup (P.map swap tblPubViewStatus)
 
 tblPubViewStatus :: [(PubViewStatus, Int)]
-tblPubViewStatus = [(ViewAll, 1), (ViewPublished, 2)]
+tblPubViewStatus = [
+    (ViewAll, 1)
+  , (ViewPublished, 2)
+  , (ViewDraft, 3)
+
+  ]
 
 data ComStatus =
     Approval

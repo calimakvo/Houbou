@@ -71,21 +71,24 @@
                                                 <tbody>
                                                     $forall (i, PostList n postId status title slug urlpath pubdate _ version comCntTotal comCntAprov viewCnt) <- postList
                                                         <tr class="#{rowClass n}">
-                                                            <td .hb-td-size-50>
+                                                            <td .hb-td-size-50 .hb_hcenter .hb_vcenter>
                                                                 <a href=@{PostR (PostId $ Just postId)} .btn .btn-primary>編集
-                                                            <td .hb-td-size-50>
+                                                            <td .hb-td-size-60 .hb_hcenter .hb_vcenter>
                                                                 <form action=@{StatusChangeR} method="post" enctype="multipart/form-data">
                                                                     ^{token}
                                                                     $if status == (fromEnum Published)
                                                                         <button type="button" .btn .btn-info .btn-circle .btnStatusUpdate>
                                                                             <i .fa .fa-check>
-                                                                    $else
+                                                                    $elseif status == (fromEnum UnPublished)
                                                                         <button type="button" .btn .btn-warning .btn-circle .btnStatusUpdate>
                                                                             <i .fa .fa-times>
+                                                                    $else
+                                                                        <span .help-block>
+                                                                            <small>下書き
                                                                     $# ^{token}の直下に配置すると、hiddenの値が正確に出力されない
                                                                     <input type="hidden" name="post_id" value="#{postId}">
                                                                     <input type="hidden" name="version" value="#{version}">
-                                                            <td>
+                                                            <td .hb_vcenter>
                                                                 $if isJust slug && isJust urlpath
                                                                     <a href=@{urlPostSlug slug urlpath} target="_blank" .fa .fa-external-link aria-hidden="true" #postUrlId#{i}>
                                                                         #{title}
@@ -94,14 +97,14 @@
                                                                 $else
                                                                     <a href=@{PutR $ PostId (Just postId)} target="_blank" .fa .fa-external-link aria-hidden="true" #postUrlId#{i}>#{title}
                                                                 <div #postCpyId#{i}>
-                                                            <td .hb-td-size-150>
+                                                            <td .hb-td-size-150 .hb_hcenter .hb_vcenter>
                                                                 $maybe pd <- pubdate
                                                                     #{dateTimeFullFormat pd}
                                                                 $nothing
                                                                     -
-                                                            <td .hb-td-size-50>#{comCntTotal} #{comCntTotal - comCntAprov}/#{comCntAprov}
-                                                            <td .hb-td-size-50>#{viewCnt}
-                                                            <td .hb-td-size-50>
+                                                            <td .hb-td-size-50 .hb_hcenter .hb_vcenter>#{comCntTotal} #{comCntTotal - comCntAprov}/#{comCntAprov}
+                                                            <td .hb-td-size-50 .hb_hcenter .hb_vcenter>#{viewCnt}
+                                                            <td .hb-td-size-50 .hb_hcenter .hb_vcenter>
                                                                 <form action=@{PostDelR truePageType} method="post" enctype="multipart/form-data">
                                                                     ^{token}
                                                                     <input type="hidden" name="post_id" value="#{postId}">

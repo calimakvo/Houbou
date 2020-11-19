@@ -14,7 +14,8 @@
 module Foundation where
 
 import Import.NoFoundation
-import Database.Persist.Sql (ConnectionPool, runSqlPool)
+import qualified Prelude as P
+import Database.Persist.Sql (ConnectionPool, Single, runSqlPool, rawSql, unSingle)
 import Data.Text as T
 import Text.Hamlet          (hamletFile)
 import Text.Jasmine         (minifym)
@@ -35,6 +36,7 @@ import qualified Web.ServerSession.Frontend.Yesod as S
 import qualified Data.CaseInsensitive as CI
 import qualified Data.Text.Encoding as TE
 
+import DataTypes.HoubouType
 import Libs.Common
 import UrlParam.Page
 import UrlParam.PostId
@@ -119,6 +121,8 @@ instance Yesod App where
     defaultLayout widget = do
         master <- getYesod
         muser <- maybeAuthPair
+        (pall, ppub, pdra) <- postCountAll
+        (fall, fpub, fdra) <- freeCountAll
         pc <- widgetToPageContent $ do
             addStylesheet $ StaticR css_bootstrap_min_css
             $(widgetFile "default-layout")
@@ -473,3 +477,42 @@ validatePasswd :: Int -> Text -> Either Text Text
 validatePasswd passwdLen passwd
     | T.length(passwd) > passwdLen = Left errorMessage
     | otherwise = Right passwd
+
+publishIntState :: (Int64, Int64, Int64)
+publishIntState =
+  (
+    fromIntegral $ fromEnum Published
+  , fromIntegral $ fromEnum Draft
+  , fromIntegral $ fromEnum UnPublished
+  )
+
+postCountAll :: Handler (Int, Int, Int)
+postCountAll = do
+  let s1 = "SELECT COUNT(id) FROM tbl_post WHERE (status = ? OR status = ?)" :: Text
+      s2 = "SELECT COUNT(id) FROM tbl_post WHERE status = ?" :: Text
+      (published, draft, unpublished) = publishIntState
+  runDB $ do
+    pall <- unSgl <$> blogCount s1 [PersistInt64 published, PersistInt64 unpublished]
+    pc <- unSgl <$> blogCount s2 [PersistInt64 published]
+    pd <- unSgl <$> blogCount s2 [PersistInt64 draft]
+    return (pall, pc, pd)
+
+freeCountAll :: Handler (Int, Int, Int)
+freeCountAll = do
+  let s1 = "SELECT COUNT(id) FROM tbl_free WHERE (status = ? OR status = ?)" :: Text
+      s2 = "SELECT COUNT(id) FROM tbl_free WHERE status = ?" :: Text
+      (published, draft, unpublished) = publishIntState
+  runDB $ do
+    fall <- unSgl <$> blogCount s1 [PersistInt64 published, PersistInt64 unpublished]
+    fc <- unSgl <$> blogCount s2 [PersistInt64 published]
+    fd <- unSgl <$> blogCount s2 [PersistInt64 draft]
+    return (fall, fc, fd)
+
+blogCount :: MonadIO m =>
+  Text
+  -> [PersistValue]
+  -> ReaderT SqlBackend m [ Single Int ]
+blogCount sql ps = rawSql sql ps
+
+unSgl :: [ Single Int ] -> Int
+unSgl = unSingle . P.head

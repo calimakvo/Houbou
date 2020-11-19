@@ -206,6 +206,7 @@ searchType ::
   -> (PubViewStatus, Text)
 searchType 1 = (ViewAll, "すべて")
 searchType 2 = (ViewPublished, "公開済")
+searchType 3 = (ViewDraft, "下書き")
 searchType _ = (ViewAll, "すべて")
 
 successKey ::

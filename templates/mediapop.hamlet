@@ -3,9 +3,13 @@
                     <div .col-lg-12>
                         <h1 .page-header>
                             メディアアップロード
-                <!-- /.row -->
+                    <!-- /.row -->
                 <div .row>
                     <div .col-lg-12 #fileUploader>
+
+                <div .row>
+                    <div .col-lg-12>
+                        <button onClick="history.back();".btn-block>戻る
 
         <!-- /#page-wrapper -->
         <script src="/static/js/hb_mediaupload.js">

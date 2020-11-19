@@ -70,23 +70,26 @@
                                                 <tbody>
                                                     $forall (i, FreeList n freeId title slug urlpath _ status _ ctime _ version viewCnt) <- freeList
                                                         <tr class="#{rowClass n}">
-                                                            <td .hb-td-size-50>
+                                                            <td .hb-td-size-50 .hb_hcenter .hb_vcenter>
                                                                 <a href=@{FreeR (FreeId $ Just freeId)} .btn .btn-primary>編集
-                                                            <td .hb-td-size-50>
+                                                            <td .hb-td-size-60 .hb_hcenter .hb_vcenter>
                                                                 <form action=@{FreeStatusChangeR} method="post" enctype="multipart/form-data">
                                                                     ^{token}
                                                                     $if status == (fromEnum Published)
                                                                         <button type="submit" .btn .btn-info .btn-circle .btnStatusUpdate>
                                                                             <i .fa .fa-check>
-                                                                    $else
+                                                                    $elseif status == (fromEnum UnPublished)
                                                                         <button type="submit" .btn .btn-warning .btn-circle .btnStatusUpdate>
                                                                             <i .fa .fa-times>
+                                                                    $else
+                                                                        <span .help-block>
+                                                                            <small>下書き
                                                                     $# ^{token}の直下に配置すると、hiddenの値が正確に出力されない
                                                                     <input type="hidden" name="free_id" value="#{freeId}">
                                                                     <input type="hidden" name="version" value="#{version}">
 
 
-                                                            <td>
+                                                            <td .hb_vcenter>
                                                                 $if isJust slug && isJust urlpath
                                                                     <a href=@{urlFreeSlug slug urlpath} target="_blank" .fa .fa-external-link aria-hidden="true" #freeUrlId#{i}>
                                                                         #{title}
@@ -95,11 +98,11 @@
                                                                 $else
                                                                     <a href=@{PutFreeR $ FreeId (Just freeId)} target="_blank" .fa .fa-external-link aria-hidden="true" #freeUrlId#{i}>#{title}
                                                                 <div #freeCpyId#{i}>
-                                                            <td .hb-td-size-150>
+                                                            <td .hb-td-size-150 .hb_hcenter .hb_vcenter>
                                                                 #{dateTimeFullFormat ctime}
-                                                            <td .hb-td-size-70>
+                                                            <td .hb-td-size-70 .hb_hcenter .hb_vcenter>
                                                                 #{viewCnt}
-                                                            <td .hb-td-size-50>
+                                                            <td .hb-td-size-50 .hb_hcenter .hb_vcenter>
                                                                 <form action=@{FreeDelR truePageType} method="post" enctype="multipart/form-data">
                                                                     ^{token}
                                                                     <input type="hidden" name="free_id" value="#{freeId}">
