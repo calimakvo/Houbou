@@ -459,9 +459,26 @@ toFramePageMeta setting post frame = PageMeta {
                                 (unPostUrlpath post)
                                 (unPostOgUrl post)
   , unPageMetaOgSiteName = initOgSiteName setting (unPostOgSiteName post)
-  , unPageMetaOgDesc = maybeToText $ unPostOgDesc post
+  , unPageMetaOgDesc = initOgDesc (unPostTitle post)
+                                  (unPostDescription post)
+                                  (unPostOgDesc post)
   , unPageMetaOgPageType = maybeToText $ unPostOgPageType post
   }
+
+initOgDesc ::
+  Text
+  -> Maybe Text
+  -> Maybe Text
+  -> Text
+initOgDesc title desc ogdesc =
+  case ogdesc of
+    Just ogdesc' -> ogdesc'
+    Nothing ->
+      case desc of
+        Just desc' -> if T.length desc' > maxlen then cutdesc desc' else desc'
+        Nothing -> if T.length title > maxlen then cutdesc title else title
+  where cutdesc t = T.take maxlen t <> "..."
+        maxlen = 30
 
 initOgImage ::
   BlogSetting
@@ -563,7 +580,9 @@ toFreeFramePageMeta setting free frame = PageMeta {
                                 (unFreeUrlpath free)
                                 (unFreeOgUrl free)
   , unPageMetaOgSiteName = initOgSiteName setting (unFreeOgSiteName free)
-  , unPageMetaOgDesc = maybeToText $ unFreeOgDesc free
+  , unPageMetaOgDesc = initOgDesc (unFreeTitle free)
+                                  (unFreeDescription free)
+                                  (unFreeOgDesc free)
   , unPageMetaOgPageType = maybeToText $ unFreeOgPageType free
   }
 

@@ -154,7 +154,7 @@
                         <label>og:description
                         ^{fvInput odDscView}
                         <p .help-block>
-                            <small>og:description
+                            <small>設定されていない場合はブログdescription、ブログタイトルの設定されている順で出力します
                     $maybe ogDscErr <- fvErrors odDscView
                         <div .form-group>
                             <div .alert .alert-danger role="alert">
