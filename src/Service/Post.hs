@@ -17,7 +17,6 @@ module Service.Post (
 
 import Import
 import qualified Prelude as P
-import Data.Time.Clock
 import Database.Persist.Sql (BackendKey(..))
 import qualified Database.Esqueleto as E
 import qualified Database.Esqueleto.Internal.Sql as E
@@ -29,11 +28,9 @@ import Service.Common
 getPublishPostedList ::
   Handler (HResult [Post])
 getPublishPostedList = runDB $ do
-  now <- liftIO getTm
-  let t = addUTCTime (-30 * nominalDay) now
-      flt = [ TblPostStatus ==. fromEnum Published, TblPostPublishDate !=. Nothing ]
-      opt = [ Desc TblPostPublishDate ]
-  list <- selectList ([TblPostPublishDate >=. (Just t)] ++ flt) opt
+  let flt = [ TblPostStatus ==. fromEnum Published, TblPostPublishDate !=. Nothing ]
+      opt = [ Desc TblPostPublishDate, OffsetBy 0, LimitTo 100 ]
+  list <- selectList flt opt
   return $ Right (map toPost list)
 
 getPostList ::
