@@ -42,7 +42,7 @@ createBlogContents setId postId = do
   setting <- getBlogSetting setId
   frame <- eitherToMaybe =<< readPostFrame
   posts <- eitherToList =<< (getPublishPostFromId setting postId)
-  posted <- eitherToList =<< getPublishPostedList
+  posted <- eitherToList =<< getPublishPostedList 0 100
   tags <- eitherToList =<< getTagList
   case (frame /= Nothing && null posts == False) of
     False -> do
@@ -96,7 +96,7 @@ createBlogFreeContents setId freeId = do
   setting <- getBlogSetting setId
   frame <- eitherToMaybe =<< readFreeFrame
   frees <- eitherToList =<< (getPublishFreeFromId setting freeId)
-  posted <- eitherToList =<< getPublishPostedList
+  posted <- eitherToList =<< getPublishPostedList 0 100
   tags <- eitherToList =<< getTagList
   case (frame /= Nothing && null frees == False) of
     False -> return $ Left ErrFreeUnitialize
@@ -150,7 +150,7 @@ createTagListContents setId tagId = do
   frame <- eitherToMaybe =<< readFreeFrame
   msttag <- eitherToMaybe =<< getMstTagFromId tagId
   tagconts <- eitherToList =<< getTagContents tagId
-  posted <- eitherToList =<< getPublishPostedList
+  posted <- eitherToList =<< getPublishPostedList 0 100
   tags <- eitherToList =<< getTagList
   case (frame /= Nothing && null tagconts == False && isJust msttag == True) of
     False -> do
@@ -258,7 +258,7 @@ initTagContList tagconts =
     createObjectTagPost tinfo =
       Object (
         GE.fromList [
-                ("type", Number $ fromIntegral (fromEnum PostTag))
+                ("type", Number $ fromIntegral (fromEnum TypePost))
               , ("id", Number (fromIntegral $ unTagInfoId tinfo))
               , ("title", String $ unTagInfoTitle tinfo)
               , ("posted", zoneTimeToValue (pubdate (unTagInfoPosted tinfo)))
@@ -267,7 +267,7 @@ initTagContList tagconts =
     createObjectTagFree tinfo =
       Object (
         GE.fromList [
-                 ("type", Number $ fromIntegral (fromEnum FreeTag))
+                 ("type", Number $ fromIntegral (fromEnum TypeFree))
                , ("id", Number (fromIntegral $ unTagInfoId tinfo))
                , ("title", String $ unTagInfoTitle tinfo)
                , ("posted", zoneTimeToValue (pubdate (unTagInfoPosted tinfo)))
@@ -446,13 +446,13 @@ toFramePageMeta setting post frame = PageMeta {
   , unPageMetaBlogUrl = unBlogSettingBlogUrl setting
   , unPageMetaFrameCss = maybeToText $ unFrameCss frame
   , unPageMetaMediaUrl = unBlogSettingMediaUrl setting
-  , unPageMetaCanonicalUrl = canonicalPath PTPost (unPostUrlpath post) (unPostSlug post)
+  , unPageMetaCanonicalUrl = canonicalPath TypePost (unPostUrlpath post) (unPostSlug post)
   , unPageMetaDescription = maybeToText $ rmLfCr <$> unPostDescription post
   , unPageMetaKeywords = maybeToText $ unPostKeywords post
   , unPageMetaRobots = maybeToText $ unPostRobots post
   , unPageMetaOgImg = initOgImage setting (unPostOgImg post)
   , unPageMetaOgTitle = initOgTitle (unPostTitle post) (unPostOgTitle post)
-  , unPageMetaOgUrl = initOgUrl PTPost
+  , unPageMetaOgUrl = initOgUrl TypePost
                                 setting
                                 (unPostId post)
                                 (unPostSlug post)
@@ -524,12 +524,12 @@ initOgUrl pt setting fpid slug urlpath ogUrl =
     Nothing ->
       if all isJust [urlpath, slug] == True then
         case pt of
-          PTPost -> setBlogUrl $ toPostSlugUrlText slug urlpath
-          PTFree -> setBlogUrl $ toFreeSlugUrlText slug urlpath
+          TypePost -> setBlogUrl $ toPostSlugUrlText slug urlpath
+          TypeFree -> setBlogUrl $ toFreeSlugUrlText slug urlpath
       else
         case pt of
-          PTPost -> setBlogUrl $ toPostUrlText fpid
-          PTFree -> setBlogUrl $ toFreeUrlText fpid
+          TypePost -> setBlogUrl $ toPostUrlText fpid
+          TypeFree -> setBlogUrl $ toFreeUrlText fpid
     Just ogurl -> ogurl
   where
     setBlogUrl url = blogPath (unBlogSettingBlogUrl setting) url
@@ -566,14 +566,14 @@ toFreeFramePageMeta setting free frame = PageMeta {
   , unPageMetaTitle = unFreeTitle free
   , unPageMetaBlogUrl = unBlogSettingBlogUrl setting
   , unPageMetaFrameCss = maybeToText $ unFreeFrameCss frame
-  , unPageMetaCanonicalUrl = canonicalPath PTFree (unFreeUrlpath free) (unFreeSlug free)
+  , unPageMetaCanonicalUrl = canonicalPath TypeFree (unFreeUrlpath free) (unFreeSlug free)
   , unPageMetaMediaUrl = unBlogSettingMediaUrl setting
   , unPageMetaDescription = maybeToText $ rmLfCr <$> unFreeDescription free
   , unPageMetaKeywords = maybeToText $ unFreeKeywords free
   , unPageMetaRobots = maybeToText $ unFreeRobots free
   , unPageMetaOgImg = initOgImage setting (unFreeOgImg free)
   , unPageMetaOgTitle = initOgTitle (unFreeTitle free) (unFreeOgTitle free)
-  , unPageMetaOgUrl = initOgUrl PTFree
+  , unPageMetaOgUrl = initOgUrl TypeFree
                                 setting
                                 (unFreeId free)
                                 (unFreeSlug free)
@@ -649,7 +649,7 @@ createPrevBlogContents ::
 createPrevBlogContents setId post = do
   setting <- getBlogSetting setId
   frame <- eitherToMaybe =<< readPostFrame
-  posted <- eitherToList =<< getPublishPostedList
+  posted <- eitherToList =<< getPublishPostedList 0 100
   tags <- eitherToList =<< getTagList
   case (frame /= Nothing) of
     False -> do
@@ -666,7 +666,7 @@ createPrevBlogFreeContents ::
 createPrevBlogFreeContents setId free = do
   setting <- getBlogSetting setId
   frame <- eitherToMaybe =<< readFreeFrame
-  posted <- eitherToList =<< getPublishPostedList
+  posted <- eitherToList =<< getPublishPostedList 0 100
   tags <- eitherToList =<< getTagList
   case (frame /= Nothing) of
     False -> return $ Left ErrFreeUnitialize

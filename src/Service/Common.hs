@@ -58,6 +58,7 @@ module Service.Common (
   , initPublishDate
   , updatePublishDate
   , convertMarkdownContents
+  , toHbUrl
   ) where
 
 import Import
@@ -546,8 +547,8 @@ toTagCont (
   , E.Single title
   , E.Single pubdate
   ) = case toEnum rectype of
-        PostTag -> TagContPost $ TagInfo tid tagid title pubdate
-        FreeTag -> TagContFree $ TagInfo tid tagid title pubdate
+        TypePost -> TagContPost $ TagInfo tid tagid title pubdate
+        TypeFree -> TagContFree $ TagInfo tid tagid title pubdate
 
 toBlogAccess ::
   (
@@ -561,6 +562,56 @@ toBlogAccess (
         unBlogAccessDate = date
       , unBlogAccessTatolCnt = tcnt
       }
+
+toHbUrl ::
+  ( E.Single Int64
+  , E.Single (Maybe Text)
+  , E.Single (Maybe Text)
+  , E.Single UTCTime
+  , E.Single Int64
+  , E.Single Int) -> HbUrl
+toHbUrl (
+    E.Single tid
+  , E.Single slug
+  , E.Single urlpath
+  , E.Single uptm
+  , E.Single aid
+  , E.Single pttype
+  ) = case toEnum pttype of
+        TypePost -> initPostHbUrl tid slug urlpath uptm aid
+        TypeFree -> initFreeHbUrl tid slug urlpath uptm aid
+
+initPostHbUrl ::
+  Int64
+  -> Maybe Text
+  -> Maybe Text
+  -> UTCTime
+  -> Int64
+  -> HbUrl
+initPostHbUrl tid slug urlpath uptm aid = HbUrl {
+    unHbUrlId = tid
+  , unHbUrlType = TypePost
+  , unHbUrlSlug = slug
+  , unHbUrlUrlpath = urlpath
+  , unHbUrlUpdateTime = uptm
+  , unHbUrlAuthorId = aid
+  }
+
+initFreeHbUrl ::
+  Int64
+  -> Maybe Text
+  -> Maybe Text
+  -> UTCTime
+  -> Int64
+  -> HbUrl
+initFreeHbUrl tid slug urlpath uptm aid = HbUrl {
+    unHbUrlId = tid
+  , unHbUrlType = TypeFree
+  , unHbUrlSlug = slug
+  , unHbUrlUrlpath = urlpath
+  , unHbUrlUpdateTime = uptm
+  , unHbUrlAuthorId = aid
+  }
 
 checkVersion ::
   Int

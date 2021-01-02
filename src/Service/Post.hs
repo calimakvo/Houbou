@@ -26,10 +26,12 @@ import Libs.Common
 import Service.Common
 
 getPublishPostedList ::
+  Int ->
+  Int ->
   Handler (HResult [Post])
-getPublishPostedList = runDB $ do
+getPublishPostedList offset limit = runDB $ do
   let flt = [ TblPostStatus ==. fromEnum Published, TblPostPublishDate !=. Nothing ]
-      opt = [ Desc TblPostPublishDate, OffsetBy 0, LimitTo 100 ]
+      opt = [ Desc TblPostPublishDate, OffsetBy offset, LimitTo limit ]
   list <- selectList flt opt
   return $ Right (map toPost list)
 

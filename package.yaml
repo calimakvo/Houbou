@@ -1,5 +1,5 @@
 name:    Houbou
-version: "0.9.16"
+version: "0.9.17"
 synopsis: Houbou is Blog system
 description: OpenSource Blog System
 homepage:            https://github.com/calimakvo/Houbou
@@ -57,6 +57,7 @@ dependencies:
 - wai
 - foreign-store
 - yesod-auth-hashdb
+- yesod-sitemap
 - email-validate
 - blaze-builder
 - blaze-html

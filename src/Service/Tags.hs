@@ -57,9 +57,9 @@ getTagContRaw :: MonadIO m =>
   , E.Single UTCTime)]
 getTagContRaw tagid sql = E.rawSql sql
     [
-      E.PersistInt64 $ fromIntegral (fromEnum PostTag)
+      E.PersistInt64 $ fromIntegral (fromEnum TypePost)
     , E.PersistInt64 $ fromIntegral (fromEnum Published)
-    , E.PersistInt64 $ fromIntegral (fromEnum FreeTag)
+    , E.PersistInt64 $ fromIntegral (fromEnum TypeFree)
     , E.PersistInt64 $ fromIntegral (fromEnum Published)
     , E.PersistInt64 tagid
     ]

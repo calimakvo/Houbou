@@ -189,8 +189,8 @@ canonicalPath pttype urlpath slug =
   then ""
   else
     case pttype of
-      PTPost -> toPostSlugUrlText slug urlpath
-      PTFree -> toFreeSlugUrlText slug urlpath
+      TypePost -> toPostSlugUrlText slug urlpath
+      TypeFree -> toFreeSlugUrlText slug urlpath
 
 chkForm :: (Maybe Text) -> Handler Text
 chkForm = \form ->

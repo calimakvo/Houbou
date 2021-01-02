@@ -32,7 +32,6 @@ module DataTypes.HoubouType (
   , Result(..)
   , MstTag(..)
   , TagContent(..)
-  , TagrecType(..)
   , TagInfo(..)
   , BlogAccess(..)
   , HResult
@@ -42,6 +41,7 @@ module DataTypes.HoubouType (
   , PageType(..)
   , PostForm(..)
   , FreeForm(..)
+  , HbUrl(..)
 ) where
 
 import Data.Default
@@ -428,21 +428,19 @@ data TagInfo = TagInfo {
   , unTagInfoPosted :: UTCTime
   } deriving (Eq, Show)
 
-data TagrecType = PostTag | FreeTag deriving(Show, Eq)
+data PageType = TypePost | TypeFree deriving(Show, Eq)
 
-instance Enum TagrecType where
-    fromEnum = fromJust . flip lookup tblTagrec
-    toEnum = fromJust . flip lookup (P.map swap tblTagrec)
+instance Enum PageType where
+    fromEnum = fromJust . flip lookup tblPageType
+    toEnum = fromJust . flip lookup (P.map swap tblPageType)
 
-tblTagrec :: [(TagrecType, Int)]
-tblTagrec = [(PostTag, 1), (FreeTag, 2)]
+tblPageType :: [(PageType, Int)]
+tblPageType = [(TypePost, 1), (TypeFree, 2)]
 
 data BlogAccess = BlogAccess {
     unBlogAccessDate :: Day
   , unBlogAccessTatolCnt :: Int
   } deriving(Show, Eq)
-
-data PageType = PTPost | PTFree deriving(Show, Eq)
 
 data PostForm = PostForm {
     unPostFormId :: Int64
@@ -486,3 +484,12 @@ data FreeForm = FreeForm {
   , unFreeFormOgPageType :: Maybe Text
   , unFreeFormVersion :: Int
 }
+
+data HbUrl = HbUrl {
+    unHbUrlId :: Int64
+  , unHbUrlType :: PageType
+  , unHbUrlSlug :: Maybe Text
+  , unHbUrlUrlpath :: Maybe Text
+  , unHbUrlUpdateTime :: UTCTime
+  , unHbUrlAuthorId :: Int64
+} deriving (Show)
