@@ -151,6 +151,7 @@ instance Yesod App where
     isAuthorized (StaticR _) _ = return Authorized
     isAuthorized AdstxtR _ = return Authorized
     isAuthorized HbAdminRootR _ = return Authorized
+    isAuthorized SitemapR _ = return Authorized
 
     -- Admin
     isAuthorized DashboardR _ = isAuthenticated
@@ -188,7 +189,6 @@ instance Yesod App where
     isAuthorized (MediaMdfR _) _ = isAuthenticated
     isAuthorized PostPrevR _ = isAuthenticated
     isAuthorized FreePrevR _ = isAuthenticated
-    isAuthorized SitemapR _ = isAuthenticated
     
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
