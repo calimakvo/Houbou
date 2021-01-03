@@ -63,6 +63,27 @@
             <div .form-group>
                 <div .alert .alert-danger role="alert">
                     <span>#{sessErr}
+
+    <div .form-group>
+        <label>ブログ管理者
+        ^{fvInput authView}
+        <p .help-block>
+            <small>ブログの管理者名
+        $maybe authErr <- fvErrors authView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{authErr}
+
+    <div .form-group>
+        <label>ブログ説明
+        ^{fvInput descView}
+        <p .help-block>
+            <small>ブログ説明文
+        $maybe descErr <- fvErrors descView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{descErr}
+
     <div .form-group>
         <label>ads.txt
         ^{fvInput adsView}

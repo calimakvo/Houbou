@@ -211,6 +211,8 @@ initContextTagCont pageMeta tagcont postedElms tags msttag = H.fromList [
   , ("hb_blog_title", String $ unPageMetaTitle pageMeta)
   , ("hb_search_tag", String $ unMstTagName msttag)
   , ("hb_blog_url", String $ unPageMetaBlogUrl pageMeta)
+  , ("hb_blog_author", String $ unPageMetaBlogAuthor pageMeta)
+  , ("hb_blog_desc", String $ unPageMetaBlogDesc pageMeta)
   , ("hb_blog_css", String $ unPageMetaFrameCss pageMeta)
   , ("hb_share_url", initTagListShareUrl msttag pageMeta)
   , ("hb_blog_media_url", String $ unPageMetaMediaUrl pageMeta)
@@ -227,6 +229,8 @@ initContextFree pageMeta postedElms tags = H.fromList [
     ("hb_blog_name", String $ unPageMetaBlogName pageMeta)
   , ("hb_blog_title", String $ unPageMetaTitle pageMeta)
   , ("hb_blog_url", String $ unPageMetaBlogUrl pageMeta)
+  , ("hb_blog_author", String $ unPageMetaBlogAuthor pageMeta)
+  , ("hb_blog_desc", String $ unPageMetaBlogDesc pageMeta)
   , ("hb_blog_css", String $ unPageMetaFrameCss pageMeta)
   , ("hb_blog_canonical_url", String $ unPageMetaCanonicalUrl pageMeta)
   , ("hb_blog_media_url", String $ unPageMetaMediaUrl pageMeta)
@@ -298,6 +302,8 @@ initContextPost pageMeta postedElms tags = H.fromList [
     ("hb_blog_name", String $ unPageMetaBlogName pageMeta)
   , ("hb_blog_title", String $ unPageMetaTitle pageMeta)
   , ("hb_blog_url", String $ unPageMetaBlogUrl pageMeta)
+  , ("hb_blog_author", String $ unPageMetaBlogAuthor pageMeta)
+  , ("hb_blog_desc", String $ unPageMetaBlogDesc pageMeta)
   , ("hb_blog_css", String $ unPageMetaFrameCss pageMeta)
   , ("hb_blog_canonical_url", String $ unPageMetaCanonicalUrl pageMeta)
   , ("hb_blog_media_url", String $ unPageMetaMediaUrl pageMeta)
@@ -444,6 +450,8 @@ toFramePageMeta setting post frame = PageMeta {
     unPageMetaBlogName = unBlogSettingBlogName setting
   , unPageMetaTitle = unPostTitle post
   , unPageMetaBlogUrl = unBlogSettingBlogUrl setting
+  , unPageMetaBlogAuthor = unBlogSettingBlogAuthor setting
+  , unPageMetaBlogDesc = unBlogSettingBlogDesc setting
   , unPageMetaFrameCss = maybeToText $ unFrameCss frame
   , unPageMetaMediaUrl = unBlogSettingMediaUrl setting
   , unPageMetaCanonicalUrl = canonicalPath TypePost (unPostUrlpath post) (unPostSlug post)
@@ -542,6 +550,8 @@ toTagContsFramePageMeta setting frame = PageMeta {
     unPageMetaBlogName = unBlogSettingBlogName setting
   , unPageMetaTitle = "タグ一覧"
   , unPageMetaBlogUrl = unBlogSettingBlogUrl setting
+  , unPageMetaBlogAuthor = unBlogSettingBlogAuthor setting
+  , unPageMetaBlogDesc = unBlogSettingBlogDesc setting
   , unPageMetaFrameCss = maybeToText $ unFreeFrameCss frame
   , unPageMetaCanonicalUrl = ""
   , unPageMetaMediaUrl = unBlogSettingMediaUrl setting
@@ -565,6 +575,8 @@ toFreeFramePageMeta setting free frame = PageMeta {
     unPageMetaBlogName = unBlogSettingBlogName setting
   , unPageMetaTitle = unFreeTitle free
   , unPageMetaBlogUrl = unBlogSettingBlogUrl setting
+  , unPageMetaBlogAuthor = unBlogSettingBlogAuthor setting
+  , unPageMetaBlogDesc = unBlogSettingBlogDesc setting
   , unPageMetaFrameCss = maybeToText $ unFreeFrameCss frame
   , unPageMetaCanonicalUrl = canonicalPath TypeFree (unFreeUrlpath free) (unFreeSlug free)
   , unPageMetaMediaUrl = unBlogSettingMediaUrl setting

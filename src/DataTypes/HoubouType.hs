@@ -42,6 +42,7 @@ module DataTypes.HoubouType (
   , PostForm(..)
   , FreeForm(..)
   , HbUrl(..)
+  , HbAtom(..)
 ) where
 
 import Data.Default
@@ -312,6 +313,8 @@ data BlogSetting = BlogSetting {
   , unBlogSettingUploadSize :: Int
   , unBlogSettingSessionTimeout :: Int
   , unBlogSettingAdstxt :: Maybe Text
+  , unBlogSettingBlogAuthor :: Text
+  , unBlogSettingBlogDesc :: Text
   , unBlogSettingCreateTime :: UTCTime
   , unBlogSettingUpdateTime :: UTCTime
   , unBlogSettingVersion :: Int
@@ -397,6 +400,8 @@ data PageMeta = PageMeta {
     unPageMetaBlogName :: Text
   , unPageMetaTitle :: Text
   , unPageMetaBlogUrl :: Text
+  , unPageMetaBlogAuthor :: Text
+  , unPageMetaBlogDesc :: Text
   , unPageMetaFrameCss :: Text
   , unPageMetaMediaUrl :: Text
   , unPageMetaCanonicalUrl :: Text
@@ -493,3 +498,14 @@ data HbUrl = HbUrl {
   , unHbUrlUpdateTime :: UTCTime
   , unHbUrlAuthorId :: Int64
 } deriving (Show)
+
+data HbAtom = HbAtom {
+    unHbAtomId :: Int64
+  , unHbAtomUrlType :: PageType
+  , unHbAtomSlug :: Maybe Text
+  , unHbAtomUrlpath :: Maybe Text
+  , unHbAtomUpdateTime :: UTCTime
+  , unHbAtomAuthorId :: Int64
+  , unHbAtomTitle :: Text
+  , unHbAtomBody :: Text
+} deriving(Show)

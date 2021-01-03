@@ -23,6 +23,8 @@ data BlogSettingForm = BlogSettingForm {
   , unBlogSettingFormUploadSize :: Int
   , unBlogSettingFormSessionTimeout :: Int
   , unBlogSettingFormAdstxt :: Maybe Text
+  , unBlogSettingFormBlogAuthor :: Text
+  , unBlogSettingFormBlogDesc :: Text
   , unBlogSettingFormVersion :: Int
 } deriving(Eq, Show)
 
@@ -41,6 +43,8 @@ blogSettingForm setting extra = do
       sessTimeoutMin = appBlogSetSessionTimeoutMin $ appSettings master
       sessTimeoutMax = appBlogSetSessionTimeoutMax $ appSettings master
       adstxtLen = appBlogSetAdsTxtMaxLength $ appSettings master
+      blogAuthorLen = appBlogSetAuthorLength $ appSettings master
+      blogDescLen = appBlogSetDescLength $ appSettings master
   selector <- liftHandler $ postNumSelectTouple postNumMax
   (nameRes, nameView) <- mreq (blogNameField blogNameLen) blogNameFieldSet (unBlogSettingBlogName <$> setting)
   (urlRes, urlView) <- mreq (blogUrlField blogUrlLen) blogUrlFieldSet (unBlogSettingBlogUrl <$> setting)
@@ -52,6 +56,8 @@ blogSettingForm setting extra = do
                            sessTimeoutFieldSet (unBlogSettingSessionTimeout <$> setting)
   (adsRes, adsView) <- mopt (blogAdsField adstxtLen) blogAdsFieldSet (unBlogSettingAdstxt <$> setting)
   (verRes, verView) <- mreq hiddenIdField versionFieldSet (unBlogSettingVersion <$> setting)
+  (authRes, authView) <- mreq (blogAuthorField blogAuthorLen) blogAuthorFieldSet (unBlogSettingBlogAuthor <$> setting)
+  (descRes, descView) <- mreq (blogDescField blogDescLen) blogDescFieldSet (unBlogSettingBlogDesc <$> setting)
   let formParam = BlogSettingForm
                     <$> nameRes
                     <*> urlRes
@@ -61,6 +67,8 @@ blogSettingForm setting extra = do
                     <*> sizeRes
                     <*> sessRes
                     <*> adsRes
+                    <*> authRes
+                    <*> descRes
                     <*> verRes
       widget = $(whamletFile "templates/setting_form.hamlet")
   return (formParam, widget)

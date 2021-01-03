@@ -43,6 +43,8 @@ module Forms.CommonForm (
   , mediaIdFieldSet
   , mediaTitleFieldSet
   , blogAdsFieldSet
+  , blogAuthorFieldSet
+  , blogDescFieldSet
   , sessTimeoutFieldSet
   , statusTypeRadioFieldSet
   , descriptionFieldSet
@@ -327,6 +329,30 @@ blogAdsFieldSet = FieldSettings {
   , fsTooltip = Nothing
   , fsId = Just "adsTxtId"
   , fsName = Just "ads_txt"
+  , fsAttrs =
+    [
+      ("class", "form-control")
+    ]
+ }
+
+blogAuthorFieldSet :: FieldSettings master
+blogAuthorFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "blogAuthor"
+  , fsName = Just "blog_author"
+  , fsAttrs =
+    [
+      ("class", "form-control")
+    ]
+ }
+
+blogDescFieldSet :: FieldSettings master
+blogDescFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "blogDesc"
+  , fsName = Just "blog_desc"
   , fsAttrs =
     [
       ("class", "form-control")

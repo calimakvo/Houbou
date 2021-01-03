@@ -141,6 +141,7 @@ instance Yesod App where
     -- Routes not requiring authentication.
     isAuthorized (AuthR _) _ = return Authorized
     isAuthorized HomeR _ = return Authorized
+    isAuthorized RssR _ = return Authorized
     isAuthorized (PutR _) _ = return Authorized
     isAuthorized (PutSlugR _ _ _ _) _ = return Authorized
     isAuthorized (PutFreeR _) _ = return Authorized

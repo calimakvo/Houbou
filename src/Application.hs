@@ -84,6 +84,7 @@ import Handler.PostPrev
 import Handler.FreePrev
 import Handler.HbAdminRoot
 import Handler.MediaNewPop
+import Handler.Rss
 import Handler.Sitemap
 
 -- This line actually creates our YesodDispatch instance. It is the second half

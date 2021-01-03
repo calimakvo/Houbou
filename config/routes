@@ -40,6 +40,7 @@
 /hb-admin/freeprev FreePrevR GET POST
 
 / HomeR GET
+/rss RssR GET
 /p/#PostId PutR GET
 /entry/#YPath/#MPath/#DPath/#Slug PutSlugR GET
 /f/#FreeId PutFreeR GET
@@ -50,3 +51,4 @@
 /robots.txt RobotsR GET
 /sitemap.xml SitemapR GET
 /static StaticR Static appStatic
+

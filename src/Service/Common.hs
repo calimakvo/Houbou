@@ -59,6 +59,7 @@ module Service.Common (
   , updatePublishDate
   , convertMarkdownContents
   , toHbUrl
+  , toHbAtom
   ) where
 
 import Import
@@ -361,6 +362,8 @@ toBlogSetting (Entity key entity) = BlogSetting {
   , unBlogSettingUploadSize = tblBlogSettingUploadSize entity
   , unBlogSettingSessionTimeout = tblBlogSettingSessionTimeout entity
   , unBlogSettingAdstxt = tblBlogSettingAdstxt entity
+  , unBlogSettingBlogAuthor = tblBlogSettingBlogAuthor entity
+  , unBlogSettingBlogDesc = tblBlogSettingBlogDesc entity
   , unBlogSettingCreateTime = tblBlogSettingCreateTime entity
   , unBlogSettingUpdateTime = tblBlogSettingUpdateTime entity
   , unBlogSettingVersion = tblBlogSettingVersion entity
@@ -611,6 +614,68 @@ initFreeHbUrl tid slug urlpath uptm aid = HbUrl {
   , unHbUrlUrlpath = urlpath
   , unHbUrlUpdateTime = uptm
   , unHbUrlAuthorId = aid
+  }
+
+toHbAtom ::
+  ( E.Single Int64
+  , E.Single (Maybe Text)
+  , E.Single (Maybe Text)
+  , E.Single UTCTime
+  , E.Single Int64
+  , E.Single Int
+  , E.Single Text
+  , E.Single Text) -> HbAtom
+toHbAtom (
+    E.Single tid
+  , E.Single slug
+  , E.Single urlpath
+  , E.Single uptm
+  , E.Single aid
+  , E.Single pttype
+  , E.Single title
+  , E.Single body
+  ) = case toEnum pttype of
+        TypePost -> initPostHbAtom tid slug urlpath uptm aid title body
+        TypeFree -> initFreeHbAtom tid slug urlpath uptm aid title body
+
+initPostHbAtom ::
+  Int64
+  -> Maybe Text
+  -> Maybe Text
+  -> UTCTime
+  -> Int64
+  -> Text
+  -> Text
+  -> HbAtom
+initPostHbAtom tid slug urlpath uptm aid title body = HbAtom {
+    unHbAtomId = tid
+  , unHbAtomUrlType = TypePost
+  , unHbAtomSlug = slug
+  , unHbAtomUrlpath = urlpath
+  , unHbAtomUpdateTime = uptm
+  , unHbAtomAuthorId = aid
+  , unHbAtomTitle = title
+  , unHbAtomBody = body
+  }
+
+initFreeHbAtom ::
+  Int64
+  -> Maybe Text
+  -> Maybe Text
+  -> UTCTime
+  -> Int64
+  -> Text
+  -> Text
+  -> HbAtom
+initFreeHbAtom tid slug urlpath uptm aid title body = HbAtom {
+    unHbAtomId = tid
+  , unHbAtomUrlType = TypeFree
+  , unHbAtomSlug = slug
+  , unHbAtomUrlpath = urlpath
+  , unHbAtomUpdateTime = uptm
+  , unHbAtomAuthorId = aid
+  , unHbAtomTitle = title
+  , unHbAtomBody = body
   }
 
 checkVersion ::

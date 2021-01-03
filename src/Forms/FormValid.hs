@@ -29,6 +29,8 @@ module Forms.FormValid (
   , userVerifyNewPasswdField
   , mediaTitleField
   , blogAdsField
+  , blogAuthorField
+  , blogDescField
   , descriptionField
   , keywordsField
   , robotsField
@@ -300,15 +302,6 @@ freeCssValid len s
 blogNameField :: Int -> Field Handler Text
 blogNameField len = check (blogNameValid len) textField
 
-blogAdsField :: Int -> Field Handler Text
-blogAdsField len = check (blogAdsValid len) textField
-
-blogAdsValid :: Int -> Text -> Either Text Text
-blogAdsValid len s
-  | length(s) > len
-    = Left $ ("adstxtは" <> pack(show(len)) <> "文字まで入力可能です")
-  | otherwise = Right s
-
 blogNameValid :: Int -> Text -> Either Text Text
 blogNameValid len s
   | length(s) > len
@@ -340,6 +333,33 @@ blogMediaDirValid :: Int -> Text -> Either Text Text
 blogMediaDirValid len s
   | length(s) > len
     = Left $ ("画像ディレクトリは" <> pack(show(len)) <> "文字まで入力可能です")
+  | otherwise = Right s
+
+blogAuthorField :: Int -> Field Handler Text
+blogAuthorField len = check (blogAuthorValid len) textField
+
+blogAuthorValid :: Int -> Text -> Either Text Text
+blogAuthorValid len s 
+  | length(s) > len
+    = Left $ ("ブログ管理者は" <> pack(show(len)) <> "文字まで入力可能です")
+  | otherwise = Right s
+
+blogDescField :: Int -> Field Handler Text
+blogDescField len = check (blogDescValid len) textField
+
+blogDescValid :: Int -> Text -> Either Text Text
+blogDescValid len s
+  | length(s) > len
+    = Left $ ("管理者説明文は" <> pack(show(len)) <> "文字まで入力可能です")
+  | otherwise = Right s
+
+blogAdsField :: Int -> Field Handler Text
+blogAdsField len = check (blogAdsValid len) textField
+
+blogAdsValid :: Int -> Text -> Either Text Text
+blogAdsValid len s
+  | length(s) > len
+    = Left $ ("adstxtは" <> pack(show(len)) <> "文字まで入力可能です")
   | otherwise = Right s
 
 userEmailField :: Int -> Field Handler Text

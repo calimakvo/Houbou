@@ -110,6 +110,8 @@ blog-set-sesstion-timeout-max: 360
 blog-set-adstxt-length: 300
 # 1024 x 1024  = 1048576M MAX
 blog-set-upload-size-max: 1048576
+blog-set-author-length: 200
+blog-set-desc-length: 1500
 
 # User info param Max Len
 user-acc-email-length: 500

@@ -58,6 +58,8 @@ updateBlogSetting uni setting = runDB $ do
             , TblBlogSettingUploadSize =. unBlogSettingUploadSize setting
             , TblBlogSettingSessionTimeout =. unBlogSettingSessionTimeout setting
             , TblBlogSettingAdstxt =. unBlogSettingAdstxt setting
+            , TblBlogSettingBlogAuthor =. unBlogSettingBlogAuthor setting
+            , TblBlogSettingBlogDesc =. unBlogSettingBlogDesc setting
             , TblBlogSettingUpdateTime =. now
             , TblBlogSettingVersion +=. 1
             ]

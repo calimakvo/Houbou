@@ -113,6 +113,10 @@ data AppSettings = AppSettings
     -- ^ Blog set adstxt length
     , appBlogSetAdsTxtMaxLength :: Int
     -- ^ Blog set user account email length
+    , appBlogSetAuthorLength :: Int
+    -- ^ Blog set author length
+    , appBlogSetDescLength :: Int
+    -- ^ Blog set description length
     , appUserAccEmailMaxLength :: Int
     -- ^ Blog set user account pass min length
     , appUserAccPasswdMinLength :: Int
@@ -196,6 +200,8 @@ instance FromJSON AppSettings where
         appBlogSetSessionTimeoutMin <- o .: "blog-set-sesstion-timeout-min"
         appBlogSetSessionTimeoutMax <- o .: "blog-set-sesstion-timeout-max"
         appBlogSetAdsTxtMaxLength   <- o .: "blog-set-adstxt-length"
+        appBlogSetAuthorLength      <- o .: "blog-set-author-length"
+        appBlogSetDescLength        <- o .: "blog-set-desc-length"
         appUserAccEmailMaxLength    <- o .: "user-acc-email-length"
         appUserAccPasswdMinLength   <- o .: "user-acc-passwd-min-length"
         appUserAccPasswdMaxLength   <- o .: "user-acc-passwd-max-length"

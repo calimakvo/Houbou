@@ -135,6 +135,8 @@ TblBlogSetting
     uploadSize Int
     adstxt Text Maybe sqltype=varchar(512)
     sessionTimeout Int sqltype=smallint
+    blogAuthor Text sqltype=varchar(512)
+    blogDesc Text sqltype=varchar(4096)
     createTime UTCTime sqltype=timestamptz
     updateTime UTCTime sqltype=timestamptz default=now()
     version Int

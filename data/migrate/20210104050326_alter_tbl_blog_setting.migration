@@ -1,0 +1,8 @@
+ALTER TABLE tbl_blog_setting ADD COLUMN blog_author CHARACTER VARYING(512);
+ALTER TABLE tbl_blog_setting ADD COLUMN blog_desc CHARACTER VARYING(4096);
+COMMENT ON COLUMN tbl_blog_setting.blog_author IS 'ブログ管理者';
+COMMENT ON COLUMN tbl_blog_setting.blog_desc IS 'ブログ管理説明文';
+UPDATE tbl_blog_setting SET blog_author='Blog Admin' WHERE ident='HB_BLOG_SETTING';
+UPDATE tbl_blog_setting SET blog_desc='ブログ説明文...' WHERE ident='HB_BLOG_SETTING';
+ALTER TABLE tbl_blog_setting ALTER COLUMN blog_author SET NOT NULL;
+ALTER TABLE tbl_blog_setting ALTER COLUMN blog_desc SET NOT NULL;

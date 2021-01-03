@@ -1,5 +1,5 @@
 name:    Houbou
-version: "0.9.18"
+version: "0.9.19"
 synopsis: Houbou is Blog system
 description: OpenSource Blog System
 homepage:            https://github.com/calimakvo/Houbou
@@ -75,6 +75,7 @@ dependencies:
 - serversession-backend-redis
 - serversession-frontend-yesod
 - regex-pcre
+- yesod-newsfeed
 
 # The library contains all of our application code. The executable
 # defined below is just a thin wrapper.
