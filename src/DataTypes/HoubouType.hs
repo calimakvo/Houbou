@@ -419,6 +419,9 @@ data PageMeta = PageMeta {
 data MstTag = MstTag {
     unMstTagId :: Int64
   , unMstTagName :: Text
+  , unMstTagCreateTime :: UTCTime
+  , unMstTagUpdateTime :: UTCTime
+  , unMstTagVersion :: Int
   } deriving(Eq, Show)
 
 data TagContent =
@@ -433,14 +436,14 @@ data TagInfo = TagInfo {
   , unTagInfoPosted :: UTCTime
   } deriving (Eq, Show)
 
-data PageType = TypePost | TypeFree deriving(Show, Eq)
+data PageType = TypePost | TypeFree | TypeTag deriving(Show, Eq)
 
 instance Enum PageType where
     fromEnum = fromJust . flip lookup tblPageType
     toEnum = fromJust . flip lookup (P.map swap tblPageType)
 
 tblPageType :: [(PageType, Int)]
-tblPageType = [(TypePost, 1), (TypeFree, 2)]
+tblPageType = [(TypePost, 1), (TypeFree, 2), (TypeTag, 3)]
 
 data BlogAccess = BlogAccess {
     unBlogAccessDate :: Day
@@ -496,7 +499,6 @@ data HbUrl = HbUrl {
   , unHbUrlSlug :: Maybe Text
   , unHbUrlUrlpath :: Maybe Text
   , unHbUrlUpdateTime :: UTCTime
-  , unHbUrlAuthorId :: Int64
 } deriving (Show)
 
 data HbAtom = HbAtom {

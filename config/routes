@@ -51,4 +51,3 @@
 /robots.txt RobotsR GET
 /sitemap.xml SitemapR GET
 /static StaticR Static appStatic
-

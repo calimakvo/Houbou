@@ -14,6 +14,7 @@ module Libs.CommonWidget (
   , urlPostSlug
   , urlFree
   , urlFreeSlug
+  , urlTagList
   , retJson
   , retPlain
   , genError
@@ -191,6 +192,7 @@ canonicalPath pttype urlpath slug =
     case pttype of
       TypePost -> toPostSlugUrlText slug urlpath
       TypeFree -> toFreeSlugUrlText slug urlpath
+      _ -> error "unreachable code"
 
 chkForm :: (Maybe Text) -> Handler Text
 chkForm = \form ->

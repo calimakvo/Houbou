@@ -43,7 +43,7 @@ createBlogContents setId postId = do
   frame <- eitherToMaybe =<< readPostFrame
   posts <- eitherToList =<< (getPublishPostFromId setting postId)
   posted <- eitherToList =<< getPublishPostedList 0 100
-  tags <- eitherToList =<< getTagList
+  tags <- eitherToList =<< getTagList 100
   case (frame /= Nothing && null posts == False) of
     False -> do
       $(logInfo) $ "createBlogContents': frame or posts undefined"
@@ -97,7 +97,7 @@ createBlogFreeContents setId freeId = do
   frame <- eitherToMaybe =<< readFreeFrame
   frees <- eitherToList =<< (getPublishFreeFromId setting freeId)
   posted <- eitherToList =<< getPublishPostedList 0 100
-  tags <- eitherToList =<< getTagList
+  tags <- eitherToList =<< getTagList 100
   case (frame /= Nothing && null frees == False) of
     False -> return $ Left ErrFreeUnitialize
     True -> do
@@ -151,7 +151,7 @@ createTagListContents setId tagId = do
   msttag <- eitherToMaybe =<< getMstTagFromId tagId
   tagconts <- eitherToList =<< getTagContents tagId
   posted <- eitherToList =<< getPublishPostedList 0 100
-  tags <- eitherToList =<< getTagList
+  tags <- eitherToList =<< getTagList 100
   case (frame /= Nothing && null tagconts == False && isJust msttag == True) of
     False -> do
       $(logInfo) $ "createTagListContents': tag data invalid."
@@ -534,10 +534,12 @@ initOgUrl pt setting fpid slug urlpath ogUrl =
         case pt of
           TypePost -> setBlogUrl $ toPostSlugUrlText slug urlpath
           TypeFree -> setBlogUrl $ toFreeSlugUrlText slug urlpath
+          _ -> error "unreachable code"
       else
         case pt of
           TypePost -> setBlogUrl $ toPostUrlText fpid
           TypeFree -> setBlogUrl $ toFreeUrlText fpid
+          _ -> error "unreachable code"
     Just ogurl -> ogurl
   where
     setBlogUrl url = blogPath (unBlogSettingBlogUrl setting) url
@@ -662,7 +664,7 @@ createPrevBlogContents setId post = do
   setting <- getBlogSetting setId
   frame <- eitherToMaybe =<< readPostFrame
   posted <- eitherToList =<< getPublishPostedList 0 100
-  tags <- eitherToList =<< getTagList
+  tags <- eitherToList =<< getTagList 100
   case (frame /= Nothing) of
     False -> do
       $(logInfo) $ "createPrevBlogContents': frame or posts undefined"
@@ -679,7 +681,7 @@ createPrevBlogFreeContents setId free = do
   setting <- getBlogSetting setId
   frame <- eitherToMaybe =<< readFreeFrame
   posted <- eitherToList =<< getPublishPostedList 0 100
-  tags <- eitherToList =<< getTagList
+  tags <- eitherToList =<< getTagList 100
   case (frame /= Nothing) of
     False -> return $ Left ErrFreeUnitialize
     True -> do

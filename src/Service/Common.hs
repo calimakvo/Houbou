@@ -476,6 +476,9 @@ toMstTag ::
 toMstTag (Entity key entity) = MstTag {
     unMstTagId = fromTblMstTagKey key
   , unMstTagName = tblMstTagName entity
+  , unMstTagCreateTime = tblMstTagCreateTime entity
+  , unMstTagUpdateTime = tblMstTagUpdateTime entity
+  , unMstTagVersion = tblMstTagVersion entity
   }
 
 toMstUserPerm ::
@@ -552,6 +555,7 @@ toTagCont (
   ) = case toEnum rectype of
         TypePost -> TagContPost $ TagInfo tid tagid title pubdate
         TypeFree -> TagContFree $ TagInfo tid tagid title pubdate
+        _ -> error "unreachable code"
 
 toBlogAccess ::
   (
@@ -571,33 +575,30 @@ toHbUrl ::
   , E.Single (Maybe Text)
   , E.Single (Maybe Text)
   , E.Single UTCTime
-  , E.Single Int64
   , E.Single Int) -> HbUrl
 toHbUrl (
     E.Single tid
   , E.Single slug
   , E.Single urlpath
   , E.Single uptm
-  , E.Single aid
   , E.Single pttype
   ) = case toEnum pttype of
-        TypePost -> initPostHbUrl tid slug urlpath uptm aid
-        TypeFree -> initFreeHbUrl tid slug urlpath uptm aid
+        TypePost -> initPostHbUrl tid slug urlpath uptm
+        TypeFree -> initFreeHbUrl tid slug urlpath uptm
+        TypeTag -> initTagHbUrl tid slug urlpath uptm
 
 initPostHbUrl ::
   Int64
   -> Maybe Text
   -> Maybe Text
   -> UTCTime
-  -> Int64
   -> HbUrl
-initPostHbUrl tid slug urlpath uptm aid = HbUrl {
+initPostHbUrl tid slug urlpath uptm = HbUrl {
     unHbUrlId = tid
   , unHbUrlType = TypePost
   , unHbUrlSlug = slug
   , unHbUrlUrlpath = urlpath
   , unHbUrlUpdateTime = uptm
-  , unHbUrlAuthorId = aid
   }
 
 initFreeHbUrl ::
@@ -605,15 +606,27 @@ initFreeHbUrl ::
   -> Maybe Text
   -> Maybe Text
   -> UTCTime
-  -> Int64
   -> HbUrl
-initFreeHbUrl tid slug urlpath uptm aid = HbUrl {
+initFreeHbUrl tid slug urlpath uptm = HbUrl {
     unHbUrlId = tid
   , unHbUrlType = TypeFree
   , unHbUrlSlug = slug
   , unHbUrlUrlpath = urlpath
   , unHbUrlUpdateTime = uptm
-  , unHbUrlAuthorId = aid
+  }
+
+initTagHbUrl ::
+  Int64
+  -> Maybe Text
+  -> Maybe Text
+  -> UTCTime
+  -> HbUrl
+initTagHbUrl tid _ _ uptm = HbUrl {
+    unHbUrlId = tid
+  , unHbUrlType = TypeTag
+  , unHbUrlSlug = Nothing
+  , unHbUrlUrlpath = Nothing
+  , unHbUrlUpdateTime = uptm
   }
 
 toHbAtom ::
@@ -637,6 +650,7 @@ toHbAtom (
   ) = case toEnum pttype of
         TypePost -> initPostHbAtom tid slug urlpath uptm aid title body
         TypeFree -> initFreeHbAtom tid slug urlpath uptm aid title body
+        _ -> error "unreachable code"
 
 initPostHbAtom ::
   Int64

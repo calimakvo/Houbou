@@ -77,6 +77,7 @@ decideUrl atom = case pagetype of
   TypeFree -> case slug of
     Just _ -> urlFreeSlug slug urlpath
     Nothing -> urlFree tid
+  _ -> error "unreachable code."
   where
     pagetype = unHbAtomUrlType atom
     slug = unHbAtomSlug atom

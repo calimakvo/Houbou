@@ -73,6 +73,9 @@ TblFreeTag
 
 TblMstTag
     name Text sqltype=varchar(128)
+    createTime UTCTime sqltype=timestamptz
+    updateTime UTCTime sqltype=timestamptz default=now()
+    version Int
     UniTagName name
     deriving Typeable Show
 

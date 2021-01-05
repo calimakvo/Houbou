@@ -1,0 +1,12 @@
+ALTER TABLE tbl_mst_tag ADD COLUMN create_time TIMESTAMP WITH TIME ZONE;
+ALTER TABLE tbl_mst_tag ADD COLUMN update_time TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE tbl_mst_tag ADD COLUMN version BIGINT;
+COMMENT ON COLUMN tbl_mst_tag.create_time IS 'レコード作成日時';
+COMMENT ON COLUMN tbl_mst_tag.update_time IS 'レコード更新日時';
+COMMENT ON COLUMN tbl_mst_tag.version IS 'レコードバージョン';
+UPDATE tbl_mst_tag SET create_time=NOW() WHERE create_time IS NULL;
+UPDATE tbl_mst_tag SET update_time=NOW() WHERE update_time IS NULL;
+UPDATE tbl_mst_tag SET version=1 WHERE version IS NULL;
+ALTER TABLE tbl_mst_tag ALTER COLUMN create_time SET NOT NULL;
+ALTER TABLE tbl_mst_tag ALTER COLUMN update_time SET NOT NULL;
+ALTER TABLE tbl_mst_tag ALTER COLUMN version SET NOT NULL;

@@ -26,8 +26,11 @@ getMstTagFromId tagId = runDB $ do
   case tag of
     Just mstTag -> return $ Right $
       MstTag {
-        unMstTagId = tagid
+          unMstTagId = tagid
         , unMstTagName = tblMstTagName mstTag
+        , unMstTagCreateTime = tblMstTagCreateTime mstTag
+        , unMstTagUpdateTime = tblMstTagUpdateTime mstTag
+        , unMstTagVersion = tblMstTagVersion mstTag
         }
     _ -> return $ Left ErrRecNotFound
 
@@ -65,10 +68,15 @@ getTagContRaw tagid sql = E.rawSql sql
     ]
 
 getTagList ::
+  Int ->
   Handler (HResult [MstTag])
-getTagList = runDB $ do
-  list <- selectList [] [Desc TblMstTagId, LimitTo 100]
+getTagList lim = runDB $ do
+  list <- selectList [] ([Desc TblMstTagId] ++ limit)
   return $ Right (map toMstTag list)
+  where
+    limit
+      | lim > 0 = [ LimitTo lim ]
+      | otherwise = []
        
 updatePostTagList ::
   Int64
@@ -114,6 +122,7 @@ updateTagMaster :: MonadIO m =>
   TagList
   -> ReaderT SqlBackend m ()
 updateTagMaster tagList = do
+  now <- liftIO getTm
   forM_ tagList (\tag ->
     do
       t <- getBy $ UniTagName tag
@@ -122,7 +131,10 @@ updateTagMaster tagList = do
         Nothing -> do
           _ <- insert $
                  TblMstTag {
-                   tblMstTagName = tag
+                     tblMstTagName = tag
+                   , tblMstTagCreateTime = now
+                   , tblMstTagUpdateTime = now
+                   , tblMstTagVersion = 1
                    }
           return ()
       return ())

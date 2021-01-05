@@ -6,6 +6,9 @@ import DataTypes.HoubouType
 import Libs.CommonWidget
 import Service.Sitemap
 
+type SlugUrl = Maybe Text -> Maybe Text -> Route App
+type IdUrl = Int64 -> Route App
+
 getSitemapR :: Handler TypedContent
 getSitemapR = do
   result <- getSiteurlList 0
@@ -13,26 +16,27 @@ getSitemapR = do
     Right urls -> sitemapList $
       Import.map (\url ->
                     case unHbUrlType url of
-                      TypePost -> siteMapPost url
-                      TypeFree -> siteMapFree url) urls
+                      TypePost -> siteMapUrl url urlPostSlug urlPost
+                      TypeFree -> siteMapUrl url urlFreeSlug urlFree
+                      TypeTag -> siteMapTag url) urls
     Left _ -> error "Error create sitemap."
 
-siteMapPost ::
-  HbUrl -> SitemapUrl (Route App)
-siteMapPost url = case unHbUrlSlug url of
-  Just _ -> SitemapUrl (urlPostSlug slug urlpath) (Just upt) Nothing Nothing
-  Nothing -> SitemapUrl (urlPost tid) (Just upt) Nothing Nothing
+siteMapUrl ::
+  HbUrl
+  -> SlugUrl
+  -> IdUrl
+  -> SitemapUrl (Route App)
+siteMapUrl url slugRoute idRoute =
+  case slug of
+    Just _ -> SitemapUrl (slugRoute slug urlpath) (Just upt) Nothing Nothing
+    Nothing -> SitemapUrl (idRoute tid) (Just upt) Nothing Nothing
   where tid = unHbUrlId url
         slug = unHbUrlSlug url
         urlpath = unHbUrlUrlpath url
         upt = unHbUrlUpdateTime url
 
-siteMapFree ::
+siteMapTag ::
   HbUrl -> SitemapUrl (Route App)
-siteMapFree url = case unHbUrlSlug url of
-  Just _ -> SitemapUrl (urlFreeSlug slug urlpath) (Just upt) Nothing Nothing
-  Nothing -> SitemapUrl (urlFree tid) (Just upt) Nothing Nothing
+siteMapTag url = SitemapUrl (urlTagList tid) (Just upt) Nothing Nothing
   where tid = unHbUrlId url
-        slug = unHbUrlSlug url
-        urlpath = unHbUrlUrlpath url
         upt = unHbUrlUpdateTime url
