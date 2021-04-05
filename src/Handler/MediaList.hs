@@ -26,7 +26,7 @@ getMediaListR page = do
   token <- getRequest >>= createCsrfTokenTag
   let defLine = defSelectorValue master
       setId = appBlogSettingId $ appSettings master
-  pagePerLine <- textToInt <$> (fromMaybe defLine) <$> (lookupSession pageparline)
+  pagePerLine <- textToInt <$> (fromMaybe defLine) <$> (lookupSession pageparlinemedia)
   setting <- getBlogSetting setId
   let pageNum = fromMaybe 1 (_unPage page)
       pageInfo = PageInfo pageNum pagePerLine
@@ -45,7 +45,7 @@ postMediaListR _ = do
   ((res, _), _) <- runFormPost $ listSelectForm Nothing
   case res of
     FormSuccess (ListSelectForm pagePerLine) -> do
-      setSession pageparline $ pack(show(pagePerLine))
+      setSession pageparlinemedia $ pack(show(pagePerLine))
     _ -> return ()
   redirect $ MediaListR (Page Nothing)
 

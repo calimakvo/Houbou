@@ -21,6 +21,7 @@ module Libs.Common (
   , errorKey
   , listTypeKey
   , pageparline
+  , pageparlinemedia
   , userparline
   , framepageperline
   , freepageperline
@@ -224,6 +225,10 @@ listTypeKey = "truePageType"
 pageparline ::
   Text
 pageparline = "ppline"
+
+pageparlinemedia ::
+  Text
+pageparlinemedia = "pplinemedia"
 
 userparline ::
   Text
