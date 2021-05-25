@@ -10,7 +10,9 @@
 
         <div .form-group>
             <label>メディアパス
-            <p .form-control-static>ああああああ
+            <p .form-control-static>
+              <a href="#{mediaPath (unBlogSettingMediaUrl setting) (unMediaDir m) (unMediaFileName m)}" target="_blank" .fa .fa-external-link aria-hidden="true">
+                #{mediaPath (unBlogSettingMediaUrl setting) (unMediaDir m) (unMediaFileName m)}
 
         <div .form-group>
             <label>メディア登録日
