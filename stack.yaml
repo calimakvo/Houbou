@@ -43,11 +43,13 @@ extra-deps:
 - ginger-0.10.1.0
 - datetime-0.3.1
 - hzenhan-0.0.4
-- git: https://github.com/karky7/serversession
-  commit: 4a31a18fe74bed006af8c6266518cb3f85303880
-  subdirs:
-    - serversession-frontend-yesod
-    - serversession-backend-redis
+- serversession-backend-redis-1.0.4@sha256:92a0d78b1b696f026f636db15b7188d2bc8794ba633762a902d35e2103f95a7c,2206
+- serversession-frontend-yesod-1.0@sha256:8ddb112a1ef6ee863f5ea13978dd08e1c39444c1a252f775a780013430bcc884,1230
+# - git: https://github.com/karky7/serversession
+#   commit: 4a31a18fe74bed006af8c6266518cb3f85303880
+#   subdirs:
+#     - serversession-frontend-yesod
+#     - serversession-backend-redis
 - git: https://karky7@bitbucket.org/karky7/hedis-config.git
   commit: 88d19b2d7342146b17ffb3f1d992930baff154f8
 
