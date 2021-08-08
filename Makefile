@@ -2,6 +2,7 @@ build:
 	make imgup
 	make urlcpy
 	make prev
+	make cate
 	stack build
 
 imgup:
@@ -12,6 +13,9 @@ urlcpy:
 
 prev:
 	cd jssrc/preview && echo "javascript build..." && npm run build
+
+cate:
+	cd jssrc/category && echo "javascript build..." && npm run build
 
 run:
 	./bin/rundev.sh

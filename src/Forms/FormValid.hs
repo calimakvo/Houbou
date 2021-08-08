@@ -41,6 +41,7 @@ module Forms.FormValid (
   , ogDescField
   , ogPageTypeField
   , sessTimeoutField
+  , cateNameField
   ) where
 
 import Import
@@ -516,3 +517,12 @@ ogPageTypeFieldValid len s
 
 checkLengthSlug :: Int -> Text -> Bool
 checkLengthSlug len' s = if length s > len' then False else True
+
+cateNameField :: Int -> Field Handler Text
+cateNameField len = check (cateNameValid len) textField
+
+cateNameValid :: Int -> Text -> Either Text Text
+cateNameValid len s
+  | length(s) > len
+    = Left $ ("カテゴリ名は" <> pack(show(len)) <> "文字まで入力可能です")
+  | otherwise = Right s

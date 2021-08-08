@@ -8,6 +8,7 @@ module Service.Common (
     toPostList
   , toFreeList
   , toTagCont
+  , toCateCont
   , toBlogAccess
   , toTblPostKey
   , toTblFrameKey
@@ -28,6 +29,7 @@ module Service.Common (
   , toMedia
   , toMstTag
   , toTblMstTagKey
+  , toTblCategoryKey
   , fromTblFreeKey
   , fromTblMstMimeTypeKey
   , fromTblMstUserPermKey
@@ -41,6 +43,7 @@ module Service.Common (
   , fromTblMstTagKey
   , fromTblPostTagKey
   , fromTblFreeTagKey
+  , fromTblCategoryKey
   , checkVersion
   , toBlogSetting
   , toUserList
@@ -60,6 +63,8 @@ module Service.Common (
   , convertMarkdownContents
   , toHbUrl
   , toHbAtom
+  , toCate
+  , toCateTbl
   ) where
 
 import Import
@@ -246,6 +251,12 @@ fromTblFreeFrameKey = unSqlBackendKey . unTblFreeFrameKey
 toTblFreeKey :: Int64 -> Key TblFree
 toTblFreeKey = TblFreeKey . SqlBackendKey 
 
+fromTblCategoryKey :: Key TblCategory -> Int64
+fromTblCategoryKey = unSqlBackendKey . unTblCategoryKey
+
+toTblCategoryKey :: Int64 -> Key TblCategory
+toTblCategoryKey = TblCategoryKey . SqlBackendKey
+
 fromTblFreeKey :: Key TblFree -> Int64
 fromTblFreeKey = unSqlBackendKey . unTblFreeKey
 
@@ -330,6 +341,7 @@ toFree (Entity key entity) = Free {
   , unFreeCreateTime = tblFreeCreateTime entity
   , unFreeUpdateTime = tblFreeUpdateTime entity
   , unFreeAuthorId = fromTblUserKey $ tblFreeAuthorId entity
+  , unFreeCateId = fromTblCategoryKey <$> tblFreeCateId entity
   , unFreeVersion = tblFreeVersion entity
   }
 
@@ -467,6 +479,7 @@ toPost (Entity key entity) = Post {
   , unPostCreateTime = tblPostCreateTime entity
   , unPostUpdateTime = tblPostUpdateTime entity
   , unPostAuthorId = fromTblUserKey $ tblPostAuthorId entity
+  , unPostCateId = fromTblCategoryKey <$> tblPostCateId entity
   , unPostVersion = tblPostVersion entity
 }
 
@@ -545,7 +558,7 @@ toTagCont ::
   , E.Single Int64
   , E.Single Text
   , E.Single UTCTime)
-  -> TagContent
+  -> PfContent TagInfo
 toTagCont (
   E.Single tid
   , E.Single rectype
@@ -553,8 +566,27 @@ toTagCont (
   , E.Single title
   , E.Single pubdate
   ) = case toEnum rectype of
-        TypePost -> TagContPost $ TagInfo tid tagid title pubdate
-        TypeFree -> TagContFree $ TagInfo tid tagid title pubdate
+        TypePost -> ContPost $ TagInfo tid tagid title pubdate
+        TypeFree -> ContFree $ TagInfo tid tagid title pubdate
+        _ -> error "unreachable code"
+
+toCateCont ::
+  (
+    E.Single Int64
+  , E.Single Int
+  , E.Single Int64
+  , E.Single Text
+  , E.Single UTCTime)
+  -> PfContent CateInfo
+toCateCont (
+  E.Single pfid
+  , E.Single rectype
+  , E.Single cateid
+  , E.Single title
+  , E.Single pubdate
+  ) = case toEnum rectype of
+        TypePost -> ContPost $ CateInfo pfid cateid title pubdate
+        TypeFree -> ContFree $ CateInfo pfid cateid title pubdate
         _ -> error "unreachable code"
 
 toBlogAccess ::
@@ -651,6 +683,29 @@ toHbAtom (
         TypePost -> initPostHbAtom tid slug urlpath uptm aid title body
         TypeFree -> initFreeHbAtom tid slug urlpath uptm aid title body
         _ -> error "unreachable code"
+
+toCate ::
+  Entity TblCategory
+  -> Cate
+toCate (Entity key entity) = Cate {
+    unCateId = fromTblCategoryKey key
+  , unCatePid = tblCategoryParentId entity
+  , unCateName = tblCategoryName entity
+  , unCateList = []
+  , unCateVer = tblCategoryVersion entity
+  }
+
+toCateTbl ::
+  Int64
+  -> TblCategory
+  -> Cate
+toCateTbl i c =
+  Cate { unCateId = i
+       , unCateName = tblCategoryName c
+       , unCatePid = tblCategoryParentId c
+       , unCateList = []
+       , unCateVer = tblCategoryVersion c
+       }
 
 initPostHbAtom ::
   Int64

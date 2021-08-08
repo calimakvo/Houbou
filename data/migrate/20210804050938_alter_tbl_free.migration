@@ -1,0 +1,4 @@
+ALTER TABLE tbl_free ADD COLUMN cate_id BIGINT;
+COMMENT ON COLUMN tbl_free.cate_id IS 'カテゴリID';
+ALTER TABLE tbl_free ADD CONSTRAINT tbl_free_category_id_fkey FOREIGN KEY (cate_id)
+REFERENCES tbl_category (id) MATCH FULL ON DELETE RESTRICT ON UPDATE CASCADE;

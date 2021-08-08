@@ -26,4 +26,3 @@ getDashboardR = do
 title :: Html
 title = "ダッシュボード"
 
--- 

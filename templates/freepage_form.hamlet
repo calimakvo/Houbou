@@ -33,6 +33,14 @@
                     <span>#{slugErr}
 
         <div .form-group>
+            <label>カテゴリ
+            ^{fvInput cateView}
+        $maybe cateErr <- fvErrors cateView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{cateErr}
+
+        <div .form-group>
             <label>入力フォーマット
                 <span .badge .badge-danger>必須
             $forall (inpTypName, inpTypNum) <- inpTyp
@@ -172,7 +180,7 @@
 
         <div .col-sm-12>
             <div .form-group .text-center>
-                <a href=@{FreeListR 1 $ Page Nothing} .btn .btn-warning>一覧へ戻る
+                <a href="#" .btn .btn-warning onclick="history.back(-1);return false;">一覧へ戻る
                 <button type="submit" .btn .btn-primary>
                     登　　録
 

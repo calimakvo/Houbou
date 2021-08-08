@@ -36,7 +36,7 @@ getMstTagFromId tagId = runDB $ do
 
 getTagContents ::
   TagId
-  -> Handler (HResult [TagContent])
+  -> Handler (HResult [PfContent TagInfo])
 getTagContents tagId = runDB $ do
   let tagid = fromJust $ _unUrlTagId tagId
       sql = "SELECT tid, rectype, tag_id, title, publish_date FROM " <>

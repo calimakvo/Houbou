@@ -6,6 +6,7 @@ module Forms.CommonForm (
   , bodyFieldSet
   , slugPostFieldSet
   , slugFreeFieldSet
+  , cateSelectFieldSet
   , tagFieldSet
   , postIdFieldSet
   , frameIdFieldSet
@@ -33,11 +34,14 @@ module Forms.CommonForm (
   , passwdConfFieldSet
   , usernameFieldSet
   , profileFieldSet
+  , searchTypeFieldSet
+  , pageNumFieldSet
   , lineSelectTouple
   , getInputTypeTouple
   , getStatusSelectTouple
   , postNumSelectTouple
   , userPermTouple
+  , cateMapToTouble
   , userIdFieldSet
   , userPermSelectFieldSet
   , mediaIdFieldSet
@@ -61,6 +65,10 @@ module Forms.CommonForm (
   , prevCssFieldSet
   , prevInputTypeFieldSet
   , prevTypeFieldSet
+  , cateIdFieldSet
+  , catePidFieldSet
+  , cateNameFieldSet
+  , cateListFieldSet
   , initFormUrlpath
   , formResultToId
   ) where
@@ -69,6 +77,7 @@ import Import
 import DataTypes.HoubouType
 import qualified Data.List as L
 import qualified Data.Text as T
+import qualified Data.Map.Ordered as O
 
 titleFieldSet :: FieldSettings master
 titleFieldSet = FieldSettings {
@@ -233,6 +242,24 @@ freeIdFieldSet = FieldSettings {
   , fsTooltip = Nothing
   , fsId = Just "freeId"
   , fsName = Just "free_id"
+  , fsAttrs = []
+ }
+
+searchTypeFieldSet :: FieldSettings master
+searchTypeFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "searchTypeId"
+  , fsName = Just "search_type"
+  , fsAttrs = []
+ }
+
+pageNumFieldSet :: FieldSettings master
+pageNumFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "pageNumId"
+  , fsName = Just "page_num"
   , fsAttrs = []
  }
 
@@ -439,6 +466,17 @@ lineSelectFieldSet = FieldSettings {
   , fsTooltip = Nothing
   , fsId = Just "pageperline"
   , fsName = Just "pageperline"
+  , fsAttrs = [
+      ("class", "form-control")
+      ]
+  }
+
+cateSelectFieldSet :: FieldSettings master
+cateSelectFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "categoryId"
+  , fsName = Just "cate_id"
   , fsAttrs = [
       ("class", "form-control")
       ]
@@ -697,6 +735,45 @@ ogPageTypeFieldSet = FieldSettings {
       ]
   }
 
+cateIdFieldSet :: FieldSettings master
+cateIdFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "cateId"
+  , fsName = Just "cate_id"
+  , fsAttrs = []
+ }
+
+catePidFieldSet :: FieldSettings master
+catePidFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "parentCateId"
+  , fsName = Just "cate_pid"
+  , fsAttrs = []
+ }
+
+cateNameFieldSet :: FieldSettings master
+cateNameFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "cateNameId"
+  , fsName = Just "cate_name"
+  , fsAttrs = [
+        ("class", "form-control")
+      , ("placeholder", "カテゴリ名")
+    ]
+  }
+
+cateListFieldSet :: FieldSettings master
+cateListFieldSet = FieldSettings {
+    fsLabel = ""
+  , fsTooltip = Nothing
+  , fsId = Just "cateData"
+  , fsName = Just "cate_data"
+  , fsAttrs = [ ]
+  }
+
 getInputTypeTouple ::
   Handler [(T.Text, Int)]
 getInputTypeTouple = return $ [("markdown", 1), ("html", 2)]
@@ -724,6 +801,14 @@ userPermTouple ::
   [MstUserPerm]
   -> [(T.Text, Int64)]
 userPermTouple = map (\x -> (unMstUserName x, unMstUserPermId x))
+
+cateMapToTouble ::
+  O.OMap Int [Cate]
+  -> Handler [(Text, Int)]
+cateMapToTouble m = return $ map (\(cid, cs) -> (catesToText cs, cid)) (reverse $ O.assocs m)
+  
+catesToText :: [Cate] -> Text
+catesToText cs = intercalate " > " $ map (\c -> unCateName c) cs
 
 initFormUrlpath ::
   FormResult (Maybe Text)

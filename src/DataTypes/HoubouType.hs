@@ -31,8 +31,9 @@ module DataTypes.HoubouType (
   , PageMeta(..)
   , Result(..)
   , MstTag(..)
-  , TagContent(..)
+  , PfContent(..)
   , TagInfo(..)
+  , CateInfo(..)
   , BlogAccess(..)
   , HResult
   , HResultErrParam
@@ -41,8 +42,16 @@ module DataTypes.HoubouType (
   , PageType(..)
   , PostForm(..)
   , FreeForm(..)
+  , SearchForm(..)
+  , SearchParam(..)
   , HbUrl(..)
   , HbAtom(..)
+  , Cate(..)
+  , encodeCate
+  , decodeCate
+  , CateSetting(..)
+  , ListSearchSelectForm(..)
+  , CateUseStatus(..)
 ) where
 
 import Data.Default
@@ -50,6 +59,10 @@ import Import.NoFoundation
 import qualified Prelude as P
 import Data.Maybe
 import Data.Text
+import qualified Data.Text as T
+import qualified Data.Aeson as A
+import Data.ByteString.Internal as B
+import qualified Data.ByteString.Lazy as L
 
 instance Default Text where
     def = Data.Text.empty
@@ -103,7 +116,6 @@ tblPubViewStatus = [
     (ViewAll, 1)
   , (ViewPublished, 2)
   , (ViewDraft, 3)
-
   ]
 
 data ComStatus =
@@ -217,6 +229,7 @@ data Post = Post {
   , unPostCreateTime :: UTCTime
   , unPostUpdateTime :: UTCTime
   , unPostAuthorId :: Int64
+  , unPostCateId :: Maybe Int64
   , unPostVersion :: Int
 } deriving(Eq, Show, Default, Generic)
 
@@ -265,6 +278,7 @@ data Free = Free {
   , unFreeCreateTime :: UTCTime
   , unFreeUpdateTime :: UTCTime
   , unFreeAuthorId :: Int64
+  , unFreeCateId :: Maybe Int64
   , unFreeVersion :: Int
 } deriving(Eq, Show, Default, Generic)
 
@@ -424,16 +438,23 @@ data MstTag = MstTag {
   , unMstTagVersion :: Int
   } deriving(Eq, Show)
 
-data TagContent =
-    TagContPost TagInfo
-  | TagContFree TagInfo
+data PfContent a =
+    ContPost a
+  | ContFree a
   deriving (Eq, Show)
 
-data TagInfo = TagInfo {
-    unTagInfoId :: Int64
+data TagInfo = TagInfo
+  { unTagInfoId :: Int64
   , unTagInfoTagId :: Int64
   , unTagInfoTitle :: Text
   , unTagInfoPosted :: UTCTime
+  } deriving (Eq, Show)
+
+data CateInfo = CateInfo
+  { unCateInfoPfId :: Int64
+  , unCateInfoCateId :: Int64
+  , unCateInfoTitle :: Text
+  , unCateInfoPosted :: UTCTime
   } deriving (Eq, Show)
 
 data PageType = TypePost | TypeFree | TypeTag deriving(Show, Eq)
@@ -455,6 +476,7 @@ data PostForm = PostForm {
   , unPostFormTitle :: Text
   , unPostFormContent :: Text
   , unPostFormSlug :: Maybe Text
+  , unPostFormCateId :: Maybe Int
   , unPostFormUrlpath :: Maybe Text
   , unPostFormInputType :: Int
   , unPostFormStatus :: Int
@@ -476,6 +498,7 @@ data FreeForm = FreeForm {
   , unFreeFormTitle :: Text
   , unFreeFormContent :: Text
   , unFreeFormSlug :: Maybe Text
+  , unFreeFormCateId :: Maybe Int
   , unFreeFormUrlpath :: Maybe Text
   , unFreeFormCss :: Maybe Text
   , unFreeFormInputType :: Int
@@ -492,6 +515,19 @@ data FreeForm = FreeForm {
   , unFreeFormOgPageType :: Maybe Text
   , unFreeFormVersion :: Int
 }
+
+data SearchForm = SearchForm
+  { unSearchFormPage :: Int
+  , unSearchFormSearchType :: Int
+  , unSearchFormCateId :: Maybe Int
+  } deriving(Show, Eq)
+
+data ListSearchSelectForm = ListSearchSelectForm {
+    unListSearchSelectFormPagePerLine :: Int
+  , unListSearchSelectFormPage :: Int
+  , unListSearchSelectFormSearchType :: Int
+  , unListSearchSelectFormCateId ::  Maybe Int
+} deriving(Show, Eq)
 
 data HbUrl = HbUrl {
     unHbUrlId :: Int64
@@ -511,3 +547,71 @@ data HbAtom = HbAtom {
   , unHbAtomTitle :: Text
   , unHbAtomBody :: Text
 } deriving(Show)
+
+data Cate =
+  Cate
+  { unCateId :: Int64
+  , unCatePid :: Maybe Int
+  , unCateName :: Text
+  , unCateVer :: Int
+  , unCateList :: [ Cate ]
+  } deriving(Show)
+
+instance FromJSON Cate where
+  parseJSON = A.withObject "Cate" $
+    \val -> Cate <$> val .: "unCateId"
+                 <*> val .: "unCatePid"
+                 <*> val .: "unCateName"
+                 <*> val .: "unCateVer"
+                 <*> val .: "unCateList"
+
+instance ToJSON Cate where
+    toJSON (Cate i p n v xs) =
+      A.object
+      [ "type" .= ("Cate" :: Text)
+      , "unCateId" .= i
+      , "unCatePid" .= p
+      , "unCateName" .= n
+      , "unCateVer" .= v
+      , "unCateList" .= xs
+      ]
+
+encodeCate :: Cate -> Text
+encodeCate = T.pack . unpackChars . L.toStrict . A.encode
+
+decodeCate :: Text -> Maybe Cate
+decodeCate = A.decodeStrict . packChars . T.unpack
+
+data CateSetting = CateSetting
+  { unCateSettingId :: Int64
+  , unCateSettingParentId :: Int
+  , unCateSettingName :: Text
+  , unCateSettingVersion :: Int
+  } deriving(Show, Eq)
+
+data SearchParam = SearchParam
+  { unSearchParamPage :: Int
+  , unSearchParamSearchType :: PubViewStatus
+  , unSearchParamCateId :: Maybe Int
+  , unSearchParamPagePerLine :: Int
+  } deriving(Show, Eq)
+
+data CateUseStatus =
+    CateNotUse
+  | CateUsePost
+  | CateUseFree
+  | CateHasChild
+  deriving(Show, Eq)
+
+instance Enum CateUseStatus where
+    fromEnum = fromJust . flip lookup tblCateUseStatus
+    toEnum = fromJust . flip lookup (P.map swap tblCateUseStatus)
+
+tblCateUseStatus :: [(CateUseStatus, Int)]
+tblCateUseStatus = [
+    (CateNotUse, 0)
+  , (CateUsePost, 1)
+  , (CateUseFree, 2)
+  , (CateHasChild, 3)
+  ]
+

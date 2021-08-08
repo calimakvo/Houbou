@@ -23,6 +23,11 @@
                             <div .panel .panel-default>
                                 <div .panel-heading>
                                     <a href=@{PostNewR} .btn .btn-default>新規作成
+
+                                <div class="panel-body">
+                                    <form action=@{PostListSearchR} method="post" #postsearchform>
+                                        ^{searchWidget}
+
                                 <!-- /.panel-heading -->
                                 $if null posts
                                     <div .panel-body>
@@ -32,11 +37,11 @@
                                     <div .panel-body>
                                         <div .row>
                                             <div .col-sm-6>
-                                                <form action=@{PostListR truePageType (Page Nothing)} method="post" #pageperlineform .form-inline>
+                                                <form action=@{PostListR} method="post" #pageperlineform .form-inline>
                                                     <div .form-inline>
                                                         <label>
                                                             Show
-                                                            ^{pagePerLineWidget}
+                                                            ^{postPerLineWidget}
                                                             entries
     
                                             $if unIsPager pager
@@ -45,17 +50,17 @@
                                                        <ul .pagination .hb-mergin-reset>
                                                            $if unPrevPage pager > 0
                                                                <li .paginate_button>
-                                                                   <a href=@{PostListR truePageType (Page $ Just (unPrevPage pager))}>&lt;&lt;
+                                                                   <a href=@{PostListR}#{listParam sparam (unPrevPage pager)}>&lt;&lt;
                                                            $forall p <- unNumsPages pager
                                                                $if p == (unCurPage pager)
                                                                    <li .paginate_button .active>
                                                                        <a>#{p}
                                                                $else
                                                                    <li .paginate_button>
-                                                                       <a href=@{PostListR truePageType (Page $ Just p)}>#{p}
+                                                                       <a href=@{PostListR}#{listParam sparam p}>#{p}
                                                            $if unNextPage pager > 0
                                                                <li .paginate_button>
-                                                                   <a href=@{PostListR truePageType (Page $ Just (unNextPage pager))}>&gt;&gt;
+                                                                   <a href=@{PostListR}#{listParam sparam (unPrevPage pager)}>&gt;&gt;
     
                                         <div .table-responsive>
                                             <table .table .table-striped .table-bordered .table-hover>
@@ -105,7 +110,7 @@
                                                             <td .hb-td-size-50 .hb_hcenter .hb_vcenter>#{comCntTotal} #{comCntTotal - comCntAprov}/#{comCntAprov}
                                                             <td .hb-td-size-50 .hb_hcenter .hb_vcenter>#{viewCnt}
                                                             <td .hb-td-size-50 .hb_hcenter .hb_vcenter>
-                                                                <form action=@{PostDelR truePageType} method="post" enctype="multipart/form-data">
+                                                                <form action=@{PostDelR} method="post" enctype="multipart/form-data">
                                                                     ^{token}
                                                                     <input type="hidden" name="post_id" value="#{postId}">
                                                                     <input type="hidden" name="version" value="#{version}">
@@ -122,17 +127,17 @@
                                                         <ul .pagination .hb-mergin-reset>
                                                             $if unPrevPage pager > 0
                                                                 <li .paginate_button>
-                                                                    <a href=@{PostListR truePageType (Page $ Just (unPrevPage pager))}>&lt;&lt;
+                                                                    <a href=@{PostListR}#{listParam sparam (unPrevPage pager)}>&lt;&lt;
                                                             $forall p <- unNumsPages pager
                                                                 $if p == (unCurPage pager)
                                                                     <li .paginate_button .active>
                                                                         <a>#{p}
                                                                 $else
                                                                     <li .paginate_button>
-                                                                        <a href=@{PostListR truePageType (Page $ Just p)}>#{p}
+                                                                        <a href=@{PostListR}#{listParam sparam p}>#{p}
                                                             $if unNextPage pager > 0
                                                                 <li .paginate_button>
-                                                                    <a href=@{PostListR truePageType (Page $ Just (unNextPage pager))}>&gt;&gt;
+                                                                    <a href=@{PostListR}#{listParam sparam (unPrevPage pager)}>&gt;&gt;
     
                                     <!-- /.panel-body -->
                             <!-- /.panel -->

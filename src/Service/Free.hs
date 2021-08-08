@@ -24,10 +24,10 @@ import Libs.Common
 import Service.Common
 
 getFreeList ::
-  PubViewStatus ->
+  SearchParam ->
   PageInfo ->
   Handler (HResult (Int, [FreeList]))
-getFreeList freeViewStatus pageInfo = runDB $ do
+getFreeList sparam pageInfo = runDB $ do
   let pageNum = unPageNum pageInfo
       pagePerLine = fromIntegral $ unPagePerLine pageInfo
       freeWhere status tbl = case status of
@@ -35,11 +35,19 @@ getFreeList freeViewStatus pageInfo = runDB $ do
                     E.||. tbl E.^. TblFreeStatus E.==. E.val (fromEnum UnPublished))
         ViewPublished -> tbl E.^. TblFreeStatus E.==. E.val (fromEnum Published)
         ViewDraft -> tbl E.^. TblFreeStatus E.==. E.val (fromEnum Draft)
+      categoyWhere cateId tbl =
+        case cateId of
+          Just cid -> (tbl E.^. TblFreeCateId E.==. E.val (Just $ toTblCategoryKey $ intToInt64 cid))
+          Nothing -> (E.val True)
       countQuery = E.from $ \tblFree -> do
-        E.where_ $ do freeWhere freeViewStatus tblFree
+        E.where_ $ do
+          freeWhere (unSearchParamSearchType sparam) tblFree
+          E.&&. (categoyWhere (unSearchParamCateId sparam) tblFree)
         return $ E.count(tblFree E.^. TblFreeId)
       baseQuery = E.from $ \tblFree -> do
-        E.where_ $ do freeWhere freeViewStatus tblFree
+        E.where_ $ do
+          freeWhere (unSearchParamSearchType sparam) tblFree
+          E.&&. (categoyWhere (unSearchParamCateId sparam) tblFree)
         E.orderBy [ E.desc $ tblFree E.^. TblFreePublishDate, E.desc $ tblFree E.^. TblFreeCreateTime ]
         let rowNum = E.unsafeSqlValue "row_number() over(order by publish_date desc)"
             freeCnt = (E.subSelectMaybe $ E.from $ \tblFreeAcc -> do
@@ -127,6 +135,7 @@ updateFree free = runDB $ do
             , TblFreeOgSiteName =. unFreeOgSiteName free
             , TblFreeOgDesc =. unFreeOgDesc free
             , TblFreeOgPageType =. unFreeOgPageType free
+            , TblFreeCateId =. toTblCategoryKey <$> unFreeCateId free
             , TblFreeUpdateTime =. now
             , TblFreeVersion +=. 1
             ]
@@ -170,6 +179,7 @@ registerFree usrKey free = runDB $ do
       , tblFreeCreateTime = now
       , tblFreeUpdateTime = now
       , tblFreeAuthorId = usrKey
+      , tblFreeCateId = toTblCategoryKey <$> unFreeCateId free
       , tblFreeVersion = 1
       }
   return (Right freeId)
@@ -206,7 +216,8 @@ getFreeFromId (FreeId freeId) = runDB $ do
             , unFreeOgPageType = tblFreeOgPageType f
             , unFreeCreateTime = tblFreeCreateTime f
             , unFreeUpdateTime = tblFreeUpdateTime f
-            , unFreeAuthorId = unSqlBackendKey (unTblUserKey (tblFreeAuthorId f))
+            , unFreeAuthorId = fromTblUserKey $ tblFreeAuthorId f
+            , unFreeCateId = fromTblCategoryKey <$> tblFreeCateId f
             , unFreeVersion = tblFreeVersion f
             }
         _ -> return $ Left ErrRecNotFound

@@ -15,6 +15,7 @@ import Libs.CommonWidget
 import Libs.Mapper
 import Service.Free
 import Service.Tags
+import Service.Category
 
 getFreeR ::
   FreeId
@@ -24,12 +25,13 @@ getFreeR freeId = do
   let tokenKey = defaultCsrfParamName
   token <- getRequest >>= createCsrfToken
   result <- getFreeFromId freeId
+  cateMap <- getCategoryRel
   case result of
     Left err -> do
       $(logError) $ "getFreeR: record not found." <> toText err
       notFound
     Right free -> do
-      (freeWidget, _) <- generateFormPost $ (freeForm $ Just free)
+      (freeWidget, _) <- generateFormPost $ freeForm (Just free) cateMap
       defaultLayout $ do
         setTitle title
         $(widgetFile "free")
@@ -41,7 +43,8 @@ postFreeR freeId = do
   msg <- getMessages
   let tokenKey = defaultCsrfParamName
   token <- getRequest >>= createCsrfToken
-  ((res, freeWidget), _) <- runFormPost $ freeForm Nothing
+  cateMap <- getCategoryRel
+  ((res, freeWidget), _) <- runFormPost $ freeForm Nothing cateMap
   case res of
    FormSuccess form -> do
      let free = freeFormToFree form

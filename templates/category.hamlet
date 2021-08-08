@@ -1,0 +1,39 @@
+<div #page-wrapper>
+    <div .container-fluid>
+        <div .row>
+            <div .col-lg-12>
+                <h1 .page-header>
+                    カテゴリ
+            <!-- /.col-lg-12 -->
+        $forall (status, m) <- msg
+            $if status == successKey
+                <div .alert .alert-success role="alert">
+                    #{m}
+            $else
+                <div .alert .alert-danger role="alert">
+                    #{m}
+        <!-- /.row -->
+        <div .row>
+            <div .col-lg-12>
+                <div .panel .panel-default>
+                    <div .panel-heading>
+                        カテゴリ設定
+                    <div .panel-body>
+                        <div id="categoryComponent">
+
+                    <!-- /.panel-body -->
+                    <!-- /.panel-heading -->
+                <!-- /.panel .panel-default -->
+            <!-- /.col-lg-12 -->
+        <!-- /.row -->
+    <!-- /.container-fluid -->
+<!-- /#page-wrapper -->
+<script src="/static/js/hb_category.js">
+<script type="text/javascript">
+  var app = Elm.Category.init({
+            flags: {
+              key: "#{tokenKey}"
+            , val: "#{token}"
+            }
+            , node: document.getElementById('categoryComponent')
+            });

@@ -2,12 +2,12 @@
 -- Syntax for this file here: https://github.com/yesodweb/persistent/blob/master/docs/Persistent-entity-syntax.md
 
 TblMstUserPerm
-    level Int
+    level Int sqltype=bigint
     dispOrder Int sqltype=smallint
     name Text sqltype=varchar(512)
     createTime UTCTime sqltype=timestamptz
     updateTime UTCTime sqltype=timestamptz default=now()
-    version Int
+    version Int sqltype=bigint
     deriving Typeable Show
 
 TblUser
@@ -17,42 +17,43 @@ TblUser
     profile Text sqltype=varchar(256)
     createTime UTCTime sqltype=timestamptz
     updateTime UTCTime sqltype=timestamptz default=now()
-    version Int
-    deleteFlag Bool
+    version Int sqltype=bigint
+    deleteFlag Bool sqltype=boolean
     userPermId TblMstUserPermId
     UniTblUserEmail email
     deriving Typeable Show
 
 TblPost
     title Text sqltype=varchar(2048)
-    content Text
-    html Text Maybe
-    slug Text sqltype=varchar(1024) Maybe
-    urlpath Text sqltype=varchar(16) Maybe
+    content Text sqltype=varchar
+    html Text Maybe sqltype=varchar
+    slug Text Maybe sqltype=varchar(1024)
+    urlpath Text Maybe sqltype=varchar(16)
     inputType Int sqltype=smallint
-    tags Text sqltype=varchar(2048) Maybe
+    tags Text Maybe sqltype=varchar(2048)
     status Int sqltype=smallint
-    publishDate UTCTime sqltype=timestamptz Maybe
-    description Text sqltype=varchar(4096) Maybe
-    keywords Text sqltype=varchar(512) Maybe
-    robots Text sqltype=varchar(128) Maybe
-    ogImg Text sqltype=varchar(2048) Maybe
-    ogTitle Text sqltype=varchar(2048) Maybe
-    ogUrl Text sqltype=varchar(2048) Maybe
-    ogSiteName Text sqltype=varchar(2048) Maybe
-    ogDesc Text sqltype=varchar(1024) Maybe
-    ogPageType Text sqltype=varchar(16) Maybe
+    publishDate UTCTime Maybe sqltype=timestamptz
+    description Text Maybe sqltype=varchar(4096)
+    keywords Text Maybe sqltype=varchar(512)
+    robots Text Maybe sqltype=varchar(128)
+    ogImg Text Maybe sqltype=varchar(2048)
+    ogTitle Text Maybe sqltype=varchar(2048)
+    ogUrl Text Maybe sqltype=varchar(2048)
+    ogSiteName Text Maybe sqltype=varchar(2048)
+    ogDesc Text Maybe sqltype=varchar(1024)
+    ogPageType Text Maybe sqltype=varchar(16)
     createTime UTCTime sqltype=timestamptz
     updateTime UTCTime sqltype=timestamptz default=now()
+    version Int sqltype=bigint
     authorId TblUserId
-   	version Int
+    cateId TblCategoryId Maybe
     UniTblPostSlugUrlpath urlpath slug !force
     deriving Typeable Show
 
 TblComment
-    content Text
-    status Int
-    createTime UTCTime sqltype=timestamptz Maybe
+    content Text sqltype=varchar
+    status Int sqltype=bigint
+    createTime UTCTime Maybe sqltype=timestamptz
     author Text sqltype=varchar(512)
     email Text sqltype=varchar(512)
     url Text sqltype=varchar(4096)
@@ -60,14 +61,14 @@ TblComment
     deriving Typeable Show
 
 TblPostTag
-    postId TblPostId
-    tagId TblMstTagId
+    postId TblPostId sqltype=bigint
+    tagId TblMstTagId sqltype=bigint
     UniPostTag postId tagId
     deriving Typeable Show
 
 TblFreeTag
-    freeId TblFreeId
-    tagId TblMstTagId
+    freeId TblFreeId sqltype=bigint
+    tagId TblMstTagId sqltype=bigint
     UniFreeTag freeId tagId
     deriving Typeable Show
 
@@ -75,56 +76,57 @@ TblMstTag
     name Text sqltype=varchar(128)
     createTime UTCTime sqltype=timestamptz
     updateTime UTCTime sqltype=timestamptz default=now()
-    version Int
+    version Int sqltype=bigint
     UniTagName name
     deriving Typeable Show
 
 TblFrame
     name Text Maybe sqltype=varchar(1024)
-    html Text Maybe
-    css Text Maybe
-    validFlag Bool
-    publishDate UTCTime sqltype=timestamptz Maybe
+    html Text Maybe sqltype=varchar
+    css Text Maybe sqltype=varchar
+    validFlag Bool sqltype=boolean
+    publishDate UTCTime Maybe sqltype=timestamptz
     createTime UTCTime sqltype=timestamptz
     updateTime UTCTime sqltype=timestamptz default=now()
-    version Int
+    version Int sqltype=bigint
     deriving Typeable Show
 
 TblFreeFrame
     name Text Maybe sqltype=varchar(1024)
-    html Text Maybe
-    css Text Maybe
-    validFlag Bool
-    publishDate UTCTime sqltype=timestamptz Maybe
+    html Text Maybe sqltype=varchar
+    css Text Maybe sqltype=varchar
+    validFlag Bool sqltype=boolean
+    publishDate UTCTime Maybe sqltype=timestamptz
     createTime UTCTime sqltype=timestamptz
     updateTime UTCTime sqltype=timestamptz default=now()
-    version Int
+    version Int sqltype=bigint
     deriving Typeable Show
 
 TblFree
     title Text sqltype=varchar(2048)
-    content Text
-    html Text Maybe
-    css Text Maybe
-    slug Text sqltype=varchar(1024) Maybe
-    urlpath Text sqltype=varchar(16) Maybe
-    tags Text sqltype=varchar(2048) Maybe
+    content Text sqltype=varchar
+    html Text Maybe sqltype=varchar
+    css Text Maybe sqltype=varchar(1024)
+    slug Text Maybe sqltype=varchar(1024)
+    urlpath Text Maybe sqltype=varchar(16) 
+    tags Text Maybe sqltype=varchar(2048)
     inputType Int sqltype=smallint
     status Int sqltype=smallint
-    publishDate UTCTime sqltype=timestamptz Maybe
-    description Text sqltype=varchar(1024) Maybe
-    keywords Text sqltype=varchar(512) Maybe
-    robots Text sqltype=varchar(128) Maybe
-    ogImg Text sqltype=varchar(2048) Maybe
-    ogTitle Text sqltype=varchar(2048) Maybe
-    ogUrl Text sqltype=varchar(2048) Maybe
-    ogSiteName Text sqltype=varchar(2048) Maybe
-    ogDesc Text sqltype=varchar(1024) Maybe
-    ogPageType Text sqltype=varchar(16) Maybe
+    publishDate UTCTime Maybe sqltype=timestamptz
+    description Text Maybe sqltype=varchar(1024)
+    keywords Text Maybe sqltype=varchar(512)
+    robots Text Maybe sqltype=varchar(128)
+    ogImg Text Maybe sqltype=varchar(2048)
+    ogTitle Text Maybe sqltype=varchar(2048)
+    ogUrl Text Maybe sqltype=varchar(2048)
+    ogSiteName Text Maybe sqltype=varchar(2048)
+    ogDesc Text Maybe sqltype=varchar(1024)
+    ogPageType Text Maybe sqltype=varchar(16)
     createTime UTCTime sqltype=timestamptz
     updateTime UTCTime sqltype=timestamptz default=now()
+    version Int sqltype=bigint
     authorId TblUserId
-    version Int
+    cateId TblCategoryId Maybe
     UniTblFreeSlugUrlpath urlpath slug !force
     deriving Typeable Show
 
@@ -135,14 +137,14 @@ TblBlogSetting
     postNum Int sqltype=smallint
     mediaUrl Text sqltype=varchar(2048)
     mediaDir Text sqltype=varchar(2048)
-    uploadSize Int
+    uploadSize Int sqltype=bigint
     adstxt Text Maybe sqltype=varchar(512)
     sessionTimeout Int sqltype=smallint
     blogAuthor Text sqltype=varchar(512)
     blogDesc Text sqltype=varchar(4096)
     createTime UTCTime sqltype=timestamptz
     updateTime UTCTime sqltype=timestamptz default=now()
-    version Int
+    version Int sqltype=bigint
     UniIdent ident
     deriving Typeable Show
 
@@ -151,12 +153,12 @@ TblMedia
     dir Text sqltype=varchar(2048)         -- Directory
     fileName Text sqltype=varchar(2048)    -- Original file name(filename.jpg)
     hash Text Maybe sqltype=varchar(48)    -- md5 file
-    size Int                               -- file size byte
-    thumbDispFlag Bool                     -- Thumbnail output flag 
-    mimeTypeId TblMstMimeTypeId Maybe
+    size Int sqltype=bigint                -- file size byte
+    thumbDispFlag Bool sqltype=boolean     -- Thumbnail output flag 
+    mimeTypeId TblMstMimeTypeId Maybe sqltype=bigint
     createTime UTCTime sqltype=timestamptz
     updateTime UTCTime sqltype=timestamptz default=now()
-    version Int
+    version Int sqltype=bigint
     authorId TblUserId
     deriving Typeable Show
 
@@ -185,7 +187,16 @@ TblMstMimeType
     mimeType Text sqltype=varchar(128)
     createTime UTCTime sqltype=timestamptz
     updateTime UTCTime sqltype=timestamptz default=now()
-    version Int
-    deleteFlag Bool
+    version Int sqltype=bigint
+    deleteFlag Bool sqltype=boolean
     UniTblTblMstMimeType extension
+    deriving Typeable Show
+
+TblCategory
+    name Text sqltype=varchar(384)
+    parentId Int Maybe sqltype=bigint
+    dispOrder Int sqltype=smallint
+    createTime UTCTime sqltype=timestamptz
+    updateTime UTCTime sqltype=timestamptz default=now()
+    version Int sqltype=bigint
     deriving Typeable Show

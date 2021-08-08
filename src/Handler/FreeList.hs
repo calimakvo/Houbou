@@ -7,31 +7,32 @@
 module Handler.FreeList where
 
 import Import
-import UrlParam.Page
 import UrlParam.FreeId
 import DataTypes.HoubouType
-import Forms.ListSelectForm
+import Forms.ListSearchSelectForm
+import Forms.SearchForm
+import Libs.Mapper
 import Libs.Common
 import Libs.CommonWidget
 import Service.Common
 import Service.Free
+import Service.Category
 
 getFreeListR ::
-  Int
-  -> Page
-  -> Handler Html
-getFreeListR pageType page =  do
+  Handler Html
+getFreeListR = do
   master <- getYesod
   msg <- getMessages
   token <- getRequest >>= createCsrfTokenTag
+  cateMap <- getCategoryRel
   let defLine = defSelectorValue master
-      (freeViewStatus, _) = searchType pageType
-      truePageType = fromEnum freeViewStatus
   pagePerLine <- textToInt <$> (fromMaybe defLine) <$> (lookupSession freepageperline)
-  let pageNum = fromMaybe 1 (_unPage page)
+  sparam <- getListSearchParam pagePerLine
+  let pageNum = unSearchParamPage sparam
       pageInfo = PageInfo pageNum pagePerLine
-  (freePerLineWidget, _) <- generateFormPost $ listSelectForm (Just pagePerLine)
-  (totalCnt, frees) <- eitherToTouple =<< getFreeList freeViewStatus pageInfo
+  (freePerLineWidget, _) <- generateFormPost $ listSearchSelectForm (Just sparam)
+  (searchWidget, _) <- generateFormPost $ searchForm (Just sparam) cateMap
+  (totalCnt, frees) <- eitherToTouple =<< getFreeList sparam pageInfo
   defaultLayout $ do
     let pager = paginator pageNum totalCnt pagePerLine
         freeList = zip ([0..] :: [Int]) frees
@@ -39,16 +40,18 @@ getFreeListR pageType page =  do
     $(widgetFile "freelist")
 
 postFreeListR ::
-  Int
-  -> Page
-  -> Handler Html
-postFreeListR pageType _ = do
-  ((res, _), _) <- runFormPost $ listSelectForm Nothing
+  Handler Html
+postFreeListR = do
+  master <- getYesod
+  let defLine = defSelectorValue master
+  pagePerLine <- textToInt <$> (fromMaybe defLine) <$> (lookupSession freepageperline)
+  ((res, _), _) <- runFormPost $ listSearchSelectForm Nothing
   case res of
-    FormSuccess (ListSelectForm pagePerLine) -> do
-      setSession freepageperline $ pack(show(pagePerLine))
-    _ -> return ()
-  redirect $ FreeListR pageType (Page Nothing)
+    FormSuccess form -> do
+      setSession freepageperline $ pack(show(unListSearchSelectFormPagePerLine form))
+      let sparam = listSearchSelectFormToSearchParam form pagePerLine
+      redirect (FreeListR, toListParam sparam)
+    _ -> redirect FreeListR
 
 title :: Html
 title = "フリーページ"

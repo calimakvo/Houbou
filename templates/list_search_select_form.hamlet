@@ -1,0 +1,5 @@
+    #{extra}
+    ^{fvInput serectView}
+    ^{fvInput pageView}
+    ^{fvInput stypeView}
+    ^{fvInput cateView}

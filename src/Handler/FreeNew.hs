@@ -7,6 +7,7 @@
 module Handler.FreeNew where
 
 import Import
+import qualified Data.Map.Ordered as O
 import DataTypes.HoubouType
 import Libs.Common
 import Libs.CommonWidget
@@ -15,6 +16,7 @@ import Forms.FreeForm
 import Libs.Mapper
 import Service.Free
 import Service.Tags
+import Service.Category
 
 getFreeNewR ::
   Handler Html
@@ -22,7 +24,8 @@ getFreeNewR = do
   msg <- getMessages
   let tokenKey = defaultCsrfParamName
   token <- getRequest >>= createCsrfToken
-  (freeWidget, _) <- generateFormPost $ (freeForm Nothing)
+  cateMap <- getCategoryRel
+  (freeWidget, _) <- generateFormPost $ freeForm Nothing cateMap
   defaultLayout $ do
     setTitle title
     $(widgetFile "freenew")
@@ -34,7 +37,7 @@ postFreeNewR = do
   let tokenKey = defaultCsrfParamName
   token <- getRequest >>= createCsrfToken
   (usrKey, _) <- requireAuthPair
-  ((res, freeWidget), _) <- runFormPost $ freeForm Nothing
+  ((res, freeWidget), _) <- runFormPost $ freeForm Nothing O.empty
   case res of
     FormSuccess form -> do
       let free = freeFormToFree form

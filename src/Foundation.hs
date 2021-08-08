@@ -50,6 +50,7 @@ import UrlParam.YPath
 import UrlParam.MPath
 import UrlParam.DPath
 import UrlParam.Slug
+import UrlParam.CateId
 
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
@@ -147,6 +148,7 @@ instance Yesod App where
     isAuthorized (PutFreeR _) _ = return Authorized
     isAuthorized (PutFreeSlugR _ _ _ _) _ = return Authorized
     isAuthorized (PutTagListR _) _ = return Authorized
+    isAuthorized (PutCateListR _) _ = return Authorized
     isAuthorized FaviconR _ = return Authorized
     isAuthorized RobotsR _ = return Authorized
     isAuthorized (StaticR _) _ = return Authorized
@@ -156,10 +158,10 @@ instance Yesod App where
 
     -- Admin
     isAuthorized DashboardR _ = isAuthenticated
-    isAuthorized (PostListR _ _) _ = isAuthenticated
+    isAuthorized PostListR _ = isAuthenticated
     isAuthorized (PostR _) _ = isAuthenticated
     isAuthorized PostNewR _ = isAuthenticated
-    isAuthorized (PostDelR _) _ = isAuthenticated
+    isAuthorized PostDelR _ = isAuthenticated
     isAuthorized StatusChangeR _ = isAuthenticated
     isAuthorized FreeStatusChangeR _ = isAuthenticated
     isAuthorized FrameChangeR _ = isAuthenticated
@@ -173,8 +175,8 @@ instance Yesod App where
     isAuthorized FreeFrameNewR _ = isAuthenticated
     isAuthorized FreeFrameDelR _ = isAuthenticated
     isAuthorized (FreeR _) _ = isAuthenticated
-    isAuthorized (FreeDelR _) _ = isAuthenticated
-    isAuthorized (FreeListR _ _) _ = isAuthenticated
+    isAuthorized FreeDelR _ = isAuthenticated
+    isAuthorized FreeListR _ = isAuthenticated
     isAuthorized FreeNewR _ = isAuthenticated
     isAuthorized BlogSettingR _ = isAuthenticated
     isAuthorized (UserListR _) _ = isAuthenticated
@@ -190,7 +192,14 @@ instance Yesod App where
     isAuthorized (MediaMdfR _) _ = isAuthenticated
     isAuthorized PostPrevR _ = isAuthenticated
     isAuthorized FreePrevR _ = isAuthenticated
-    
+    isAuthorized CategoryR _ = isAuthenticated
+    isAuthorized CateListR _ = isAuthenticated
+    isAuthorized (CateNewR _) _ = isAuthenticated
+    isAuthorized (CateModR _) _ = isAuthenticated
+    isAuthorized (CateDelR _) _ = isAuthenticated
+    isAuthorized PostListSearchR _ = isAuthenticated
+    isAuthorized FreeListSearchR _ = isAuthenticated
+
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
@@ -343,6 +352,7 @@ instance YesodAuthPersist App
 -- achieve customized and internationalized form validation messages.
 instance RenderMessage App FormMessage where
     renderMessage :: App -> [Lang] -> FormMessage -> Text
+    renderMessage _ _ MsgSelectNone = "選択してください"
     renderMessage _ _ MsgValueRequired = "入力は必須です"
     renderMessage _ _ fm = defaultFormMessage fm
 

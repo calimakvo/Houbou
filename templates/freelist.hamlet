@@ -23,6 +23,11 @@
                             <div .panel .panel-default>
                                 <div .panel-heading>
                                     <a href=@{FreeNewR} .btn .btn-default>新規作成
+
+                                <div class="panel-body">
+                                    <form action=@{FreeListSearchR} method="post" #freesearchform>
+                                        ^{searchWidget}
+
                                 <!-- /.panel-heading -->
                                 $if null frees
                                     <div .panel-body>
@@ -32,7 +37,7 @@
                                     <div .panel-body>
                                         <div .row>
                                             <div .col-sm-6>
-                                                <form action=@{FreeListR truePageType (Page Nothing)} method="post" #pageperlineform .form-inline>
+                                                <form action=@{FreeListR} method="post" #pageperlineform .form-inline>
                                                     <div .form-inline>
                                                         <label>
                                                             Show
@@ -45,17 +50,17 @@
                                                        <ul .pagination .hb-mergin-reset>
                                                            $if unPrevPage pager > 0
                                                                <li .paginate_button>
-                                                                   <a href=@{FreeListR truePageType (Page $ Just (unPrevPage pager))}>&lt;&lt;
+                                                                   <a href=@{FreeListR}#{listParam sparam (unPrevPage pager)}>&lt;&lt;
                                                            $forall p <- unNumsPages pager
                                                                $if p == (unCurPage pager)
                                                                    <li .paginate_button .active>
                                                                        <a>#{p}
                                                                $else
                                                                    <li .paginate_button>
-                                                                       <a href=@{FreeListR truePageType (Page $ Just p)}>#{p}
+                                                                       <a href=@{FreeListR}#{listParam sparam p}>#{p}
                                                            $if unNextPage pager > 0
                                                                <li .paginate_button>
-                                                                   <a href=@{FreeListR truePageType (Page $ Just (unNextPage pager))}>&gt;&gt;
+                                                                   <a href=@{FreeListR}#{listParam sparam (unPrevPage pager)}>&gt;&gt;
     
                                         <div .table-responsive>
                                             <table .table .table-striped .table-bordered .table-hover>
@@ -103,7 +108,7 @@
                                                             <td .hb-td-size-70 .hb_hcenter .hb_vcenter>
                                                                 #{viewCnt}
                                                             <td .hb-td-size-50 .hb_hcenter .hb_vcenter>
-                                                                <form action=@{FreeDelR truePageType} method="post" enctype="multipart/form-data">
+                                                                <form action=@{FreeDelR} method="post" enctype="multipart/form-data">
                                                                     ^{token}
                                                                     <input type="hidden" name="free_id" value="#{freeId}">
                                                                     <input type="hidden" name="version" value="#{version}">
@@ -120,17 +125,17 @@
                                                         <ul .pagination .hb-mergin-reset>
                                                             $if unPrevPage pager > 0
                                                                 <li .paginate_button>
-                                                                    <a href=@{FreeListR truePageType (Page $ Just (unPrevPage pager))}>&lt;&lt;
+                                                                    <a href=@{FreeListR}#{listParam sparam (unPrevPage pager)}>&lt;&lt;
                                                             $forall p <- unNumsPages pager
                                                                 $if p == (unCurPage pager)
                                                                     <li .paginate_button .active>
                                                                         <a>#{p}
                                                                 $else
                                                                     <li .paginate_button>
-                                                                        <a href=@{FreeListR truePageType (Page $ Just p)}>#{p}
+                                                                        <a href=@{FreeListR}#{listParam sparam p}>#{p}
                                                             $if unNextPage pager > 0
                                                                 <li .paginate_button>
-                                                                    <a href=@{FreeListR truePageType (Page $ Just (unNextPage pager))}>&gt;&gt;
+                                                                    <a href=@{FreeListR}#{listParam sparam (unPrevPage pager)}>&gt;&gt;
     
                                     <!-- /.panel-body -->
                             <!-- /.panel -->

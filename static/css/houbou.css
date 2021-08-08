@@ -85,3 +85,42 @@
 .hb_vcenter {
     vertical-align: middle !important;
 }
+
+.list-group .flex {
+  display: flex;
+  justify-content: space-between;
+}
+
+.text-truncate {
+    overflow: hidden !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+body {
+  /* フッタの下側マージンの高さ */
+  margin-bottom: 60px;
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 60px;
+    background-color: #222;
+    border-color: #080808;
+    z-index:999;
+}
+
+.footer .container .text-muted {
+    margin: 20px 0;
+}
+     
+.footer > .container {
+    padding-right: 15px;
+    padding-left: 15px;
+}
+

@@ -6,6 +6,7 @@ module Service.Html (
       createBlogContents
     , createBlogFreeContents
     , createTagListContents
+    , createCateListContents
     , createPrevBlogContents
     , createPrevBlogFreeContents
   ) where
@@ -21,6 +22,7 @@ import DataTypes.HoubouType
 import UrlParam.PostId
 import UrlParam.FreeId
 import UrlParam.TagId
+import UrlParam.CateId
 import Libs.Common
 import Libs.CommonWidget
 import Libs.Template
@@ -31,6 +33,7 @@ import Service.FreeFrame
 import Service.Post
 import Service.Free
 import Service.Tags
+import Service.Category
 import qualified GHC.Exts as GE
 import qualified Text.Ginger as G
 
@@ -164,7 +167,7 @@ createTagListContents setId tagId = do
 renderTagListContents' ::
   BlogSetting
   -> FreeFrame
-  -> [TagContent]
+  -> [PfContent TagInfo]
   -> [Post]
   -> [MstTag]
   -> MstTag
@@ -173,15 +176,61 @@ renderTagListContents' setting frame tagconts posted tags msttag = do
   template <- liftIO $ createTemplate Nothing (unpack $ internalFreeComp frame)
   case template of
     Left err -> do
-      $(logInfo) $ "createTagContents': template parse error = " <> toText(err)
+      $(logInfo) $ "renderTagListContents': template parse error = " <> toText(err)
       return $ Left ErrTemplateUnInit
     Right template' -> do
       return $ Right $ preEscapedToHtml
         (render template' (initContextTagCont pageMeta
                            tagconts postedElms tags msttag))
   where
-    pageMeta = toTagContsFramePageMeta setting frame
+    pageMeta = toContsFramePageMeta "タグ一覧" setting frame
     postedElms = toPostToPosted posted
+
+createCateListContents ::
+  Text
+  -> CateId
+  -> Handler (HResult Html)
+createCateListContents setId cateId = do
+  setting <- getBlogSetting setId
+  frame <- eitherToMaybe =<< readFreeFrame
+  cate <- eitherToMaybe =<< getCategoryFromCateId cateId
+  cateconts <- eitherToList =<< getCateContents cateId
+  posted <- eitherToList =<< getPublishPostedList 0 100
+  tags <- eitherToList =<< getTagList 100
+  case (frame /= Nothing && isJust cate == True) of
+    False -> do
+      $(logInfo) $ "createCateListContents: cate data invalid."
+      return $ Left ErrTagContUnitialize
+    True -> do
+      html <- renderCateListContents' setting (fromJust frame) cateconts
+                                       posted tags (fromJust cate)
+      return html
+
+renderCateListContents' ::
+  BlogSetting
+  -> FreeFrame
+  -> [PfContent CateInfo]
+  -> [Post]
+  -> [MstTag]
+  -> Cate
+  -> Handler (HResult Html)
+renderCateListContents' setting frame cateconts posted tags cate = do
+  template <- liftIO $ createTemplate Nothing (unpack $ internalFreeComp frame)
+  case template of
+    Left err -> do
+      $(logInfo) $ "renderCateListContents': template parse error = " <> toText(err)
+      return $ Left ErrTemplateUnInit
+    Right template' -> do
+      cs <- getCategoryBreadCrumbs (int64ToInt $ unCateId cate)
+      let baseUrl = unBlogSettingBlogUrl setting
+          bclink = catesToTextBreadCrumbs baseUrl cs
+      return $ Right $ preEscapedToHtml
+        (render template' (initContextCateCont pageMeta
+                           cateconts postedElms tags cate bclink))
+  where
+    pageMeta = toContsFramePageMeta "カテゴリ一覧" setting frame
+    postedElms = toPostToPosted posted
+
 
 internalFreeComp ::
   FreeFrame
@@ -201,7 +250,7 @@ internalComp f =
 
 initContextTagCont ::
   PageMeta
-  -> [TagContent]
+  -> [PfContent TagInfo]
   -> [Posted]
   -> [MstTag]
   -> MstTag
@@ -217,6 +266,29 @@ initContextTagCont pageMeta tagcont postedElms tags msttag = H.fromList [
   , ("hb_share_url", initTagListShareUrl msttag pageMeta)
   , ("hb_blog_media_url", String $ unPageMetaMediaUrl pageMeta)
   , ("hb_tagconts", Array $ fromList (initTagContList tagcont))
+  , ("hb_posteds", Array $ fromList (initPostedList postedElms))
+  , ("hb_tags", Array $ fromList (initMstTagList tags)) ]
+
+initContextCateCont ::
+  PageMeta
+  -> [PfContent CateInfo]
+  -> [Posted]
+  -> [MstTag]
+  -> Cate
+  -> Text
+  -> H.HashMap Text Value
+initContextCateCont pageMeta catecont postedElms tags cate bclink = H.fromList [
+    ("hb_blog_name", String $ unPageMetaBlogName pageMeta)
+  , ("hb_blog_title", String $ unPageMetaTitle pageMeta)
+  , ("hb_search_cate", String $ unCateName cate)
+  , ("hb_cate_breadcrumbs", String $ bclink)
+  , ("hb_blog_url", String $ unPageMetaBlogUrl pageMeta)
+  , ("hb_blog_author", String $ unPageMetaBlogAuthor pageMeta)
+  , ("hb_blog_desc", String $ unPageMetaBlogDesc pageMeta)
+  , ("hb_blog_css", String $ unPageMetaFrameCss pageMeta)
+  , ("hb_share_url", initCateListShareUrl cate pageMeta)
+  , ("hb_blog_media_url", String $ unPageMetaMediaUrl pageMeta)
+  , ("hb_cateconts", Array $ fromList (initCateContList catecont))
   , ("hb_posteds", Array $ fromList (initPostedList postedElms))
   , ("hb_tags", Array $ fromList (initMstTagList tags)) ]
   
@@ -248,13 +320,13 @@ initContextFree pageMeta postedElms tags = H.fromList [
   ]
 
 initTagContList ::
-  [TagContent]
+  [PfContent TagInfo]
   -> [Value]
 initTagContList tagconts =
   map (\tagcont ->
          case tagcont of
-           TagContPost taginfo -> createObjectTagPost taginfo
-           TagContFree taginfo -> createObjectTagFree taginfo
+           ContPost taginfo -> createObjectTagPost taginfo
+           ContFree taginfo -> createObjectTagFree taginfo
       ) tagconts
   where
     pubdate ut = toGrecoFullLocal (utcToJpTime ut)
@@ -277,6 +349,35 @@ initTagContList tagconts =
                , ("posted", zoneTimeToValue (pubdate (unTagInfoPosted tinfo)))
                ] )
 
+initCateContList ::
+  [PfContent CateInfo]
+  -> [Value]
+initCateContList cateconts =
+  map (\catecont ->
+         case catecont of
+           ContPost cateinfo -> createObjectCatePost cateinfo
+           ContFree cateinfo -> createObjectCateFree cateinfo
+      ) cateconts
+  where
+    pubdate ut = toGrecoFullLocal (utcToJpTime ut)
+    createObjectCatePost :: CateInfo -> Value
+    createObjectCatePost cinfo =
+      Object (
+        GE.fromList [
+                ("type", Number $ fromIntegral (fromEnum TypePost))
+              , ("id", Number (fromIntegral $ unCateInfoPfId cinfo))
+              , ("title", String $ unCateInfoTitle cinfo)
+              , ("posted", zoneTimeToValue (pubdate (unCateInfoPosted cinfo)))
+              ] )
+    createObjectCateFree :: CateInfo -> Value
+    createObjectCateFree cinfo =
+      Object (
+        GE.fromList [
+                 ("type", Number $ fromIntegral (fromEnum TypeFree))
+               , ("id", Number (fromIntegral $ unCateInfoPfId cinfo))
+               , ("title", String $ unCateInfoTitle cinfo)
+               , ("posted", zoneTimeToValue (pubdate (unCateInfoPosted cinfo)))
+               ] )
 
 initFreeList ::
   [Free]
@@ -348,6 +449,15 @@ initTagListShareUrl msttag pageMeta =
   let tagId = unMstTagId msttag
       baseUrl = unPageMetaBlogUrl pageMeta
   in String $ rmSlash (baseUrl <> "/" <> toTagListUrlText tagId)
+
+initCateListShareUrl ::
+  Cate
+  -> PageMeta
+  -> Value
+initCateListShareUrl cate pageMeta =
+  let cateId = unCateId cate
+      baseUrl = unPageMetaBlogUrl pageMeta
+  in String $ rmSlash (baseUrl <> "/" <> toCateListUrlText cateId)
   
 initPostShareUrl :: [Post] -> PageMeta -> Value
 initPostShareUrl posts pageMeta =
@@ -544,13 +654,14 @@ initOgUrl pt setting fpid slug urlpath ogUrl =
   where
     setBlogUrl url = blogPath (unBlogSettingBlogUrl setting) url
 
-toTagContsFramePageMeta ::
-  BlogSetting
+toContsFramePageMeta ::
+     Text
+  -> BlogSetting
   -> FreeFrame
   -> PageMeta
-toTagContsFramePageMeta setting frame = PageMeta {
+toContsFramePageMeta title setting frame = PageMeta {
     unPageMetaBlogName = unBlogSettingBlogName setting
-  , unPageMetaTitle = "タグ一覧"
+  , unPageMetaTitle = title
   , unPageMetaBlogUrl = unBlogSettingBlogUrl setting
   , unPageMetaBlogAuthor = unBlogSettingBlogAuthor setting
   , unPageMetaBlogDesc = unBlogSettingBlogDesc setting
@@ -561,7 +672,7 @@ toTagContsFramePageMeta setting frame = PageMeta {
   , unPageMetaKeywords = ""
   , unPageMetaRobots = "index,follow"
   , unPageMetaOgImg = ""
-  , unPageMetaOgTitle = "タグ一覧"
+  , unPageMetaOgTitle = title
   , unPageMetaOgUrl = ""
   , unPageMetaOgSiteName = ""
   , unPageMetaOgDesc = ""

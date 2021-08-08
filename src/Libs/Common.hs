@@ -4,6 +4,7 @@ module Libs.Common (
     getTm
   , textToInt
   , intToInt64
+  , int64ToInt
   , rowClass
   , timeZoneHours
   , dateTimeFullFormat
@@ -95,6 +96,11 @@ intToInt64 ::
   Int
   -> Int64
 intToInt64 = fromIntegral
+
+int64ToInt ::
+  Int64
+  -> Int
+int64ToInt = fromIntegral
 
 getTm :: IO UTCTime
 getTm = getZonedTime >>= return . zonedTimeToUTC

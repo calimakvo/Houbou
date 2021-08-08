@@ -61,12 +61,12 @@
                                 <span .fa .arrow>
                             <ul .nav .nav-second-level>
                                 <li>
-                                    <a href=@{PostListR (fromEnum ViewAll) $ Page Nothing}>すべて&nbsp;（#{pall}）
+                                    <a href=@{PostListR}?type=#{fromEnum ViewAll}&page=1>すべて&nbsp;（#{pall}）
                                 <li>
-                                    <a href=@{PostListR (fromEnum ViewPublished) $ Page Nothing}>公開済&nbsp;（#{ppub}）
+                                    <a href=@{PostListR}?type=#{fromEnum ViewPublished}&page=1>公開済&nbsp;（#{ppub}）
                                 $if pdra > 0
                                     <li>
-                                        <a href=@{PostListR (fromEnum ViewDraft) $ Page Nothing}>下書き&nbsp;（#{pdra}）
+                                        <a href=@{PostListR}?type=#{fromEnum ViewDraft}&page=1>下書き&nbsp;（#{pdra}）
                         <li>
                             <a href="#">
                                <i .fa .fa-file-text .fa-fw>
@@ -74,27 +74,31 @@
                                 <span .fa .arrow>
                             <ul .nav .nav-second-level>
                                 <li>
-                                    <a href=@{FreeListR (fromEnum ViewAll) $ Page Nothing}>すべて&nbsp;（#{fall}）
+                                    <a href=@{FreeListR}?type=#{fromEnum ViewAll}&page=1>すべて&nbsp;（#{fall}）
                                 <li>
-                                    <a href=@{FreeListR (fromEnum ViewPublished) $ Page Nothing}>公開済&nbsp;（#{fpub}）
+                                    <a href=@{FreeListR}?type=#{fromEnum ViewPublished}&page=1>公開済&nbsp;（#{fpub}）
                                 $if fdra > 0
                                     <li>
-                                        <a href=@{FreeListR (fromEnum ViewDraft) $ Page Nothing}>下書き&nbsp;（#{fdra}）
+                                        <a href=@{FreeListR}?type=#{fromEnum ViewDraft}&page=1>下書き&nbsp;（#{fdra}）
                         $maybe (_, loginUsr) <- muser
                             $if tblUserUserPermId loginUsr == TblMstUserPermKey (SqlBackendKey rootUserId)
                                 <li>
                                     <a href="#">
                                         <i .fa .fa-edit .fa-fw>
-                                        ページ設定
+                                        ページ管理
                                         <span .fa .arrow>
                                     <ul .nav .nav-second-level>
                                         <li>
-                                            <a href=@{FrameListR $ Page Nothing}>フレーム
+                                            <a href=@{FrameListR $ Page Nothing}>フレーム管理
                                         <li>
-                                            <a href=@{FreeFrameListR $ Page Nothing}>フリーページ用フレーム
+                                            <a href=@{FreeFrameListR $ Page Nothing}>フリーページフレーム管理
                         <li>
                             <a href=@{MediaListR $ Page Nothing}>
                                <i .fa .fa-file-image-o .fa-fw>
-                               メディア
+                               メディア管理
+                        <li>
+                            <a href=@{CategoryR}>
+                                <i .fa .fa-list>
+                                カテゴリ管理
         <!-- Page Contents -->
         ^{widget}

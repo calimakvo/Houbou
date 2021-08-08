@@ -1,0 +1,18 @@
+<form method="post">
+    <div .col-lg-6>
+        <div .form-group>
+            <label>カテゴリ名
+                <span .badge .badge-danger>必須
+            ^{extra}
+            ^{fvInput cateIdView}
+            ^{fvInput catePidView}
+            ^{fvInput nameView}
+        $maybe nameErr <- fvErrors nameView
+            <div .form-group>
+                <div .alert .alert-danger role="alert">
+                    <span>#{nameErr}
+        $nothing
+            ^{fvInput verView}
+        <div .form-group .text-center>
+            <a .btn .btn-warning href=@{CategoryR}>カテゴリ一覧へ戻る
+            <button type="submit" .btn .btn-primary>登　　録

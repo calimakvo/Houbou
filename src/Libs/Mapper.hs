@@ -9,8 +9,11 @@ module Libs.Mapper (
   , userFormToForm
   , userNewFormToForm
   , mediaFormToMedia
+  , categoryFormToCateSetting
   , prevFormToPost
   , prevFormToFree
+  , searchFromToSearchParam
+  , listSearchSelectFormToSearchParam
   ) where
 
 import Data.Default
@@ -24,6 +27,7 @@ import Forms.UserForm
 import Forms.UserNewForm
 import Forms.MediaMdfForm
 import Forms.PrevForm
+import Forms.CategoryForm
 
 postFormToPost ::
   PostForm
@@ -51,6 +55,7 @@ postFormToPost form = Post {
   , unPostCreateTime = dummyUtc
   , unPostUpdateTime = dummyUtc
   , unPostAuthorId = 0
+  , unPostCateId = intToInt64 <$> unPostFormCateId form
   , unPostVersion = unPostFormVersion form
   }
   
@@ -108,6 +113,7 @@ freeFormToFree form = Free {
   , unFreeCreateTime = dummyUtc
   , unFreeUpdateTime = dummyUtc
   , unFreeAuthorId = 0
+  , unFreeCateId = intToInt64 <$> unFreeFormCateId form
   , unFreeVersion = unFreeFormVersion form
   }
 
@@ -211,3 +217,35 @@ mediaFormToMedia form = Media {
   , unMediaVersion = unMediaMdfFormVersion form
   , unMediaAuthorId = 0
   }
+
+categoryFormToCateSetting ::
+  CategoryForm
+  -> CateSetting
+categoryFormToCateSetting form = CateSetting
+  { unCateSettingId = unCategoryFormId form
+  , unCateSettingParentId = unCategoryFormParentId form
+  , unCateSettingName = unCategoryFormName form
+  , unCateSettingVersion = unCategoryFormVersion form
+  }
+
+searchFromToSearchParam ::
+  SearchForm
+  -> Int
+  -> SearchParam
+searchFromToSearchParam form ppl = SearchParam
+  { unSearchParamPage = unSearchFormPage form
+  , unSearchParamSearchType = toEnum $ unSearchFormSearchType form
+  , unSearchParamCateId = unSearchFormCateId form
+  , unSearchParamPagePerLine = ppl
+  }
+
+listSearchSelectFormToSearchParam ::
+  ListSearchSelectForm
+  -> Int
+  -> SearchParam
+listSearchSelectFormToSearchParam form ppl = SearchParam
+  { unSearchParamPage = unListSearchSelectFormPage form
+  , unSearchParamSearchType = toEnum $ unListSearchSelectFormSearchType form
+  , unSearchParamCateId = unListSearchSelectFormCateId form
+  , unSearchParamPagePerLine = ppl
+  } 

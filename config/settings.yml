@@ -122,3 +122,6 @@ user-acc-profile-length: 80
 
 # Media Title Max String Len
 media-title-length: 100
+
+# Category Name Max String Len
+category-name-length: 100

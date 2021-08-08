@@ -11,19 +11,19 @@ module Forms.PostForm (
   ) where
 
 import Import
+import qualified Data.Map.Ordered as O
 import Forms.FormValid
 import Forms.CommonForm
 import DataTypes.HoubouType
-import UrlParam.Page
 import Libs.Common
 
 postForm ::
   Maybe Post
+  -> O.OMap Int [Cate]
   -> Html
   -> MForm Handler (FormResult PostForm, Widget)
-postForm post extra = do
+postForm post cate extra = do
   master <- getYesod
-  backListPageType <- lookupSession "truePageType"
   t <- liftIO getTm
   let titleLen = appPostTitleMaxLength $ appSettings master
       bodyLen = appPostTextMaxLength $ appSettings master
@@ -48,10 +48,12 @@ postForm post extra = do
       urlpath = if postId > 0 then join (unPostUrlpath <$> post) else (Just $ toUrlPath t)
   inpTyp <- liftHandler getInputTypeTouple
   stsTyp <- liftHandler getStatusSelectTouple
+  cateLst <- liftHandler $ cateMapToTouble cate
   (postIdRes, postIdView) <- mreq hiddenField postIdFieldSet (Just postId)
   (titleRes, titleView) <- mreq (titleField titleLen) titleFieldSet (unPostTitle <$> post)
   (textRes, textView) <- mreq (bodyField bodyLen) bodyFieldSet (Textarea <$> (unPostContent <$> post))
   (slugRes, slugView) <- mopt (slugPostField slugLen postIdRes urlpath) slugPostFieldSet (unPostSlug <$> post)
+  (cateRes, cateView) <- mopt (selectFieldList cateLst) cateSelectFieldSet $ (int64ToInt <$>) `fmap` (unPostCateId <$> post)
   (inpTypRes, inpTypView) <- mreq (radioFieldList inpTyp) inputTypeRadioFieldSet (unPostInputType <$> post)
   (stsTypRes, stsTypView) <- mreq (radioFieldList stsTyp) statusTypeRadioFieldSet (unPostStatus <$> post)
   (tagRes, tagView) <- mopt (tagField tagLen tagOneLen) tagFieldSet (unPostTags <$> post)
@@ -71,6 +73,7 @@ postForm post extra = do
                   <*> titleRes
                   <*> (unTextarea <$> textRes)
                   <*> slugRes
+                  <*> cateRes
                   <*> initFormUrlpath slugRes urlpath
                   <*> inpTypRes
                   <*> stsTypRes

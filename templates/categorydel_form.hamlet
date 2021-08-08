@@ -1,0 +1,28 @@
+<form method="post">
+    <div .col-lg-6>
+        <div .form-group>
+            $case state
+                $of (Just CateNotUse)
+                    <div .alert .alert-warning role="alert">
+                        カテゴリ名：<strong>#{unCateName $ fromJust cate}</strong>を削除します、よろしいですか？
+                    ^{extra}
+                    ^{fvInput cateIdView}
+                    ^{fvInput verView}
+                    <div .form-group .text-center>
+                      <a .btn .btn-warning href=@{CategoryR}>カテゴリ一覧へ戻る
+                      <button .btn .btn-primary type="submit">削　　除
+                $of (Just CateHasChild)
+                    <div .alert .alert-warning role="alert">
+                        カテゴリ名：<strong>#{unCateName $ fromJust cate}</strong>は子カテゴリに利用されているため削除できません
+                    <div .form-group .text-center>
+                        <a .btn .btn-warning href=@{CategoryR}>カテゴリ一覧へ戻る
+                $of (Just _)
+                    <div .alert .alert-warning role="alert">
+                        カテゴリ名：<strong>#{unCateName $ fromJust cate}</strong>は利用されているため削除できません
+                    <div .form-group .text-center>
+                        <a .btn .btn-warning href=@{CategoryR}>カテゴリ一覧へ戻る
+                $of _
+                    <div .alert .alert-warning role="alert">
+                        削除できません
+                    <div .form-group .text-center>
+                        <a .btn .btn-warning href=@{CategoryR}>カテゴリ一覧へ戻る

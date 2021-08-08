@@ -15,6 +15,7 @@ import Libs.Mapper
 import UrlParam.PostId
 import Service.Post
 import Service.Tags
+import Service.Category
 
 getPostR ::
   PostId
@@ -24,12 +25,13 @@ getPostR postId = do
   let tokenKey = defaultCsrfParamName
   token <- getRequest >>= createCsrfToken
   result <- getPostFromId postId
+  cateMap <- getCategoryRel
   case result of
     Left err -> do
       $(logError) $ "getPostR: record not found." <> toText err
       notFound
     Right post -> do
-      (postWidget, _) <- generateFormPost $ (postForm $ Just post)
+      (postWidget, _) <- generateFormPost $ postForm (Just post) cateMap
       defaultLayout $ do
         setTitle title
         $(widgetFile "post")
@@ -41,34 +43,35 @@ postPostR postId = do
   msg <- getMessages
   let tokenKey = defaultCsrfParamName
   token <- getRequest >>= createCsrfToken
-  ((res, postWidget), _) <- runFormPost $ postForm Nothing
+  cateMap <- getCategoryRel
+  ((res, postWidget), _) <- runFormPost $ postForm Nothing cateMap
   case res of
-   FormSuccess form -> do
-     let post = postFormToPost form
-     result <- updatePost post
-     case result of
-       Right pid -> do
-         _ <- case unPostTags post of
-                Just tags -> do
-                  _ <- updatePostTagList pid tags
-                  return ()
-                Nothing -> return ()
-         addMessage successKey "更新完了しました"
-       Left err -> do
-         $(logError) $ "postPostR: update failure err/postId="
-           <> (toText err) <> "/" <> (toText $ unPostFormId form)
-         addMessage errorKey "更新失敗しました"
-     redirect $ PostR postId
-   _ -> do
-     result <- getPostFromId postId
-     case result of
-       Left err -> do
-         $(logError) $ "getPostR: record not found." <> toText err
-         notFound
-       Right post ->
-         defaultLayout $ do
-           setTitle title
-           $(widgetFile "post")
+    FormSuccess form -> do
+      let post = postFormToPost form
+      result <- updatePost post
+      case result of
+        Right pid -> do
+          _ <- case unPostTags post of
+                 Just tags -> do
+                   _ <- updatePostTagList pid tags
+                   return ()
+                 Nothing -> return ()
+          addMessage successKey "更新完了しました"
+        Left err -> do
+          $(logError) $ "postPostR: update failure err/postId="
+            <> (toText err) <> "/" <> (toText $ unPostFormId form)
+          addMessage errorKey "更新失敗しました"
+      redirect $ PostR postId
+    _ -> do
+      result <- getPostFromId postId
+      case result of
+        Left err -> do
+          $(logError) $ "getPostR: record not found." <> toText err
+          notFound
+        Right post ->
+          defaultLayout $ do
+            setTitle title
+            $(widgetFile "post")
 
 title :: Html
 title = "投稿"

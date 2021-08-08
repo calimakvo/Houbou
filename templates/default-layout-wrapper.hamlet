@@ -88,3 +88,8 @@
         ^{pageBody pc}
 
         <script src="/static/js/lightbox.min.js">
+
+        <!-- footer -->
+        <footer .footer>
+            <div .container>
+                <p .text-muted .text-center>Calimakvonia BBQer All Rights Reserved.

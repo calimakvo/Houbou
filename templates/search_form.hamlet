@@ -1,0 +1,13 @@
+#{extra}
+<div .row>
+     <div .col-lg-6>
+         <div .form-group>
+             <label>カテゴリ
+             ^{fvInput pageView}
+             ^{fvInput stypeView}
+             ^{fvInput cateSelView}
+     <div .col-lg-6>
+
+<div .row>
+    <div .form-group .text-center>
+        <button .btn .btn-primary>検索

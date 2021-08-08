@@ -36,10 +36,10 @@ getPublishPostedList offset limit = runDB $ do
   return $ Right (map toPost list)
 
 getPostList ::
-  PubViewStatus ->
-  PageInfo ->
-  Handler (HResult (Int, [PostList]))
-getPostList blogViewStatus pageInfo = runDB $ do
+  SearchParam
+  -> PageInfo
+  -> Handler (HResult (Int, [PostList]))
+getPostList sparam pageInfo = runDB $ do
   let pageNum = unPageNum pageInfo
       pagePerLine = fromIntegral $ unPagePerLine pageInfo
       blogWhere status tbl = case status of
@@ -47,8 +47,14 @@ getPostList blogViewStatus pageInfo = runDB $ do
                     E.||. tbl E.^. TblPostStatus E.==. E.val (fromEnum UnPublished))
         ViewPublished -> tbl E.^. TblPostStatus E.==. E.val (fromEnum Published)
         ViewDraft -> tbl E.^. TblPostStatus E.==. E.val (fromEnum Draft)
+      categoyWhere cateId tbl =
+        case cateId of
+          Just cid -> (tbl E.^. TblPostCateId E.==. E.val (Just $ toTblCategoryKey $ intToInt64 cid))
+          Nothing -> (E.val True)
       countQuery = E.from $ \tblPost -> do
-        E.where_ $ do blogWhere blogViewStatus tblPost
+        E.where_ $ do
+          blogWhere (unSearchParamSearchType sparam) tblPost
+          E.&&. (categoyWhere (unSearchParamCateId sparam) tblPost)
         return $ E.count(tblPost E.^. TblPostId)
       baseQuery = E.from $ \tblPost -> do
         let comCntTotal = E.subSelect $ E.from $ \tblComment -> do
@@ -67,7 +73,9 @@ getPostList blogViewStatus pageInfo = runDB $ do
               E.where_ $ tblPostAcc E.^. TblPostAccPostId E.==. tblPost E.^. TblPostId
               E.groupBy $ tblPostAcc E.^. TblPostAccPostId
               return $ E.sum_(tblPostAcc E.^. TblPostAccViewCnt)) :: E.SqlExpr (E.Value (Maybe Int))
-        E.where_ $ do blogWhere blogViewStatus tblPost
+        E.where_ $ do
+          blogWhere (unSearchParamSearchType sparam) tblPost
+          E.&&. (categoyWhere (unSearchParamCateId sparam) tblPost)
         E.orderBy [ E.desc $ tblPost E.^. TblPostPublishDate, E.desc $ tblPost E.^. TblPostCreateTime ]
         return
           (
@@ -140,7 +148,8 @@ getPostFromId (PostId postId) = runDB $ do
             , unPostOgPageType = tblPostOgPageType p
             , unPostCreateTime = tblPostCreateTime p
             , unPostUpdateTime = tblPostUpdateTime p
-            , unPostAuthorId = unSqlBackendKey (unTblUserKey (tblPostAuthorId p))
+            , unPostAuthorId = fromTblUserKey $ tblPostAuthorId p
+            , unPostCateId = fromTblCategoryKey <$> tblPostCateId p
             , unPostVersion = tblPostVersion p
             }
         _ -> return $ Left ErrRecNotFound
@@ -197,6 +206,7 @@ registerPost usrKey post = runDB $ do
       , tblPostCreateTime = now
       , tblPostUpdateTime = now
       , tblPostAuthorId = usrKey
+      , tblPostCateId = toTblCategoryKey <$> unPostCateId post
       , tblPostVersion = 1
       }
   return $ Right postId
@@ -244,6 +254,7 @@ updatePost post = runDB $ do
             , TblPostOgSiteName =. unPostOgSiteName post
             , TblPostOgDesc =. unPostOgDesc post
             , TblPostOgPageType =. unPostOgPageType post
+            , TblPostCateId =. toTblCategoryKey <$> unPostCateId post
             , TblPostUpdateTime =. now
             , TblPostVersion +=. 1
             ]

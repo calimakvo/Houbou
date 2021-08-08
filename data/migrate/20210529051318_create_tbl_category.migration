@@ -1,0 +1,16 @@
+CREATE TABLE tbl_category (
+	id bigint NOT NULL DEFAULT nextval('tbl_category_id_seq'::regclass),
+	name character varying(384) NOT NULL,
+	parent_id bigint,
+	disp_order smallint NOT NULL,
+	create_time timestamp with time zone NOT NULL,
+	update_time timestamp with time zone NOT NULL DEFAULT now(),
+	version bigint NOT NULL,
+	CONSTRAINT tbl_category_pkey PRIMARY KEY (id)
+);
+
+ALTER TABLE tbl_category ADD CONSTRAINT rel_tbl_category_table_category FOREIGN KEY (parent_id)
+REFERENCES tbl_category (id) MATCH FULL ON DELETE RESTRICT ON UPDATE CASCADE;
+
+COMMENT ON COLUMN tbl_category.name IS 'カテゴリ名';
+COMMENT ON COLUMN tbl_category.parent_id IS '親カテゴリID';

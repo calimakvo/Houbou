@@ -118,10 +118,10 @@ update msg model =
                         , expect = Http.expectJson HResp respDecoder
                         }
                     )
-                Err error ->
-                    ( { model | err = Just (D.errorToString error)
+                Err err ->
+                    ( { model | err = Just (D.errorToString err)
                       }
-                    , Debug.todo (D.errorToString error))
+                    , Debug.todo (D.errorToString err))
 
         HResp (Ok res) ->
             if res.result == 1 then

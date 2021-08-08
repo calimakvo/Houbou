@@ -8,14 +8,18 @@ module Forms.FreeForm (
   ) where
 
 import Import
-import DataTypes.HoubouType
+import qualified Data.Map.Ordered as O
 import Forms.FormValid
 import Forms.CommonForm
-import UrlParam.Page
+import DataTypes.HoubouType
 import Libs.Common
 
-freeForm :: Maybe Free -> Html -> MForm Handler (FormResult FreeForm, Widget)
-freeForm free extra = do
+freeForm ::
+  Maybe Free
+  -> O.OMap Int [Cate]
+  -> Html
+  -> MForm Handler (FormResult FreeForm, Widget)
+freeForm free cate extra = do
   master <- getYesod
   t <- liftIO getTm
   let titleLen = appFreeTitleMaxLength $ appSettings master
@@ -42,11 +46,13 @@ freeForm free extra = do
       urlpath = if freeId > 0 then join (unFreeUrlpath <$> free) else (Just $ toUrlPath t)
   inpTyp <- liftHandler getInputTypeTouple
   stsTyp <- liftHandler getStatusSelectTouple
+  cateLst <- liftHandler $ cateMapToTouble cate
   (freeIdRes, freeIdView) <- mreq hiddenField freeIdFieldSet (Just freeId)
   (titleRes, titleView) <- mreq (freeTitleField titleLen) freeTitleFieldSet (unFreeTitle <$> free)
   (contRes, contView) <- mreq (freeContField contLen) freeContFieldSet (Textarea <$> (unFreeContent <$> free))
   (cssRes, cssView) <- mopt (freeCssField cssLen) freeCssFieldSet ((Textarea <$>) <$> (unFreeCss <$> free))
-  (slugRes, slugView) <- mopt (slugFreeField slugLen freeIdRes urlpath) slugFreeFieldSet (unFreeSlug <$> free)  
+  (slugRes, slugView) <- mopt (slugFreeField slugLen freeIdRes urlpath) slugFreeFieldSet (unFreeSlug <$> free)
+  (cateRes, cateView) <- mopt (selectFieldList cateLst) cateSelectFieldSet $ (int64ToInt <$>) `fmap` (unFreeCateId <$> free)
   (inpTypRes, _) <- mreq (radioFieldList inpTyp) inputTypeRadioFieldSet (unFreeInputType <$> free)
   (stsTypRes, stsTypView) <- mreq (radioFieldList stsTyp) statusTypeRadioFieldSet (unFreeStatus <$> free)
   (tagRes, tagView) <- mopt (tagField tagLen tagOneLen) tagFieldSet (unFreeTags <$> free)
@@ -66,6 +72,7 @@ freeForm free extra = do
                   <*> titleRes
                   <*> (unTextarea <$> contRes)
                   <*> slugRes
+                  <*> cateRes
                   <*> initFormUrlpath slugRes urlpath
                   <*> (liftM unTextarea <$> cssRes)
                   <*> inpTypRes

@@ -4,13 +4,13 @@
 /hb-admin HbAdminRootR GET
 /hb-admin/auth   AuthR   Auth   getAuth
 /hb-admin/dashboard DashboardR GET
-/hb-admin/postlist/#Int/#Page PostListR GET POST
+/hb-admin/postlist PostListR GET POST
 /hb-admin/post/#PostId PostR GET POST
-/hb-admin/postdel/#Int PostDelR POST
+/hb-admin/postdel PostDelR POST
 /hb-admin/newpost PostNewR GET POST
-/hb-admin/freelist/#Int/#Page FreeListR GET POST
+/hb-admin/freelist FreeListR GET POST
 /hb-admin/free/#FreeId FreeR GET POST
-/hb-admin/freedel/#Int FreeDelR POST
+/hb-admin/freedel FreeDelR POST
 /hb-admin/freenew FreeNewR GET POST
 /hb-admin/freeframelist/#Page FreeFrameListR GET POST
 /hb-admin/freeframe/#FreeFrameId FreeFrameR GET POST
@@ -38,6 +38,13 @@
 /hb-admin/media/#MediaId MediaMdfR GET POST
 /hb-admin/postprev PostPrevR GET POST
 /hb-admin/freeprev FreePrevR GET POST
+/hb-admin/category CategoryR GET
+/hb-admin/catelist CateListR GET POST
+/hb-admin/catenew/#CateId CateNewR GET POST
+/hb-admin/catemod/#CateId CateModR GET POST
+/hb-admin/catedel/#CateId CateDelR GET POST
+/hb-admin/postlistsearch PostListSearchR POST
+/hb-admin/freelistsearch FreeListSearchR POST
 
 / HomeR GET
 /rss RssR GET
@@ -46,6 +53,7 @@
 /f/#FreeId PutFreeR GET
 /free-entry/#YPath/#MPath/#DPath/#Slug PutFreeSlugR GET
 /taglist/#TagId PutTagListR GET
+/catelist/#CateId PutCateListR GET
 /ads.txt AdstxtR GET
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET

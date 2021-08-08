@@ -6781,13 +6781,13 @@ var $author$project$Preview$update = F2(
 								url: $author$project$Preview$switchUrl(param.prevtype)
 							}));
 				} else {
-					var error = result.a;
+					var err = result.a;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{
 								err: $elm$core$Maybe$Just(
-									$elm$json$Json$Decode$errorToString(error))
+									$elm$json$Json$Decode$errorToString(err))
 							}),
 						_Debug_todo(
 							'Preview',
@@ -6795,7 +6795,7 @@ var $author$project$Preview$update = F2(
 								start: {line: 124, column: 23},
 								end: {line: 124, column: 33}
 							})(
-							$elm$json$Json$Decode$errorToString(error)));
+							$elm$json$Json$Decode$errorToString(err)));
 				}
 			case 'RandVal':
 				var num = msg.a;

@@ -16,6 +16,7 @@ module Libs.CommonWidget (
   , urlFreeSlug
   , urlTagList
   , retJson
+  , retJsonCate
   , retPlain
   , genError
   , toPostSlugUrlText
@@ -23,13 +24,19 @@ module Libs.CommonWidget (
   , toFreeSlugUrlText
   , toFreeUrlText
   , toTagListUrlText
+  , toCateListUrlText
   , canonicalPath
   , chkForm
+  , toListParam
+  , getListSearchParam
+  , listParam
+  , catesToTextBreadCrumbs
   ) where
 
 import Import
 import qualified Prelude as P
 import DataTypes.HoubouType
+import Libs.Common
 import UrlParam.YPath
 import UrlParam.MPath
 import UrlParam.DPath
@@ -37,6 +44,7 @@ import UrlParam.Slug
 import UrlParam.PostId
 import UrlParam.FreeId
 import UrlParam.TagId
+import UrlParam.CateId
 import qualified Data.Text as T
 
 createCsrfToken ::
@@ -82,6 +90,18 @@ retJson result version msg = selectRep $ do
         , "msg" .= msg
         , "version" .= version
         ])
+
+retJsonCate ::
+  Int
+  -> Maybe Text
+  -> [Cate]
+  -> Handler TypedContent
+retJsonCate result msg cates = selectRep $ do
+  provideRep $ return $ repJson $
+    object [ "result" .= result
+           , "ary" .= cates
+           , "err" .= msg
+           ]
 
 genError ::
   Text
@@ -150,6 +170,18 @@ toTagListUrlText tagId =
   let (urls, _) = renderRoute $ urlTagList tagId
   in T.intercalate "/" urls
 
+urlCateList ::
+  Int64
+  -> Route App
+urlCateList = PutCateListR . CateId . Just
+
+toCateListUrlText ::
+  Int64
+  -> T.Text
+toCateListUrlText cateId =
+  let (urls, _) = renderRoute $ urlCateList cateId
+  in T.intercalate "/" urls
+
 toPostSlugUrlText ::
   Maybe T.Text
   -> Maybe T.Text
@@ -199,3 +231,56 @@ chkForm = \form ->
   case form of
     Just prev -> return prev
     Nothing -> error "Preview: param error"
+
+toListParam ::
+  SearchParam
+  -> [(Text, Text)]
+toListParam p =
+  [  ("page", toText(unSearchParamPage p))
+   , ("type", toText(fromEnum $ unSearchParamSearchType p))
+  ] ++ case unSearchParamCateId p of
+         Just cid -> [ ("cate", toText cid) ]
+         _ -> []
+
+getListSearchParam ::
+  Int
+  -> Handler SearchParam
+getListSearchParam ppl = do
+  p <- lookupGetParam "page"
+  s <- lookupGetParam "type"
+  c <- lookupGetParam "cate"
+  let page = maybe 1 id (textToInt <$> p)
+      stype = maybe ViewAll toEnum (textToInt <$> s)
+  return SearchParam
+           { unSearchParamPage = page
+           , unSearchParamSearchType = stype
+           , unSearchParamCateId = textToInt <$> c
+           , unSearchParamPagePerLine = ppl
+           }
+
+listParam ::
+  SearchParam
+  -> Int
+  -> Text
+listParam sparam page =
+  "?" <> intercalate "&" p
+  where
+    p =
+      [ "type=" <> toText(fromEnum $ unSearchParamSearchType sparam)
+      , "page=" <> toText(page)
+      ] ++ case unSearchParamCateId sparam of
+             Just cid -> [ "cate=" <> toText cid ]
+             _ -> []
+
+catesToTextBreadCrumbs ::
+  Text
+  -> [Cate]
+  -> Text
+catesToTextBreadCrumbs baseUrl cs =
+  let linkUrls = map (\c -> toCateListUrlText (unCateId c)) cs
+      cates = map (\c -> unCateName c) cs
+      linkSet = zip linkUrls cates
+  in intercalate " &gt; "
+        $ map (\(clink, cname) ->
+                 "<a href=\"" <> baseUrl <> clink <> "\">" <> cname <> "</a>"
+              ) linkSet

@@ -7,6 +7,7 @@
 module Handler.PostNew where
 
 import Import
+import qualified Data.Map.Ordered as O
 import DataTypes.HoubouType
 import Libs.Common
 import Libs.CommonWidget
@@ -15,6 +16,7 @@ import Forms.PostForm
 import Libs.Mapper
 import Service.Post
 import Service.Tags
+import Service.Category
 
 getPostNewR ::
   Handler Html
@@ -22,7 +24,8 @@ getPostNewR = do
   msg <- getMessages
   let tokenKey = defaultCsrfParamName
   token <- getRequest >>= createCsrfToken
-  (postWidget, _) <- generateFormPost $ (postForm Nothing)
+  cateMap <- getCategoryRel
+  (postWidget, _) <- generateFormPost $ postForm Nothing cateMap
   defaultLayout $ do
     setTitle "投稿"
     $(widgetFile "postnew")
@@ -34,7 +37,7 @@ postPostNewR = do
   let tokenKey = defaultCsrfParamName
   token <- getRequest >>= createCsrfToken
   (usrKey, _) <- requireAuthPair
-  ((res, postWidget), _) <- runFormPost $ postForm Nothing
+  ((res, postWidget), _) <- runFormPost $ postForm Nothing O.empty
   case res of
     FormSuccess form -> do
       let post = postFormToPost form

@@ -146,6 +146,8 @@ data AppSettings = AppSettings
     , appMetaOgDescMaxLength :: Int
     -- ^ Set meta OG PageType length
     , appMetaOgPageTypeMaxLength :: Int
+    -- ^ Set Category name length
+    , appCateNameMaxLength :: Int
     }
 
 instance FromJSON AppSettings where
@@ -217,6 +219,7 @@ instance FromJSON AppSettings where
         appMetaOgSiteNameMaxLength  <- o .: "og-sitename-length"
         appMetaOgDescMaxLength      <- o .: "og-desc-length"
         appMetaOgPageTypeMaxLength  <- o .: "og-pagetype-length"
+        appCateNameMaxLength        <- o .: "category-name-length"
 
         let appRedisConf =
               RedisConfig {

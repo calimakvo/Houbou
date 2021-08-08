@@ -7,32 +7,33 @@
 module Handler.PostList where
 
 import Import
-import UrlParam.Page
 import UrlParam.PostId
 import DataTypes.HoubouType
-import Forms.ListSelectForm
+import Forms.ListSearchSelectForm
+import Forms.SearchForm
+import Libs.Mapper
 import Libs.Common
 import Libs.CommonWidget
 import Service.Common
 import Service.Post
+import Service.Category
 
 getPostListR ::
-  Int
-  -> Page
-  -> Handler Html
-getPostListR pageType page = do
+  Handler Html
+getPostListR = do
   master <- getYesod
   msg <- getMessages
   token <- getRequest >>= createCsrfTokenTag
+  cateMap <- getCategoryRel
   let defLine = defSelectorValue master
   pagePerLine <- textToInt <$> (fromMaybe defLine) <$> (lookupSession pageparline)
-  let pageNum = fromMaybe 1 (_unPage page)
+  sparam <- getListSearchParam pagePerLine
+  let pageNum = unSearchParamPage sparam
       pageInfo = PageInfo pageNum pagePerLine
-      (postViewStatus, headerStr) = searchType pageType
-      truePageType = fromEnum postViewStatus
-  setSession listTypeKey (pack(show(truePageType)))
-  (pagePerLineWidget, _) <- generateFormPost $ listSelectForm (Just pagePerLine)
-  (totalCnt, posts) <- eitherToTouple =<< getPostList postViewStatus pageInfo
+      (_, headerStr) = searchType (fromEnum $ unSearchParamSearchType sparam)
+  (postPerLineWidget, _) <- generateFormPost $ listSearchSelectForm (Just sparam)
+  (searchWidget, _) <- generateFormPost $ searchForm (Just sparam) cateMap
+  (totalCnt, posts) <- eitherToTouple =<< getPostList sparam pageInfo
   defaultLayout $ do
     let pager = paginator pageNum totalCnt pagePerLine
         postList = zip ([0..] :: [Int]) posts
@@ -40,16 +41,18 @@ getPostListR pageType page = do
     $(widgetFile "postlist")
 
 postPostListR ::
-  Int
-  -> Page
-  -> Handler Html
-postPostListR pageType _ = do
-  ((res, _), _) <- runFormPost $ listSelectForm Nothing
+  Handler Html
+postPostListR = do
+  master <- getYesod
+  let defLine = defSelectorValue master
+  pagePerLine <- textToInt <$> (fromMaybe defLine) <$> (lookupSession freepageperline)
+  ((res, _), _) <- runFormPost $ listSearchSelectForm Nothing
   case res of
-    FormSuccess (ListSelectForm pagePerLine) -> do
-      setSession pageparline $ pack(show(pagePerLine))
-    _ -> return ()
-  redirect $ PostListR pageType (Page Nothing)
+    FormSuccess form -> do
+      setSession pageparline $ pack(show(unListSearchSelectFormPagePerLine form))
+      let sparam = listSearchSelectFormToSearchParam form pagePerLine
+      redirect (PostListR, toListParam sparam)
+    _ -> redirect PostListR
 
 title :: Html
 title = "投稿一覧"
