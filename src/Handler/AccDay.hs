@@ -25,8 +25,8 @@ getAccDayR = do
                   Just "日付を指定してください" :: Maybe Text
                else
                   Nothing
-  accList <- case empmsg of
-           Just _ -> return []
+  (totalCnt, accList) <- case empmsg of
+           Just _ -> return (0, [])
            Nothing -> getAccessDay from to
   defaultLayout $ do
     setTitle title

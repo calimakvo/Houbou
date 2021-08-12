@@ -18,6 +18,9 @@
                             <div .panel .panel-default>
                                 <div .panel-heading>
                                     ページアクセス
+                                    $if totalCnt > 0
+                                        &emsp;(合計アクセス数: #{totalCnt})
+                                    $else
                                 <div .panel-body>
                                     <div .row>
                                         <div .col-lg-6>

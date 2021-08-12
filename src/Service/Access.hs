@@ -16,7 +16,7 @@ import Service.Common
 getAccessDay ::
   Maybe UTCTime
   -> Maybe UTCTime
-  -> Handler [AccDay]
+  -> Handler (Int, [AccDay])
 getAccessDay from to = do
   let fwhr = if isJust from == True then [" acc_time >= ? "] else []
       twhr = if isJust to == True then [" acc_time <= ? "] else []
@@ -31,7 +31,9 @@ getAccessDay from to = do
             "WHERE " <> whr <> "GROUP BY free_id,title,slug,urlpath)) AS T5 ORDER BY T5.cnt DESC" :: Text
   runDB $ do
     values <- getBlogAccDayRaw sql from to
-    return $ (map toAccDay values)
+    let xs = map toAccDay values
+        totalCnt = foldr (\ac -> (+unAccDayAccCnt ac)) 0 xs
+    return $ (totalCnt, xs)
 
 getTatolTopAccess ::
   Handler (HResult [BlogAccess])
