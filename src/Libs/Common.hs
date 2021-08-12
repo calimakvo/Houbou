@@ -105,7 +105,7 @@ int64ToInt ::
 int64ToInt = fromIntegral
 
 getTm :: IO UTCTime
-getTm = getZonedTime >>= return . zonedTimeToUTC
+getTm = getCurrentTime
 
 dateTimeFullFormat ::
   UTCTime
