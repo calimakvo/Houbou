@@ -13,6 +13,7 @@ module Libs.Common (
   , dateFormatNonSlash
   , dateFormatNonSlashTime
   , dateZonedTimeFullFormat
+  , dateTextToUTimeSlush
   , timeZone
   , localTime
   , dummyUtc
@@ -55,6 +56,7 @@ module Libs.Common (
   , parmErrToMsg
   , rmLfCr
   , errPrevText
+  , dayToNomi
 ) where
 
 import Data.Int
@@ -134,6 +136,11 @@ dateZonedTimeFullFormat ::
   UTCTime
   -> Text
 dateZonedTimeFullFormat t = pack (formatTime defaultTimeLocale "%Y/%m/%d %T" (zoneTime t))
+
+dateTextToUTimeSlush ::
+  Text
+  -> Maybe UTCTime
+dateTextToUTimeSlush dateStr = parseTimeM True defaultTimeLocale "%Y/%m/%d" (unpack dateStr)
 
 zoneTime ::
   UTCTime
@@ -414,3 +421,8 @@ rmLfCr txt =  replace "\r" "" (replace "\n" "" txt)
 
 errPrevText :: (Text, Text) -> Text
 errPrevText (pe, srcpos) = "テンプレートが不正です、err=" <> pe <> " エラー内容:　" <> srcpos
+
+dayToNomi ::
+  NominalDiffTime
+  -> NominalDiffTime
+dayToNomi day = 60 * 60 * 24 * day * 60

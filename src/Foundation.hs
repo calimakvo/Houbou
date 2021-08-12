@@ -199,6 +199,7 @@ instance Yesod App where
     isAuthorized (CateDelR _) _ = isAuthenticated
     isAuthorized PostListSearchR _ = isAuthenticated
     isAuthorized FreeListSearchR _ = isAuthenticated
+    isAuthorized AccDayR _ = isAuthenticated
 
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
@@ -391,7 +392,7 @@ loginLayout widget = do
     pc <- widgetToPageContent $ do
         addStylesheet $ StaticR css_bootstrap_min_css
         $(widgetFile "generic-default-layout")
-    withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
+    withUrlRenderer $(hamletFile "templates/generic-layout-wrapper.hamlet")
 
 loginForm :: Yesod App => Route App -> WidgetFor App ()
 loginForm loginRoute = do

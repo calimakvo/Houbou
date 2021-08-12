@@ -45,6 +45,7 @@
 /hb-admin/catedel/#CateId CateDelR GET POST
 /hb-admin/postlistsearch PostListSearchR POST
 /hb-admin/freelistsearch FreeListSearchR POST
+/hb-admin/accday AccDayR GET
 
 / HomeR GET
 /rss RssR GET

@@ -23,11 +23,9 @@
                             <div .panel .panel-default>
                                 <div .panel-heading>
                                     <a href=@{FreeNewR} .btn .btn-default>新規作成
-
-                                <div class="panel-body">
+                                <div .panel-body>
                                     <form action=@{FreeListSearchR} method="post" #freesearchform>
                                         ^{searchWidget}
-
                                 <!-- /.panel-heading -->
                                 $if null frees
                                     <div .panel-body>
@@ -43,7 +41,6 @@
                                                             Show
                                                             ^{freePerLineWidget}
                                                             entries
-    
                                             $if unIsPager pager
                                                 <div .col-sm-6 .text-right>
                                                     <div>
@@ -61,7 +58,6 @@
                                                            $if unNextPage pager > 0
                                                                <li .paginate_button>
                                                                    <a href=@{FreeListR}#{listParam sparam (unPrevPage pager)}>&gt;&gt;
-    
                                         <div .table-responsive>
                                             <table .table .table-striped .table-bordered .table-hover>
                                                 <thead>
@@ -92,14 +88,12 @@
                                                                     $# ^{token}の直下に配置すると、hiddenの値が正確に出力されない
                                                                     <input type="hidden" name="free_id" value="#{freeId}">
                                                                     <input type="hidden" name="version" value="#{version}">
-
-
                                                             <td .hb_vcenter>
                                                                 $if isJust slug && isJust urlpath
                                                                     <a href=@{urlFreeSlug slug urlpath} target="_blank" .fa .fa-external-link aria-hidden="true" #freeUrlId#{i}>
                                                                         #{title}
                                                                     <small>
-                                                                        <a href=@{PutFreeR $ FreeId (Just freeId)}>(@{PutFreeR $ FreeId (Just freeId)})
+                                                                        <a href=@{PutFreeR $ FreeId (Just freeId)} target="_blank">(@{PutFreeR $ FreeId (Just freeId)})
                                                                 $else
                                                                     <a href=@{PutFreeR $ FreeId (Just freeId)} target="_blank" .fa .fa-external-link aria-hidden="true" #freeUrlId#{i}>#{title}
                                                                 <div #freeCpyId#{i}>
@@ -113,12 +107,10 @@
                                                                     <input type="hidden" name="free_id" value="#{freeId}">
                                                                     <input type="hidden" name="version" value="#{version}">
                                                                     <input type="submit" name="submit" value="削除" .btn .btn-danger .mt-3 .hbDelBtn>
-    
                                         <!-- /.table-responsive -->
                                         <div .row>
                                             <div .col-sm-5>
                                                 <div>Showing #{unCurPage pager} to #{length frees} of #{totalCnt} entries
-
                                             $if unIsPager pager
                                                 <div .col-sm-7 .text-right>
                                                     <div>
@@ -136,7 +128,6 @@
                                                             $if unNextPage pager > 0
                                                                 <li .paginate_button>
                                                                     <a href=@{FreeListR}#{listParam sparam (unPrevPage pager)}>&gt;&gt;
-    
                                     <!-- /.panel-body -->
                             <!-- /.panel -->
                         <!-- /.col-lg-12 -->

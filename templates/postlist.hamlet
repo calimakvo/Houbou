@@ -23,11 +23,9 @@
                             <div .panel .panel-default>
                                 <div .panel-heading>
                                     <a href=@{PostNewR} .btn .btn-default>新規作成
-
                                 <div class="panel-body">
                                     <form action=@{PostListSearchR} method="post" #postsearchform>
                                         ^{searchWidget}
-
                                 <!-- /.panel-heading -->
                                 $if null posts
                                     <div .panel-body>
@@ -43,7 +41,6 @@
                                                             Show
                                                             ^{postPerLineWidget}
                                                             entries
-    
                                             $if unIsPager pager
                                                 <div .col-sm-6 .text-right>
                                                     <div>
@@ -61,7 +58,6 @@
                                                            $if unNextPage pager > 0
                                                                <li .paginate_button>
                                                                    <a href=@{PostListR}#{listParam sparam (unPrevPage pager)}>&gt;&gt;
-    
                                         <div .table-responsive>
                                             <table .table .table-striped .table-bordered .table-hover>
                                                 <thead>
@@ -98,7 +94,7 @@
                                                                     <a href=@{urlPostSlug slug urlpath} target="_blank" .fa .fa-external-link aria-hidden="true" #postUrlId#{i}>
                                                                         #{title}
                                                                     <small>
-                                                                        <a href=@{PutR $ PostId (Just postId)}>(@{PutR $ PostId (Just postId)})
+                                                                        <a href=@{PutR $ PostId (Just postId)} target="_blank">(@{PutR $ PostId (Just postId)})
                                                                 $else
                                                                     <a href=@{PutR $ PostId (Just postId)} target="_blank" .fa .fa-external-link aria-hidden="true" #postUrlId#{i}>#{title}
                                                                 <div #postCpyId#{i}>
@@ -115,12 +111,10 @@
                                                                     <input type="hidden" name="post_id" value="#{postId}">
                                                                     <input type="hidden" name="version" value="#{version}">
                                                                     <input type="submit" name="submit" value="削除" .btn .btn-danger .mt-3 .hbDelBtn>
-    
                                         <!-- /.table-responsive -->
                                         <div .row>
                                             <div .col-sm-5>
                                                 <div>Showing #{unCurPage pager} to #{length posts} of #{totalCnt} entries
-
                                             $if unIsPager pager
                                                 <div .col-sm-7 .text-right>
                                                     <div>
@@ -138,7 +132,6 @@
                                                             $if unNextPage pager > 0
                                                                 <li .paginate_button>
                                                                     <a href=@{PostListR}#{listParam sparam (unPrevPage pager)}>&gt;&gt;
-    
                                     <!-- /.panel-body -->
                             <!-- /.panel -->
                         <!-- /.col-lg-12 -->

@@ -1,0 +1,86 @@
+            <div #page-wrapper>
+                <div .container-fluid>
+                    <div .row>
+                        <div .col-lg-12>
+                            <h1 .page-header>
+                                日別ページアクセス
+                        <!-- /.col-lg-12 -->
+                    $forall (status, m) <- msg
+                        $if status == successKey
+                            <div .alert .alert-success role="alert">
+                                #{m}
+                        $else
+                            <div .alert .alert-danger role="alert">
+                                #{m}
+                    <!-- /.row -->
+                    <div .row>
+                        <div .col-lg-12>
+                            <div .panel .panel-default>
+                                <div .panel-heading>
+                                    ページアクセス
+                                <div .panel-body>
+                                    <div .row>
+                                        <div .col-lg-6>
+                                            <form .form-inline method="get" #accdayform>
+                                                <div .form-inline>
+                                                    <label>期間:
+                                                        <input type="text" #date_from name="date_from" value="#{f}" .form-control placeholder="開始">
+
+                                                        ～
+                                                        <input type="text" #date_to name="date_to" value="#{t}" .form-control placeholder="終了">
+                                                        <button>摘要
+                                        <!-- /.col-sm-6 -->
+                                    <!-- /.row -->
+                                    <div .table-responsive>
+                                        $maybe em <- empmsg
+                                            <div .alert .alert-warning .text-center role="alert">
+                                                #{em}
+                                        $if null accList
+                                            $if isNothing empmsg
+                                                <div .alert .alert-warning .text-center role="alert">
+                                                    データなし
+                                            $else
+                                        $else
+                                            <table .table .table-striped .table-bordered .table-hover>
+                                                <thead>
+                                                    <tr>
+                                                        <th>アクセス数
+                                                        <th>ページ種別
+                                                        <th>フリーページタイトル
+                                                <tbody>
+                                                    $forall AccDay n tid pageType cnt title slug urlpath <- accList
+                                                        <tr class="#{rowClass n}">
+                                                            <td .hb-td-size-90 .hb_hcenter .hb_vcenter>#{cnt}
+                                                            <td .hb-td-size-90 .hb_hcenter .hb_vcenter>
+                                                                $case pageType
+                                                                    $of TypePost
+                                                                        記事
+                                                                    $of TypeFree
+                                                                        フリー
+                                                                    $of _
+                                                                        未定義
+                                                            <td .hb_vcenter>
+                                                                $case pageType
+                                                                    $of TypePost
+                                                                        $if isJust slug && isJust urlpath
+                                                                            <a href=@{urlPostSlug slug urlpath} target="_blank" .fa .fa-external-link aria-hidden="true" #accDayUrlId#{n}>#{title}
+                                                                            <small>
+                                                                                <a href=@{PutR $ PostId (Just tid)} target="_blank">(@{PutR $ PostId (Just tid)})
+                                                                        $else
+                                                                            <a href=@{PutR $ PostId (Just tid)} target="_blank" .fa .fa-external-link aria-hidden="true" #accDayUrlId#{n}>#{title}
+                                                                    $of TypeFree
+                                                                        $if isJust slug && isJust urlpath
+                                                                            <a href=@{urlFreeSlug slug urlpath} target="_blank" .fa .fa-external-link aria-hidden="true" #accDayUrlId#{n}>#{title}
+                                                                            <small>
+                                                                                <a href=@{PutFreeR $ FreeId (Just tid)} target="_blank">(@{PutFreeR $ FreeId (Just tid)})
+                                                                        $else
+                                                                            <a href=@{PutFreeR $ FreeId (Just tid)} target="_blank" .fa .fa-external-link aria-hidden="true" #accDayUrlId#{n}>#{title}
+                                                                    $of _
+2                                <!-- /.panel-body -->
+                                <!-- /.panel-heading -->
+                            <!-- /.panel .panel-default -->
+                        <!-- /.col-lg-12 -->
+                    <!-- /.row -->
+                <!-- /.container-fluid -->
+            <!-- /#page-wrapper -->
+            <script>$('#date_from').datepicker(); $('#date_to').datepicker();

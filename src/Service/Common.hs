@@ -65,6 +65,7 @@ module Service.Common (
   , toHbAtom
   , toCate
   , toCateTbl
+  , toAccDay
   ) where
 
 import Import
@@ -74,8 +75,7 @@ import DataTypes.HoubouType
 import Libs.Template
 
 toFreeList ::
-  (
-    E.Value Int
+  ( E.Value Int
   , E.Value (Key TblFree)
   , E.Value Text
   , E.Value (Maybe Text)
@@ -107,8 +107,7 @@ toFreeList (
              utime version (countMaybe viewCnt)
 
 toFrameList ::
-  (
-    E.Value Int
+  ( E.Value Int
   , E.Value (Key TblFrame)
   , E.Value (Maybe Text)
   , E.Value Bool
@@ -140,8 +139,7 @@ toFreeFrameList ::
   , E.Value Int
   ) -> FreeFrameList
 toFreeFrameList
-  (
-    E.Value rownum
+  ( E.Value rownum
   , E.Value key
   , E.Value fname
   , E.Value vflag
@@ -153,8 +151,7 @@ toFreeFrameList
   = FreeFrameList rownum (fromTblFreeFrameKey key) fname vflag pubDate ctime utime version
 
 toPostList ::
-  (
-    E.Value Int
+  ( E.Value Int
   , E.Value (Key TblPost)
   , E.Value Int
   , E.Value Text
@@ -168,8 +165,7 @@ toPostList ::
   , E.Value (Maybe Int)
   ) -> PostList
 toPostList
-  (
-    E.Value rownum
+  ( E.Value rownum
   , E.Value key
   , E.Value status
   , E.Value title
@@ -190,13 +186,11 @@ toPostList
       (countMaybe postCnt)
 
 toBlogAccessList ::
-  (
-    E.Value UTCTime
+  ( E.Value UTCTime
   , E.Value Int
   ) -> BlogAccess
 toBlogAccessList
-  (
-    E.Value (UTCTime day _)
+  ( E.Value (UTCTime day _)
   , E.Value cnt
   ) = BlogAccess day cnt
 
@@ -400,8 +394,7 @@ toMedia (Entity key entity) = Media {
   }
 
 toUserList ::
-  (
-    E.Value Int
+  ( E.Value Int
   , E.Value (Key TblUser)
   , E.Value Text
   , E.Value Text
@@ -413,8 +406,7 @@ toUserList ::
   , E.Value Text
   ) -> UserList
 toUserList
-  (
-    E.Value rownum
+  ( E.Value rownum
   , E.Value key
   , E.Value name
   , E.Value email
@@ -508,8 +500,7 @@ toMstUserPerm (Entity key entity) = MstUserPerm {
   }
 
 toMediaList ::
-  (
-    E.Value Int
+  ( E.Value Int
   , E.Value (Key TblMedia)
   , E.Value (Maybe Text)
   , E.Value Text
@@ -523,8 +514,7 @@ toMediaList ::
   , E.Value Int
   ) -> MediaList
 toMediaList
-  (
-    E.Value rownum
+  ( E.Value rownum
   , E.Value key
   , E.Value title
   , E.Value dir
@@ -552,15 +542,14 @@ toMediaList
   }
 
 toTagCont ::
-  (
-    E.Single Int64
+  ( E.Single Int64
   , E.Single Int
   , E.Single Int64
   , E.Single Text
   , E.Single UTCTime)
   -> PfContent TagInfo
 toTagCont (
-  E.Single tid
+    E.Single tid
   , E.Single rectype
   , E.Single tagid
   , E.Single title
@@ -571,15 +560,14 @@ toTagCont (
         _ -> error "unreachable code"
 
 toCateCont ::
-  (
-    E.Single Int64
+  ( E.Single Int64
   , E.Single Int
   , E.Single Int64
   , E.Single Text
   , E.Single UTCTime)
   -> PfContent CateInfo
 toCateCont (
-  E.Single pfid
+    E.Single pfid
   , E.Single rectype
   , E.Single cateid
   , E.Single title
@@ -590,8 +578,7 @@ toCateCont (
         _ -> error "unreachable code"
 
 toBlogAccess ::
-  (
-    E.Single Day
+  ( E.Single Day
   , E.Single Int)
   -> BlogAccess
 toBlogAccess (
@@ -601,6 +588,34 @@ toBlogAccess (
         unBlogAccessDate = date
       , unBlogAccessTatolCnt = tcnt
       }
+
+toAccDay ::
+  ( E.Single Int
+  , E.Single Int64
+  , E.Single Int
+  , E.Single Int
+  , E.Single Text
+  , E.Single (Maybe Text)
+  , E.Single (Maybe Text)
+  ) -> AccDay
+toAccDay (
+    E.Single rownum
+  , E.Single tid
+  , E.Single pagetype
+  , E.Single cnt
+  , E.Single title
+  , E.Single slug
+  , E.Single urlpath
+  )
+  = AccDay {
+        unAccDayRowNum = rownum
+      , unAccDayTid = tid
+      , unAccDayPageType = toEnum pagetype
+      , unAccDayAccCnt = cnt
+      , unAccDayPageTitle = title
+      , unAccDayPageSlug = slug
+      , unAccDayUrlPath = urlpath
+      } 
 
 toHbUrl ::
   ( E.Single Int64

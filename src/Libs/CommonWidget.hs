@@ -29,6 +29,7 @@ module Libs.CommonWidget (
   , chkForm
   , toListParam
   , getListSearchParam
+  , getDateFromToParam
   , listParam
   , catesToTextBreadCrumbs
   ) where
@@ -258,6 +259,15 @@ getListSearchParam ppl = do
            , unSearchParamPagePerLine = ppl
            }
 
+getDateFromToParam ::
+  Handler (Text, Text)
+getDateFromToParam = do
+  f <- lookupGetParam "date_from"
+  t <- lookupGetParam "date_to"
+  let from = maybe "" id f
+      to = maybe "" id t
+  return (from, to)
+  
 listParam ::
   SearchParam
   -> Int

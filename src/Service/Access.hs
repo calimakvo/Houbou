@@ -5,12 +5,33 @@
 module Service.Access (
     getTatolTopAccess
   , getTatolAccess
+  , getAccessDay
   ) where
 
 import Import
-import DataTypes.HoubouType
 import qualified Database.Esqueleto as E
+import DataTypes.HoubouType
 import Service.Common
+
+getAccessDay ::
+  Maybe UTCTime
+  -> Maybe UTCTime
+  -> Handler [AccDay]
+getAccessDay from to = do
+  let fwhr = if isJust from == True then [" acc_time >= ? "] else []
+      twhr = if isJust to == True then [" acc_time <= ? "] else []
+      whr = intercalate " AND " $ fwhr ++ twhr
+      sql = "SELECT row_number() OVER (), tid, rectype, cnt, title, slug, urlpath FROM " <>
+            "((SELECT post_id as tid, 1 as rectype, sum(view_cnt) AS cnt, title, slug, urlpath " <>
+            "FROM tbl_post_acc AS T1 LEFT JOIN tbl_post AS T2 ON T1.post_id=T2.id " <>
+            "WHERE " <> whr <> "GROUP BY post_id, title, slug, urlpath) " <>
+            "UNION " <>
+            "(SELECT free_id as tid, 2 as rectype, sum(view_cnt) AS cnt, title, slug, urlpath " <>
+            "FROM tbl_free_acc AS T3 LEFT JOIN tbl_free AS T4 ON T3.free_id=T4.id " <>
+            "WHERE " <> whr <> "GROUP BY free_id,title,slug,urlpath)) AS T5 ORDER BY T5.cnt DESC" :: Text
+  runDB $ do
+    values <- getBlogAccDayRaw sql from to
+    return $ (map toAccDay values)
 
 getTatolTopAccess ::
   Handler (HResult [BlogAccess])
@@ -41,3 +62,23 @@ getBlogContRaw :: MonadIO m =>
   ( E.Single Day
   , E.Single Int )]
 getBlogContRaw sql = E.rawSql sql []
+
+getBlogAccDayRaw :: MonadIO m =>
+  Text
+  -> Maybe UTCTime
+  -> Maybe UTCTime
+  -> ReaderT E.SqlBackend m [
+  ( E.Single Int
+  , E.Single Int64
+  , E.Single Int
+  , E.Single Int
+  , E.Single Text
+  , E.Single (Maybe Text)
+  , E.Single (Maybe Text)
+  )]
+getBlogAccDayRaw sql from to =
+  E.rawSql sql $ (w from) ++ (w to) ++ (w from) ++ (w to)
+    where
+      w t = case t of
+              (Just tm) -> [PersistUTCTime tm]
+              Nothing -> []

@@ -100,5 +100,13 @@
                             <a href=@{CategoryR}>
                                 <i .fa .fa-list>
                                 カテゴリ管理
+                        <li>
+                            <a href="#">
+                                <i .fa .fa-file-text .fa-fw>
+                                アクセス解析
+                                <span .fa .arrow>
+                            <ul .nav .nav-second-level>
+                                <li>
+                                    <a href=@{AccDayR}>日別ページアクセス
         <!-- Page Contents -->
         ^{widget}

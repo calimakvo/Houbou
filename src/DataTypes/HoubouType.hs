@@ -52,6 +52,7 @@ module DataTypes.HoubouType (
   , CateSetting(..)
   , ListSearchSelectForm(..)
   , CateUseStatus(..)
+  , AccDay(..)
 ) where
 
 import Data.Default
@@ -615,3 +616,12 @@ tblCateUseStatus = [
   , (CateHasChild, 3)
   ]
 
+data AccDay = AccDay
+  { unAccDayRowNum :: Int
+  , unAccDayTid :: Int64
+  , unAccDayPageType :: PageType
+  , unAccDayAccCnt :: Int
+  , unAccDayPageTitle :: Text
+  , unAccDayPageSlug :: Maybe Text
+  , unAccDayUrlPath :: Maybe Text
+  } deriving(Show, Eq)
