@@ -7,7 +7,6 @@
 module Handler.FreeNew where
 
 import Import
-import qualified Data.Map.Ordered as O
 import DataTypes.HoubouType
 import Libs.Common
 import Libs.CommonWidget
@@ -37,7 +36,8 @@ postFreeNewR = do
   let tokenKey = defaultCsrfParamName
   token <- getRequest >>= createCsrfToken
   (usrKey, _) <- requireAuthPair
-  ((res, freeWidget), _) <- runFormPost $ freeForm Nothing O.empty
+  cateMap <- getCategoryRel
+  ((res, freeWidget), _) <- runFormPost $ freeForm Nothing cateMap
   case res of
     FormSuccess form -> do
       let free = freeFormToFree form

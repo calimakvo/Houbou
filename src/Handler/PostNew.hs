@@ -7,7 +7,6 @@
 module Handler.PostNew where
 
 import Import
-import qualified Data.Map.Ordered as O
 import DataTypes.HoubouType
 import Libs.Common
 import Libs.CommonWidget
@@ -37,7 +36,8 @@ postPostNewR = do
   let tokenKey = defaultCsrfParamName
   token <- getRequest >>= createCsrfToken
   (usrKey, _) <- requireAuthPair
-  ((res, postWidget), _) <- runFormPost $ postForm Nothing O.empty
+  cateMap <- getCategoryRel
+  ((res, postWidget), _) <- runFormPost $ postForm Nothing cateMap
   case res of
     FormSuccess form -> do
       let post = postFormToPost form

@@ -15,6 +15,7 @@ module Libs.CommonWidget (
   , urlFree
   , urlFreeSlug
   , urlTagList
+  , urlCateList
   , retJson
   , retJsonCate
   , retPlain

@@ -458,14 +458,14 @@ data CateInfo = CateInfo
   , unCateInfoPosted :: UTCTime
   } deriving (Eq, Show)
 
-data PageType = TypePost | TypeFree | TypeTag deriving(Show, Eq)
+data PageType = TypePost | TypeFree | TypeTag | TypeCate deriving(Show, Eq)
 
 instance Enum PageType where
     fromEnum = fromJust . flip lookup tblPageType
     toEnum = fromJust . flip lookup (P.map swap tblPageType)
 
 tblPageType :: [(PageType, Int)]
-tblPageType = [(TypePost, 1), (TypeFree, 2), (TypeTag, 3)]
+tblPageType = [(TypePost, 1), (TypeFree, 2), (TypeTag, 3), (TypeCate, 4)]
 
 data BlogAccess = BlogAccess {
     unBlogAccessDate :: Day

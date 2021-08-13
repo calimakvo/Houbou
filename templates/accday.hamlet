@@ -22,16 +22,17 @@
                                         &emsp;(合計アクセス数: #{totalCnt})
                                     $else
                                 <div .panel-body>
-                                    <div .row>
-                                        <div .col-lg-6>
-                                            <form .form-inline method="get" #accdayform>
-                                                <div .form-inline>
-                                                    <label>期間:
-                                                        <input type="text" #date_from name="date_from" value="#{f}" .form-control placeholder="開始">
-
-                                                        ～
-                                                        <input type="text" #date_to name="date_to" value="#{t}" .form-control placeholder="終了">
-                                                        <button>摘要
+                                    <p>
+                                        <form .form-inline method="get" #accdayform>
+                                           <div .form-group>
+                                               <label>期間:
+                                               <input type="text" #date_from name="date_from" value="#{f}" .form-control placeholder="開始" readonly="readonly">
+                                           <div .form-group>
+                                               <span>～
+                                           <div .form-group>
+                                               <input type="text" #date_to name="date_to" value="#{t}" .form-control placeholder="終了" readonly="readonly">
+                                           <div .form-group>
+                                               <button .form-control>摘要
                                         <!-- /.col-sm-6 -->
                                     <!-- /.row -->
                                     <div .table-responsive>

@@ -28,7 +28,15 @@ getSiteurlList offset = runDB $ do
             "  UNION " <>
             "    (SELECT tag_id FROM tbl_free_tag AS T6 LEFT JOIN tbl_free AS T7 ON " <>
             "     T6.free_id=T7.id WHERE T7.status=2 AND T7.publish_date IS NOT NULL)" <>
-            "  ) AS T2 LEFT JOIN tbl_mst_tag AS T3 ON T2.tag_id=T3.id ORDER BY T3.update_time)" <>
+            "  ) AS T2 LEFT JOIN tbl_mst_tag AS T3 ON T2.tag_id=T3.id ORDER BY T3.update_time) " <>
+            "UNION ALL " <>
+            "  (SELECT cate_id, NULL, NULL, T9.update_time, ? AS pagetype FROM ( " <>
+            "    (SELECT cate_id FROM tbl_post WHERE cate_id IS NOT NULL AND status=2 AND " <>
+            "publish_date IS NOT NULL GROUP BY cate_id) " <>
+            "  UNION " <>
+            "    (SELECT cate_id FROM tbl_free WHERE cate_id IS NOT NULL AND status=2 AND " <>
+            "publish_date IS NOT NULL GROUP BY cate_id) " <>
+            "  ) AS T8 LEFT JOIN tbl_category AS T9 ON T8.cate_id=T9.id ORDER BY T9.update_time)" <>
             ") AS T1 ORDER BY T1.update_time DESC OFFSET ? LIMIT 50000" :: Text
   values <- getSiteUrlRaw offset sql
   return $ Right (map toHbUrl values)
@@ -47,5 +55,6 @@ getSiteUrlRaw offset sql = E.rawSql sql
     E.PersistInt64 $ fromIntegral (fromEnum TypePost)
   , E.PersistInt64 $ fromIntegral (fromEnum TypeFree)
   , E.PersistInt64 $ fromIntegral (fromEnum TypeTag)
+  , E.PersistInt64 $ fromIntegral (fromEnum TypeCate)
   , E.PersistInt64 $ fromIntegral offset
   ]

@@ -18,7 +18,8 @@ getSitemapR = do
                     case unHbUrlType url of
                       TypePost -> siteMapUrl url urlPostSlug urlPost
                       TypeFree -> siteMapUrl url urlFreeSlug urlFree
-                      TypeTag -> siteMapTag url) urls
+                      TypeTag -> siteMapTag url
+                      TypeCate -> siteMapCate url) urls
     Left _ -> error "Error create sitemap."
 
 siteMapUrl ::
@@ -26,17 +27,17 @@ siteMapUrl ::
   -> SlugUrl
   -> IdUrl
   -> SitemapUrl (Route App)
-siteMapUrl url slugRoute idRoute =
+siteMapUrl (HbUrl tid _ slug urlpath upt) slugRoute idRoute =
   case slug of
     Just _ -> SitemapUrl (slugRoute slug urlpath) (Just upt) Nothing Nothing
     Nothing -> SitemapUrl (idRoute tid) (Just upt) Nothing Nothing
-  where tid = unHbUrlId url
-        slug = unHbUrlSlug url
-        urlpath = unHbUrlUrlpath url
-        upt = unHbUrlUpdateTime url
 
 siteMapTag ::
-  HbUrl -> SitemapUrl (Route App)
-siteMapTag url = SitemapUrl (urlTagList tid) (Just upt) Nothing Nothing
-  where tid = unHbUrlId url
-        upt = unHbUrlUpdateTime url
+  HbUrl
+  -> SitemapUrl (Route App)
+siteMapTag (HbUrl tid _ _ _ upt) = SitemapUrl (urlTagList tid) (Just upt) Nothing Nothing
+
+siteMapCate ::
+  HbUrl
+  -> SitemapUrl (Route App)
+siteMapCate (HbUrl tid _ _ _ upt) = SitemapUrl (urlCateList tid) (Just upt) Nothing Nothing

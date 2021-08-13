@@ -633,6 +633,7 @@ toHbUrl (
         TypePost -> initPostHbUrl tid slug urlpath uptm
         TypeFree -> initFreeHbUrl tid slug urlpath uptm
         TypeTag -> initTagHbUrl tid slug urlpath uptm
+        TypeCate -> initCateHbUrl tid slug urlpath uptm
 
 initPostHbUrl ::
   Int64
@@ -671,6 +672,20 @@ initTagHbUrl ::
 initTagHbUrl tid _ _ uptm = HbUrl {
     unHbUrlId = tid
   , unHbUrlType = TypeTag
+  , unHbUrlSlug = Nothing
+  , unHbUrlUrlpath = Nothing
+  , unHbUrlUpdateTime = uptm
+  }
+
+initCateHbUrl ::
+  Int64
+  -> Maybe Text
+  -> Maybe Text
+  -> UTCTime
+  -> HbUrl
+initCateHbUrl tid _ _ uptm = HbUrl {
+    unHbUrlId = tid
+  , unHbUrlType = TypeCate
   , unHbUrlSlug = Nothing
   , unHbUrlUrlpath = Nothing
   , unHbUrlUpdateTime = uptm
