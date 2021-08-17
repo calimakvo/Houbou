@@ -72,39 +72,50 @@ import Import
 import Database.Persist.Sql (BackendKey(..))
 import qualified Database.Esqueleto as E
 import DataTypes.HoubouType
+import Libs.Common
 import Libs.Template
 
 toFreeList ::
-  ( E.Value Int
-  , E.Value (Key TblFree)
-  , E.Value Text
-  , E.Value (Maybe Text)
-  , E.Value (Maybe Text)
-  , E.Value (Maybe UTCTime)
-  , E.Value Int
-  , E.Value (Key TblUser)
-  , E.Value UTCTime
-  , E.Value UTCTime
-  , E.Value Int
-  , E.Value (Maybe Int)
+  (
+    ( E.Value Int
+    , E.Value (Key TblFree)
+    , E.Value Int
+    , E.Value Text
+    , E.Value (Maybe (Key TblCategory))
+    , E.Value (Maybe Text)
+    , E.Value (Maybe Text)
+    , E.Value (Key TblUser)
+    , E.Value (Maybe UTCTime) 
+    , E.Value UTCTime
+    , E.Value UTCTime
+    , E.Value Int
+    , E.Value (Maybe Int)
+    )
+  , [Entity TblCategory]
   ) -> FreeList
-toFreeList (
-    E.Value rownum
-  , E.Value key
-  , E.Value title
-  , E.Value slug
-  , E.Value urlpath
-  , E.Value pubDate
-  , E.Value status
-  , E.Value author
-  , E.Value ctime
-  , E.Value utime
-  , E.Value version
-  , E.Value viewCnt) 
-  = FreeList rownum (fromTblFreeKey key) title
+toFreeList
+  (
+    ( E.Value rownum
+    , E.Value key
+    , E.Value status
+    , E.Value title
+    , E.Value catekey
+    , E.Value slug
+    , E.Value urlpath
+    , E.Value author
+    , E.Value pubDate
+    , E.Value ctime
+    , E.Value utime
+    , E.Value version
+    , E.Value freeCnt
+    )
+  , cateList
+  )
+  = FreeList rownum (fromTblFreeKey key) status
+             title (fromTblCategoryKey <$> catekey) (listPosInit (toCate <$> cateList))
              slug urlpath pubDate
-             status (fromTblUserKey author) ctime
-             utime version (countMaybe viewCnt)
+             (fromTblUserKey author) ctime utime
+             version (countMaybe freeCnt)
 
 toFrameList ::
   ( E.Value Int
@@ -151,38 +162,45 @@ toFreeFrameList
   = FreeFrameList rownum (fromTblFreeFrameKey key) fname vflag pubDate ctime utime version
 
 toPostList ::
-  ( E.Value Int
-  , E.Value (Key TblPost)
-  , E.Value Int
-  , E.Value Text
-  , E.Value (Maybe Text)
-  , E.Value (Maybe Text)
-  , E.Value (Maybe UTCTime)
-  , E.Value UTCTime
-  , E.Value Int
-  , E.Value (Maybe Int)
-  , E.Value (Maybe Int)
-  , E.Value (Maybe Int)
+  (
+    ( E.Value Int
+    , E.Value (Key TblPost)
+    , E.Value Int
+    , E.Value Text
+    , E.Value (Maybe (Key TblCategory))
+    , E.Value (Maybe Text)
+    , E.Value (Maybe Text)
+    , E.Value (Maybe UTCTime)
+    , E.Value UTCTime
+    , E.Value Int
+    , E.Value (Maybe Int)
+    , E.Value (Maybe Int)
+    , E.Value (Maybe Int)
+    )
+  , [Entity TblCategory]
   ) -> PostList
 toPostList
-  ( E.Value rownum
-  , E.Value key
-  , E.Value status
-  , E.Value title
-  , E.Value slug
-  , E.Value utlpath
-  , E.Value pubdate
-  , E.Value ctime
-  , E.Value version
-  , E.Value comCntTotal
-  , E.Value comCntAprov
-  , E.Value postCnt
+  (
+    ( E.Value rownum
+    , E.Value key
+    , E.Value status
+    , E.Value title
+    , E.Value catekey
+    , E.Value slug
+    , E.Value utlpath
+    , E.Value pubdate
+    , E.Value ctime
+    , E.Value version
+    , E.Value comCntTotal
+    , E.Value comCntAprov
+    , E.Value postCnt
+    )
+  , cateList
   )
   = PostList rownum (fromTblPostKey key) status
-      title slug utlpath
-      pubdate ctime version
-      (countMaybe comCntTotal)
-      (countMaybe comCntAprov)
+      title (fromTblCategoryKey <$> catekey) (listPosInit (toCate <$> cateList)) slug
+      utlpath pubdate ctime
+      version (countMaybe comCntTotal) (countMaybe comCntAprov)
       (countMaybe postCnt)
 
 toBlogAccessList ::
@@ -723,6 +741,7 @@ toCate (Entity key entity) = Cate {
   , unCateName = tblCategoryName entity
   , unCateList = []
   , unCateVer = tblCategoryVersion entity
+  , unCatePos = fromEnum PosMid
   }
 
 toCateTbl ::
@@ -735,6 +754,7 @@ toCateTbl i c =
        , unCatePid = tblCategoryParentId c
        , unCateList = []
        , unCateVer = tblCategoryVersion c
+       , unCatePos = fromEnum PosMid
        }
 
 initPostHbAtom ::

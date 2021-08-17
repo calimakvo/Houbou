@@ -28,7 +28,7 @@ getPostPrevR = do
   case chk of
     Nothing -> do
       post <- createPrevPost defPost
-      res <- createPrevBlogContents setId post
+      res <- createPrevBlogContents setId (PostInf post [])
       case res of
         Right html -> return html
         Left _ -> return "プレビューできません"

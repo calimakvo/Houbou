@@ -53,9 +53,13 @@ module DataTypes.HoubouType (
   , ListSearchSelectForm(..)
   , CateUseStatus(..)
   , AccDay(..)
+  , ListPos(..)
+  , PostInf(..)
+  , FreeInf(..)
 ) where
 
 import Data.Default
+import qualified Data.Scientific as S
 import Import.NoFoundation
 import qualified Prelude as P
 import Data.Maybe
@@ -174,6 +178,8 @@ data PostList = PostList {
   , unPostListId :: Int64
   , unPostListStatus ::  Int
   , unPostListTitle :: Text
+  , unPostListCateId :: Maybe Int64
+  , unPostListCateList :: [Cate]
   , unPostListSlug :: Maybe Text
   , unPostListUrlpath :: Maybe Text
   , unPostListPublishDate :: Maybe UTCTime
@@ -187,11 +193,13 @@ data PostList = PostList {
 data FreeList = FreeList {
     unFreeListRowNum :: Int
   , unFreeListId :: Int64
+  , unFreeListStatus :: Int
   , unFreeListTitle :: Text
+  , unFreeListCateId :: Maybe Int64
+  , unFreeListCateList :: [Cate]
   , unFreeListSlug :: Maybe Text
   , unFreeListUrlpath :: Maybe Text
   , unFreeListPublishDate :: Maybe UTCTime
-  , unFreeListStatus :: Int
   , unFreeListAuthorId :: Int64
   , unFreeListCreateTime :: UTCTime
   , unFreeListUpdateTime :: UTCTime
@@ -555,8 +563,9 @@ data Cate =
   , unCatePid :: Maybe Int
   , unCateName :: Text
   , unCateVer :: Int
+  , unCatePos :: Int
   , unCateList :: [ Cate ]
-  } deriving(Show)
+  } deriving(Show, Eq)
 
 instance FromJSON Cate where
   parseJSON = A.withObject "Cate" $
@@ -564,16 +573,18 @@ instance FromJSON Cate where
                  <*> val .: "unCatePid"
                  <*> val .: "unCateName"
                  <*> val .: "unCateVer"
+                 <*> val .: "unCatePos"
                  <*> val .: "unCateList"
 
 instance ToJSON Cate where
-    toJSON (Cate i p n v xs) =
+    toJSON (Cate i p n v s xs) =
       A.object
       [ "type" .= ("Cate" :: Text)
       , "unCateId" .= i
       , "unCatePid" .= p
       , "unCateName" .= n
       , "unCateVer" .= v
+      , "unCatePos" .= s
       , "unCateList" .= xs
       ]
 
@@ -616,6 +627,35 @@ tblCateUseStatus = [
   , (CateHasChild, 3)
   ]
 
+data ListPos =
+    PosHead
+  | PosMid
+  | PosLast
+  deriving(Show, Eq)
+
+instance Enum ListPos where
+    fromEnum = fromJust . flip lookup tblListPos
+    toEnum = fromJust . flip lookup (P.map swap tblListPos)
+
+tblListPos :: [(ListPos, Int)]
+tblListPos = [
+    (PosHead, 1)
+  , (PosMid, 2)
+  , (PosLast, 3)
+  ]
+
+instance FromJSON ListPos where
+  parseJSON (Number n) = 
+    case maybeInt of
+      Just i -> return (toEnum i)
+      Nothing -> error "Out of bounds ListPos"
+    where
+      maybeInt = S.toBoundedInteger n
+  parseJSON _ = mzero
+
+instance ToJSON ListPos where
+    toJSON p = Number $ S.scientific (fromIntegral $ fromEnum p) 0
+
 data AccDay = AccDay
   { unAccDayRowNum :: Int
   , unAccDayTid :: Int64
@@ -625,3 +665,13 @@ data AccDay = AccDay
   , unAccDayPageSlug :: Maybe Text
   , unAccDayUrlPath :: Maybe Text
   } deriving(Show, Eq)
+
+data PostInf = PostInf
+  { unPostInfPost :: Post
+  , unPostInfCate :: [Cate]
+  } deriving(Show)
+
+data FreeInf = FreeInf
+  { unFreeInfFree :: Free
+  , unFreeInfCate :: [Cate]
+  } deriving(Show)

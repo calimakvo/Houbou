@@ -35,6 +35,7 @@ type alias Cate
       , unCatePid : Maybe Int
       , unCateName : String
       , unCateVer : Int
+      , unCatePos : Int
       , unCateList : List NestCate
       }
 
@@ -74,6 +75,7 @@ encodeCate c = E.object [ ("type", E.string "Cate")
                         , ("unCatePid", (E.maybe E.int c.unCatePid))
                         , ("unCateName", E.string c.unCateName)
                         , ("unCateVer", E.int c.unCateVer)
+                        , ("unCatePos", E.int c.unCatePos)
                         , ("unCateList", encodeCateList (nctoc c.unCateList))
                         ]
 
@@ -108,6 +110,11 @@ swapCate sw c cs =
                             c1::c0::xs
                         else
                             c0::(swapCate sw c (c1::xs))
+        c0::[] ->
+            if c.unCatePid /= c0.unCatePid then
+                ({ c0 | unCateList = ctonc (swapCate sw c (nctoc c0.unCateList))}::[])
+            else
+                [c0]
         _ -> cs
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -344,11 +351,12 @@ respDecoder =
 
 inCateDecoder : D.Decoder Cate
 inCateDecoder =
-    D.map5 Cate
+    D.map6 Cate
         (D.field "unCateId" D.int)
         (D.field "unCatePid" (D.nullable D.int))
         (D.field "unCateName" D.string)
         (D.field "unCateVer" D.int)
+        (D.field "unCatePos" D.int)
         (D.field "unCateList" (D.list inNestCateDecoder))
 
 inNestCateDecoder : D.Decoder NestCate

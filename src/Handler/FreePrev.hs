@@ -32,7 +32,7 @@ getFreePrevR = do
       case chkcss of
         Nothing -> do
           free <- createPrevFree defFree
-          res <- createPrevBlogFreeContents setId free
+          res <- createPrevBlogFreeContents setId (FreeInf free [])
           case res of
             Right html -> return html
             Left _ -> return "プレビューできません"

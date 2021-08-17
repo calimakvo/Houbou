@@ -57,6 +57,7 @@ module Libs.Common (
   , rmLfCr
   , errPrevText
   , dayToNomi
+  , listPosInit
 ) where
 
 import Data.Int
@@ -65,6 +66,7 @@ import Data.Time
 import Data.Maybe
 import Text.Regex
 import Text.Printf
+import qualified Data.List as L
 import Foreign.C.Types (CTime(..))
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
 import System.Posix.Types (EpochTime)
@@ -426,3 +428,20 @@ dayToNomi ::
   NominalDiffTime
   -> NominalDiffTime
 dayToNomi day = 60 * 60 * 24 * day * 60
+
+listPosInit ::
+  [Cate]
+  -> [Cate]
+listPosInit [] = []
+listPosInit xs =
+  let manIndex = L.length xs
+      idx = [1..manIndex]
+      t = L.zip idx xs
+  in Prelude.map (\(i, c) ->
+            if i == 1 then
+              c { unCatePos = fromEnum PosHead }
+            else if i == manIndex then
+              c { unCatePos = fromEnum PosLast }
+            else
+              c
+         ) t

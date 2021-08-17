@@ -15,6 +15,8 @@ module Service.Category
   , getCategoryFromCateId
   , getCateContents
   , getCategoryBreadCrumbs
+  , recursiveCate
+  , recursiveCateEntity
   ) where
 
 import Import
@@ -296,3 +298,17 @@ getCateContRaw cateid sql = E.rawSql sql
     , E.PersistInt64 $ fromIntegral (fromEnum Published)
     , E.PersistInt64 cateid
     ]
+
+recursiveCateEntity :: MonadIO m =>
+  Entity TblCategory
+  -> ReaderT SqlBackend m [ Entity TblCategory ]
+recursiveCateEntity (Entity _ cate) = do
+  case tblCategoryParentId cate of
+    Just pid -> do
+      res <- getEntity $ toTblCategoryKey (intToInt64 pid)
+      case res of
+        Just c -> do
+          cs <- recursiveCateEntity c
+          return $ cs ++ [c]
+        Nothing -> return []
+    Nothing -> return []

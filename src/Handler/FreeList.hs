@@ -8,6 +8,7 @@ module Handler.FreeList where
 
 import Import
 import UrlParam.FreeId
+import UrlParam.CateId
 import DataTypes.HoubouType
 import Forms.ListSearchSelectForm
 import Forms.SearchForm

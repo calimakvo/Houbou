@@ -13,6 +13,7 @@ module Service.Html (
 
 import Import
 import qualified Prelude as P
+import qualified Data.Scientific as S
 import Data.Maybe
 import qualified Data.Text as T
 import Text.Regex.PCRE
@@ -45,6 +46,7 @@ createBlogContents setId postId = do
   setting <- getBlogSetting setId
   frame <- eitherToMaybe =<< readPostFrame
   posts <- eitherToList =<< (getPublishPostFromId setting postId)
+  postinf <- initPostInfo posts
   posted <- eitherToList =<< getPublishPostedList 0 100
   tags <- eitherToList =<< getTagList 100
   case (frame /= Nothing && null posts == False) of
@@ -52,45 +54,48 @@ createBlogContents setId postId = do
       $(logInfo) $ "createBlogContents': frame or posts undefined"
       return $ Left ErrPostUnitialize
     True -> do
-      html <- renderBlogContents setting (fromJust frame) posts posted tags
+      html <- renderBlogContents setting (fromJust frame) postinf posted tags
       return html
 
 renderBlogContents ::
   BlogSetting
   -> Frame
-  -> [Post]
+  -> [PostInf]
   -> [Post]
   -> [MstTag]
   -> Handler (HResult Html)
-renderBlogContents setting frame posts posted tags = do
-  let pageMeta = toFramePageMeta setting (posts P.!! 0) frame
+renderBlogContents setting frame postinf posted tags = do
+  let pageMeta = toFramePageMeta setting (postinf P.!! 0) frame
       postedElms = toPostToPosted posted
       renderInfo' = initContextPost pageMeta postedElms tags
-  ppost <- liftIO $ preRenderPost posts renderInfo'
+  pinf <- liftIO $ preRenderPost postinf renderInfo'
   template <- liftIO $ createTemplate Nothing (unpack $ internalComp frame)
   case template of
     Left err -> do
       $(logInfo) $ "renderBlogContents': template parse error = " <> toText(err)
       return $ Left ErrTemplateUnInit
     Right template' -> do
-      let renderInfo = setContextPost renderInfo' pageMeta ppost
+      let renderInfo = setContextPost renderInfo' pageMeta pinf
       return $ Right $ preEscapedToHtml (render template' renderInfo)
 
 preRenderPost ::
-  [Post]
+  [PostInf]
   -> HashMap G.VarName Value
-  -> IO [Post]
-preRenderPost posts renderInfo = do
-  ps <- mapM (\p -> do
+  -> IO [PostInf]
+preRenderPost postinf renderInfo = do
+  pinf <- mapM (\(PostInf p c) -> do
       template <- createTemplate Nothing (unpack $ getPutHtml p)
       case template of
         Left err -> do
           error $ "preRenderPost: post template parse error post_id=" ++
                     show(unPostId p) ++ " err=" ++ show(err)
         Right template' -> do
-          return $ p { unPostHtml = Just (render template' renderInfo) }) posts
-  return ps
-                 
+          return $ PostInf
+            { unPostInfPost = p { unPostHtml = Just (render template' renderInfo) }
+            , unPostInfCate = c
+            }) postinf
+  return pinf
+
 createBlogFreeContents ::
   Text
   -> FreeId
@@ -99,41 +104,42 @@ createBlogFreeContents setId freeId = do
   setting <- getBlogSetting setId
   frame <- eitherToMaybe =<< readFreeFrame
   frees <- eitherToList =<< (getPublishFreeFromId setting freeId)
+  freeinf <- initFreeInfo frees
   posted <- eitherToList =<< getPublishPostedList 0 100
   tags <- eitherToList =<< getTagList 100
   case (frame /= Nothing && null frees == False) of
     False -> return $ Left ErrFreeUnitialize
     True -> do
-      html <- renderBlogFreeContents setting (fromJust frame) frees posted tags
+      html <- renderBlogFreeContents setting (fromJust frame) freeinf posted tags
       return html
 
 renderBlogFreeContents ::
   BlogSetting
   -> FreeFrame
-  -> [Free]
+  -> [FreeInf]
   -> [Post]
   -> [MstTag]
   -> Handler (HResult Html)
-renderBlogFreeContents setting frame frees posted tags = do
-  let pageMeta = toFreeFramePageMeta setting (frees P.!! 0) frame
+renderBlogFreeContents setting frame freeinf posted tags = do
+  let pageMeta = toFreeFramePageMeta setting (freeinf P.!! 0) frame
       postedElms = toPostToPosted posted
       renderInfo' = initContextFree pageMeta postedElms tags
-  pfree <- liftIO $ preRenderFree frees renderInfo'
+  finf <- liftIO $ preRenderFree freeinf renderInfo'
   template <- liftIO $ createTemplate Nothing (unpack $ internalFreeComp frame)
   case template of
     Left err -> do
       $(logInfo) $ "createBlogFreeContents': template parse error = " <> toText(err)
       return $ Left ErrTemplateUnInit
     Right template' -> do
-      let renderInfo = setContextFree renderInfo' pageMeta pfree
+      let renderInfo = setContextFree renderInfo' pageMeta finf
       return $ Right $ preEscapedToHtml (render template' renderInfo)
 
 preRenderFree ::
-  [Free]
+  [FreeInf]
   -> HashMap G.VarName Value
-  -> IO [Free]
-preRenderFree frees renderInfo = do
-  ps <- mapM (\f -> do
+  -> IO [FreeInf]
+preRenderFree freeinf renderInfo = do
+  finf <- mapM (\(FreeInf f c) -> do
       template <- createTemplate Nothing (unpack $ getPutHtmlFree f)
       case template of
         Left err -> do
@@ -141,8 +147,11 @@ preRenderFree frees renderInfo = do
                     ++ show(unFreeId f)
                     ++ " err=" ++ show(err)
         Right template' -> do
-          return $ f { unFreeHtml = Just (render template' renderInfo) }) frees
-  return ps
+          return $ FreeInf
+            { unFreeInfFree = f { unFreeHtml = Just (render template' renderInfo) }
+            , unFreeInfCate = c
+            }) freeinf
+  return finf
 
 createTagListContents ::
   Text
@@ -380,19 +389,28 @@ initCateContList cateconts =
                ] )
 
 initFreeList ::
-  [Free]
+  [FreeInf]
   -> [Value]
-initFreeList frees =
-  map (\free ->
+initFreeList freeinf =
+  map (\(FreeInf free cate) ->
           let d = toGrecoFullLocal $ fromJust (utcToJpTime <$> unFreePublishDate free)
           in
             Object (
               GE.fromList [
                     ("hb_body", String $ getPutHtmlFree free)
+                  , ( "hb_category_list", Array $ fromList (
+                        map (\c ->
+                               Object ( GE.fromList
+                                        [ ("hb_cate_id", Number $ S.scientific (fromIntegral $ unCateId c) 0)
+                                        , ("hb_cate_name", String $ unCateName c)
+                                        , ("hb_cate_pos", Number $ S.scientific (fromIntegral $ unCatePos c) 0)
+                                        ])) cate
+                        )
+                    )
                   , ("hb_css",  String $ (maybeToText $ unFreeCss free))
                   , ("hb_publish_date",  zoneTimeToValue d)
                   ]
-              )) frees
+              )) freeinf
 
 initContextPost ::
   PageMeta
@@ -424,21 +442,21 @@ initContextPost pageMeta postedElms tags = H.fromList [
 setContextPost ::
   H.HashMap Text Value
   -> PageMeta
-  -> [Post]
+  -> [PostInf]
   -> H.HashMap Text Value
-setContextPost renderInfo pageMeta posts =
-  let (k1, v1) = ("hb_share_url", initPostShareUrl posts pageMeta)
-      (k2, v2) = ("hb_posts", Array $ fromList (initPostList posts))
+setContextPost renderInfo pageMeta postinf =
+  let (k1, v1) = ("hb_share_url", initPostShareUrl postinf pageMeta)
+      (k2, v2) = ("hb_posts", Array $ fromList (initPostList postinf))
   in H.insert k2 v2 (H.insert k1 v1 renderInfo)
 
 setContextFree ::
   H.HashMap Text Value
   -> PageMeta
-  -> [Free]
+  -> [FreeInf]
   -> H.HashMap Text Value
-setContextFree renderInfo pageMeta frees =
-  let (k1, v1) = ("hb_share_url", initFreeShareUrl frees pageMeta)
-      (k2, v2) = ("hb_posts", Array $ fromList (initFreeList frees))
+setContextFree renderInfo pageMeta freeinf =
+  let (k1, v1) = ("hb_share_url", initFreeShareUrl freeinf pageMeta)
+      (k2, v2) = ("hb_posts", Array $ fromList (initFreeList freeinf))
   in H.insert k2 v2 (H.insert k1 v1 renderInfo)
 
 initTagListShareUrl ::
@@ -459,30 +477,30 @@ initCateListShareUrl cate pageMeta =
       baseUrl = unPageMetaBlogUrl pageMeta
   in String $ rmSlash (baseUrl <> "/" <> toCateListUrlText cateId)
   
-initPostShareUrl :: [Post] -> PageMeta -> Value
-initPostShareUrl posts pageMeta =
-  let post = headElm posts
+initPostShareUrl :: [PostInf] -> PageMeta -> Value
+initPostShareUrl postinf pageMeta =
+  let PostInf post _ = headElm postinf
       baseUrl = unPageMetaBlogUrl pageMeta
       pid = unPostId post
       slug = unPostSlug post
       urlpath = unPostUrlpath post
   in
-    if length posts > 1 then
+    if length postinf > 1 then
       String baseUrl
     else if all isJust [slug, urlpath] == True then
       String $ rmSlash (baseUrl <> "/" <> toPostSlugUrlText slug urlpath)
     else
       String $ rmSlash (baseUrl <> "/" <> toPostUrlText pid)
 
-initFreeShareUrl :: [Free] -> PageMeta -> Value
-initFreeShareUrl frees pageMeta =
-  let free = headElm frees
+initFreeShareUrl :: [FreeInf] -> PageMeta -> Value
+initFreeShareUrl freeinf pageMeta =
+  let FreeInf free _ = headElm freeinf
       baseUrl = unPageMetaBlogUrl pageMeta
       fid = unFreeId free
       slug = unFreeSlug free
       urlpath = unFreeUrlpath free
   in
-    if length frees > 1 then
+    if length freeinf > 1 then
       String baseUrl
     else if all isJust [slug, urlpath] == True then
       String $ rmSlash (baseUrl <> "/" <> toFreeSlugUrlText slug urlpath)
@@ -493,16 +511,25 @@ headElm :: [a] -> a
 headElm xs = if length xs >= 1 then (xs P.!! 0) else error "headElm: array is empty"
 
 initPostList ::
-  [Post]
+  [PostInf]
   -> [Value]
-initPostList posts = map (\post ->
+initPostList postinf = map (\(PostInf post cate) ->
   let (y, m, d, h, m', s) = toGrecoFullLocal $ fromJust
                               (utcToJpTime <$> unPostPublishDate post)
   in
     Object (
       GE.fromList [
-          ("hb_body", String $ getPutHtml post)
-          , ("hb_publish_date", Array $ fromList [
+            ( "hb_body", String $ getPutHtml post)
+          , ( "hb_category_list", Array $ fromList (
+                 map (\c ->
+                         Object ( GE.fromList
+                         [ ("hb_cate_id", Number $ S.scientific (fromIntegral $ unCateId c) 0)
+                         , ("hb_cate_name", String $ unCateName c)
+                         , ("hb_cate_pos", Number $ S.scientific (fromIntegral $ unCatePos c) 0)
+                         ])) cate
+                 )
+            )
+          , ( "hb_publish_date", Array $ fromList [
                   Number (fromIntegral y)
                 , Number (fromIntegral m)
                 , Number (fromIntegral d)
@@ -510,7 +537,7 @@ initPostList posts = map (\post ->
                 , Number (fromIntegral m')
                 , Number (fromIntegral s) ] )
           ]
-      )) posts
+      )) postinf
 
 initMstTagList ::
   [MstTag]
@@ -553,10 +580,10 @@ initPostedList postedElms =
 
 toFramePageMeta ::
   BlogSetting
-  -> Post
+  -> PostInf
   -> Frame
   -> PageMeta
-toFramePageMeta setting post frame = PageMeta {
+toFramePageMeta setting (PostInf post _) frame = PageMeta {
     unPageMetaBlogName = unBlogSettingBlogName setting
   , unPageMetaTitle = unPostTitle post
   , unPageMetaBlogUrl = unBlogSettingBlogUrl setting
@@ -681,10 +708,10 @@ toContsFramePageMeta title setting frame = PageMeta {
 
 toFreeFramePageMeta ::
   BlogSetting
-  -> Free
+  -> FreeInf
   -> FreeFrame
   -> PageMeta
-toFreeFramePageMeta setting free frame = PageMeta {
+toFreeFramePageMeta setting (FreeInf free _) frame = PageMeta {
     unPageMetaBlogName = unBlogSettingBlogName setting
   , unPageMetaTitle = unFreeTitle free
   , unPageMetaBlogUrl = unBlogSettingBlogUrl setting
@@ -769,9 +796,9 @@ zoneTimeToValue (y, m, d, h, m', s) =
 
 createPrevBlogContents ::
   Text
-  -> Post
+  -> PostInf
   -> Handler (HResult Html)
-createPrevBlogContents setId post = do
+createPrevBlogContents setId postinf = do
   setting <- getBlogSetting setId
   frame <- eitherToMaybe =<< readPostFrame
   posted <- eitherToList =<< getPublishPostedList 0 100
@@ -781,14 +808,14 @@ createPrevBlogContents setId post = do
       $(logInfo) $ "createPrevBlogContents': frame or posts undefined"
       return $ Left ErrPostUnitialize
     True -> do
-      html <- renderBlogContents setting (fromJust frame) [post] posted tags
+      html <- renderBlogContents setting (fromJust frame) [postinf] posted tags
       return html
 
 createPrevBlogFreeContents ::
   Text
-  -> Free
+  -> FreeInf
   -> Handler (HResult Html)
-createPrevBlogFreeContents setId free = do
+createPrevBlogFreeContents setId freeinf = do
   setting <- getBlogSetting setId
   frame <- eitherToMaybe =<< readFreeFrame
   posted <- eitherToList =<< getPublishPostedList 0 100
@@ -796,7 +823,7 @@ createPrevBlogFreeContents setId free = do
   case (frame /= Nothing) of
     False -> return $ Left ErrFreeUnitialize
     True -> do
-      html <- renderBlogFreeContents setting (fromJust frame) [free] posted tags
+      html <- renderBlogFreeContents setting (fromJust frame) [freeinf] posted tags
       return html
 
 initSlugUrlPost :: Post -> Text

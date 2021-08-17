@@ -8,6 +8,7 @@ module Handler.PostList where
 
 import Import
 import UrlParam.PostId
+import UrlParam.CateId
 import DataTypes.HoubouType
 import Forms.ListSearchSelectForm
 import Forms.SearchForm

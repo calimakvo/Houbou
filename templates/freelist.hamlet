@@ -69,7 +69,7 @@
                                                         <th>閲覧数
                                                         <th>操作
                                                 <tbody>
-                                                    $forall (i, FreeList n freeId title slug urlpath _ status _ ctime _ version viewCnt) <- freeList
+                                                    $forall (i, FreeList n freeId status title _ catelist slug urlpath pubdate _ _ _ version viewCnt) <- freeList
                                                         <tr class="#{rowClass n}">
                                                             <td .hb-td-size-50 .hb_hcenter .hb_vcenter>
                                                                 <a href=@{FreeR (FreeId $ Just freeId)} .btn .btn-primary>編集
@@ -89,6 +89,14 @@
                                                                     <input type="hidden" name="free_id" value="#{freeId}">
                                                                     <input type="hidden" name="version" value="#{version}">
                                                             <td .hb_vcenter>
+                                                                $if not $ null catelist
+                                                                    <small>
+                                                                        $forall cate <- catelist
+                                                                            <a href=@{PutCateListR (CateId $ Just (unCateId cate))} target="_blank">#{unCateName cate}
+                                                                            $if unCatePos cate /= fromEnum PosLast
+                                                                                &ensp;>&ensp;
+                                                                            $else
+                                                                    <br>
                                                                 $if isJust slug && isJust urlpath
                                                                     <a href=@{urlFreeSlug slug urlpath} target="_blank" .fa .fa-external-link aria-hidden="true" #freeUrlId#{i}>
                                                                         #{title}
@@ -98,7 +106,10 @@
                                                                     <a href=@{PutFreeR $ FreeId (Just freeId)} target="_blank" .fa .fa-external-link aria-hidden="true" #freeUrlId#{i}>#{title}
                                                                 <div #freeCpyId#{i}>
                                                             <td .hb-td-size-150 .hb_hcenter .hb_vcenter>
-                                                                #{dateTimeFullFormat ctime}
+                                                                $maybe pd <- pubdate
+                                                                    #{dateTimeFullFormat pd}
+                                                                $nothing
+                                                                    -
                                                             <td .hb-td-size-70 .hb_hcenter .hb_vcenter>
                                                                 #{viewCnt}
                                                             <td .hb-td-size-50 .hb_hcenter .hb_vcenter>

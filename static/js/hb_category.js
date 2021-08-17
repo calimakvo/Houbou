@@ -6115,9 +6115,9 @@ var $author$project$Category$CRes = F3(
 	function (result, cates, err) {
 		return {cates: cates, err: err, result: result};
 	});
-var $author$project$Category$Cate = F5(
-	function (unCateId, unCatePid, unCateName, unCateVer, unCateList) {
-		return {unCateId: unCateId, unCateList: unCateList, unCateName: unCateName, unCatePid: unCatePid, unCateVer: unCateVer};
+var $author$project$Category$Cate = F6(
+	function (unCateId, unCatePid, unCateName, unCateVer, unCatePos, unCateList) {
+		return {unCateId: unCateId, unCateList: unCateList, unCateName: unCateName, unCatePid: unCatePid, unCatePos: unCatePos, unCateVer: unCateVer};
 	});
 var $author$project$Category$NestCate = function (a) {
 	return {$: 'NestCate', a: a};
@@ -6130,7 +6130,7 @@ var $elm$json$Json$Decode$lazy = function (thunk) {
 		$elm$json$Json$Decode$succeed(_Utils_Tuple0));
 };
 var $elm$json$Json$Decode$list = _Json_decodeList;
-var $elm$json$Json$Decode$map5 = _Json_map5;
+var $elm$json$Json$Decode$map6 = _Json_map6;
 var $elm$json$Json$Decode$null = _Json_decodeNull;
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
 var $elm$json$Json$Decode$nullable = function (decoder) {
@@ -6143,8 +6143,8 @@ var $elm$json$Json$Decode$nullable = function (decoder) {
 };
 var $elm$json$Json$Decode$string = _Json_decodeString;
 function $author$project$Category$cyclic$inCateDecoder() {
-	return A6(
-		$elm$json$Json$Decode$map5,
+	return A7(
+		$elm$json$Json$Decode$map6,
 		$author$project$Category$Cate,
 		A2($elm$json$Json$Decode$field, 'unCateId', $elm$json$Json$Decode$int),
 		A2(
@@ -6153,6 +6153,7 @@ function $author$project$Category$cyclic$inCateDecoder() {
 			$elm$json$Json$Decode$nullable($elm$json$Json$Decode$int)),
 		A2($elm$json$Json$Decode$field, 'unCateName', $elm$json$Json$Decode$string),
 		A2($elm$json$Json$Decode$field, 'unCateVer', $elm$json$Json$Decode$int),
+		A2($elm$json$Json$Decode$field, 'unCatePos', $elm$json$Json$Decode$int),
 		A2(
 			$elm$json$Json$Decode$field,
 			'unCateList',
@@ -6286,6 +6287,9 @@ var $author$project$Category$encodeCate = function (c) {
 				'unCateVer',
 				$elm$json$Json$Encode$int(c.unCateVer)),
 				_Utils_Tuple2(
+				'unCatePos',
+				$elm$json$Json$Encode$int(c.unCatePos)),
+				_Utils_Tuple2(
 				'unCateList',
 				$author$project$Category$encodeCateList(
 					$author$project$Category$nctoc(c.unCateList)))
@@ -6381,13 +6385,68 @@ var $author$project$Category$ctonc = $elm$core$List$map($author$project$Category
 var $elm$core$Basics$neq = _Utils_notEqual;
 var $author$project$Category$swapCate = F3(
 	function (sw, c, cs) {
-		if (cs.b && cs.b.b) {
-			var c0 = cs.a;
-			var _v1 = cs.b;
-			var c1 = _v1.a;
-			var xs = _v1.b;
-			if (!_Utils_eq(c.unCatePid, c0.unCatePid)) {
-				return A2(
+		if (cs.b) {
+			if (cs.b.b) {
+				var c0 = cs.a;
+				var _v1 = cs.b;
+				var c1 = _v1.a;
+				var xs = _v1.b;
+				if (!_Utils_eq(c.unCatePid, c0.unCatePid)) {
+					return A2(
+						$elm$core$List$cons,
+						_Utils_update(
+							c0,
+							{
+								unCateList: $author$project$Category$ctonc(
+									A3(
+										$author$project$Category$swapCate,
+										sw,
+										c,
+										$author$project$Category$nctoc(c0.unCateList)))
+							}),
+						A2(
+							$elm$core$List$cons,
+							_Utils_update(
+								c1,
+								{
+									unCateList: $author$project$Category$ctonc(
+										A3(
+											$author$project$Category$swapCate,
+											sw,
+											c,
+											$author$project$Category$nctoc(c1.unCateList)))
+								}),
+							A3($author$project$Category$swapCate, sw, c, xs)));
+				} else {
+					if (sw.$ === 'SwapUp') {
+						return _Utils_eq(c1.unCateId, c.unCateId) ? A2(
+							$elm$core$List$cons,
+							c1,
+							A2($elm$core$List$cons, c0, xs)) : A2(
+							$elm$core$List$cons,
+							c0,
+							A3(
+								$author$project$Category$swapCate,
+								sw,
+								c,
+								A2($elm$core$List$cons, c1, xs)));
+					} else {
+						return _Utils_eq(c0.unCateId, c.unCateId) ? A2(
+							$elm$core$List$cons,
+							c1,
+							A2($elm$core$List$cons, c0, xs)) : A2(
+							$elm$core$List$cons,
+							c0,
+							A3(
+								$author$project$Category$swapCate,
+								sw,
+								c,
+								A2($elm$core$List$cons, c1, xs)));
+					}
+				}
+			} else {
+				var c0 = cs.a;
+				return (!_Utils_eq(c.unCatePid, c0.unCatePid)) ? A2(
 					$elm$core$List$cons,
 					_Utils_update(
 						c0,
@@ -6399,45 +6458,8 @@ var $author$project$Category$swapCate = F3(
 									c,
 									$author$project$Category$nctoc(c0.unCateList)))
 						}),
-					A2(
-						$elm$core$List$cons,
-						_Utils_update(
-							c1,
-							{
-								unCateList: $author$project$Category$ctonc(
-									A3(
-										$author$project$Category$swapCate,
-										sw,
-										c,
-										$author$project$Category$nctoc(c1.unCateList)))
-							}),
-						A3($author$project$Category$swapCate, sw, c, xs)));
-			} else {
-				if (sw.$ === 'SwapUp') {
-					return _Utils_eq(c1.unCateId, c.unCateId) ? A2(
-						$elm$core$List$cons,
-						c1,
-						A2($elm$core$List$cons, c0, xs)) : A2(
-						$elm$core$List$cons,
-						c0,
-						A3(
-							$author$project$Category$swapCate,
-							sw,
-							c,
-							A2($elm$core$List$cons, c1, xs)));
-				} else {
-					return _Utils_eq(c0.unCateId, c.unCateId) ? A2(
-						$elm$core$List$cons,
-						c1,
-						A2($elm$core$List$cons, c0, xs)) : A2(
-						$elm$core$List$cons,
-						c0,
-						A3(
-							$author$project$Category$swapCate,
-							sw,
-							c,
-							A2($elm$core$List$cons, c1, xs)));
-				}
+					_List_Nil) : _List_fromArray(
+					[c0]);
 			}
 		} else {
 			return cs;

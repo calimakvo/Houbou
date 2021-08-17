@@ -64,13 +64,13 @@
                                                     <tr>
                                                         <th>操作
                                                         <th>公開
-                                                        <th>タイトル
+                                                        <th>カテゴリ<br>タイトル
                                                         <th>投稿日
                                                         <th>コメント
                                                         <th>閲覧数
                                                         <th>操作
                                                 <tbody>
-                                                    $forall (i, PostList n postId status title slug urlpath pubdate _ version comCntTotal comCntAprov viewCnt) <- postList
+                                                    $forall (i, PostList n postId status title _ catelist slug urlpath pubdate _ version comCntTotal comCntAprov viewCnt) <- postList
                                                         <tr class="#{rowClass n}">
                                                             <td .hb-td-size-50 .hb_hcenter .hb_vcenter>
                                                                 <a href=@{PostR (PostId $ Just postId)} .btn .btn-primary>編集
@@ -90,6 +90,14 @@
                                                                     <input type="hidden" name="post_id" value="#{postId}">
                                                                     <input type="hidden" name="version" value="#{version}">
                                                             <td .hb_vcenter>
+                                                                $if not $ null catelist
+                                                                    <small>
+                                                                        $forall cate <- catelist
+                                                                            <a href=@{PutCateListR (CateId $ Just (unCateId cate))} target="_blank">#{unCateName cate}
+                                                                            $if unCatePos cate /= fromEnum PosLast
+                                                                                &ensp;>&ensp;
+                                                                            $else
+                                                                    <br>
                                                                 $if isJust slug && isJust urlpath
                                                                     <a href=@{urlPostSlug slug urlpath} target="_blank" .fa .fa-external-link aria-hidden="true" #postUrlId#{i}>
                                                                         #{title}

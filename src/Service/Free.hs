@@ -11,10 +11,12 @@ module Service.Free (
   , updateFreeStatus
   , deleteFree
   , accFreeCntUp
+  , initFreeInfo
   ) where
 
 import Import
 import qualified Prelude as P
+import Control.Lens
 import Database.Persist.Sql (BackendKey(..))
 import qualified Database.Esqueleto as E
 import qualified Database.Esqueleto.Internal.Sql as E
@@ -22,6 +24,7 @@ import DataTypes.HoubouType
 import UrlParam.FreeId
 import Libs.Common
 import Service.Common
+import Service.Category
 
 getFreeList ::
   SearchParam ->
@@ -58,12 +61,13 @@ getFreeList sparam pageInfo = runDB $ do
           (
             rowNum
           , tblFree E.^. TblFreeId
+          , tblFree E.^. TblFreeStatus
           , tblFree E.^. TblFreeTitle
+          , tblFree E.^. TblFreeCateId
           , tblFree E.^. TblFreeSlug
           , tblFree E.^. TblFreeUrlpath
-          , tblFree E.^. TblFreePublishDate
-          , tblFree E.^. TblFreeStatus
           , tblFree E.^. TblFreeAuthorId
+          , tblFree E.^. TblFreePublishDate
           , tblFree E.^. TblFreeCreateTime
           , tblFree E.^. TblFreeUpdateTime
           , tblFree E.^. TblFreeVersion
@@ -74,7 +78,8 @@ getFreeList sparam pageInfo = runDB $ do
         E.offset (pagePerLine * (intToInt64 pageNum - 1))
         E.limit pagePerLine
         return r
-  list <- E.select baseQueryPage
+  xs <- E.select baseQueryPage
+  list <- mapM appendCateBreadCrumbs xs
   totalCnt <- E.select countQuery
   return $ Right (E.unValue $ totalCnt P.!! 0, toFreeList <$> list)
 
@@ -313,3 +318,59 @@ accFreeCntUp (FreeId freeId) = runDB $ do
               }
           return ()
   return $ Right res
+
+appendCateBreadCrumbs :: MonadIO m =>
+  ( E.Value Int
+  , E.Value (Key TblFree)
+  , E.Value Int
+  , E.Value Text
+  , E.Value (Maybe (Key TblCategory))
+  , E.Value (Maybe Text)
+  , E.Value (Maybe Text)
+  , E.Value (Key TblUser)
+  , E.Value (Maybe UTCTime)
+  , E.Value UTCTime
+  , E.Value UTCTime
+  , E.Value Int
+  , E.Value (Maybe Int)
+  ) -> ReaderT SqlBackend m
+  (
+    ( E.Value Int
+    , E.Value (Key TblFree)
+    , E.Value Int
+    , E.Value Text
+    , E.Value (Maybe (Key TblCategory))
+    , E.Value (Maybe Text)
+    , E.Value (Maybe Text)
+    , E.Value (Key TblUser)
+    , E.Value (Maybe UTCTime)
+    , E.Value UTCTime
+    , E.Value UTCTime
+    , E.Value Int
+    , E.Value (Maybe Int)
+    )
+  , [Entity TblCategory]
+  )
+appendCateBreadCrumbs
+  inTpl = do
+  let (E.Value catekey) = (inTpl ^. _5)
+  case catekey of
+    Just k -> do
+      res <- getEntity k
+      case res of
+        Just cate -> do
+          cs <- recursiveCateEntity cate
+          return (inTpl, cs ++ [cate])
+        Nothing -> return (inTpl, [])
+    Nothing -> return (inTpl, [])
+
+initFreeInfo ::
+  [Free]
+  -> Handler [FreeInf]
+initFreeInfo fs =
+  mapM (\free -> do
+           cs <- case unFreeCateId free of
+                   Just cateId -> getCategoryBreadCrumbs (int64ToInt cateId)
+                   Nothing -> return []
+           return $ FreeInf free (listPosInit cs)
+       ) fs

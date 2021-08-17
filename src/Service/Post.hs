@@ -13,10 +13,12 @@ module Service.Post (
   , getPublishPostedList
   , deletePost
   , accCntUp
+  , initPostInfo
   ) where
 
 import Import
 import qualified Prelude as P
+import Control.Lens
 import Database.Persist.Sql (BackendKey(..))
 import qualified Database.Esqueleto as E
 import qualified Database.Esqueleto.Internal.Sql as E
@@ -24,6 +26,7 @@ import DataTypes.HoubouType
 import UrlParam.PostId
 import Libs.Common
 import Service.Common
+import Service.Category
 
 getPublishPostedList ::
   Int ->
@@ -78,11 +81,11 @@ getPostList sparam pageInfo = runDB $ do
           E.&&. (categoyWhere (unSearchParamCateId sparam) tblPost)
         E.orderBy [ E.desc $ tblPost E.^. TblPostPublishDate, E.desc $ tblPost E.^. TblPostCreateTime ]
         return
-          (
-            rowNum
+          ( rowNum
           , tblPost E.^. TblPostId
           , tblPost E.^. TblPostStatus
           , tblPost E.^. TblPostTitle
+          , tblPost E.^. TblPostCateId
           , tblPost E.^. TblPostSlug
           , tblPost E.^. TblPostUrlpath
           , tblPost E.^. TblPostPublishDate
@@ -97,7 +100,8 @@ getPostList sparam pageInfo = runDB $ do
         E.offset (pagePerLine * (intToInt64 pageNum - 1))
         E.limit pagePerLine
         return r
-  list <- E.select baseQueryPage
+  xs <- E.select baseQueryPage
+  list <- mapM appendCateBreadCrumbs xs
   totalCnt <- E.select countQuery
   return $ Right (E.unValue $ totalCnt P.!! 0, toPostList <$> list)
 
@@ -160,9 +164,9 @@ getPublishPostFromId ::
   BlogSetting
   -> PostId
   -> Handler (HResult [Post])
-getPublishPostFromId setting postId = runDB $ do
+getPublishPostFromId blogset postId = runDB $ do
   let flt = [ TblPostStatus ==. fromEnum Published, TblPostPublishDate !=. Nothing ]
-      opts = [ LimitTo $ unBlogSettingPostNum setting, Desc TblPostPublishDate ]
+      opts = [ LimitTo $ unBlogSettingPostNum blogset, Desc TblPostPublishDate ]
   list <- case _unPostId postId of
     Just pid -> do
       selectList ([TblPostId ==. (toTblPostKey pid)] ++ flt) opts
@@ -355,4 +359,60 @@ accPostUp pid = runDB $ do
           , tblPostAccViewCnt = 1
           }
       return ()
-  return $ Right ()    
+  return $ Right ()
+
+appendCateBreadCrumbs :: MonadIO m =>
+  ( E.Value Int
+  , E.Value (Key TblPost)
+  , E.Value Int
+  , E.Value Text
+  , E.Value (Maybe (Key TblCategory))
+  , E.Value (Maybe Text)
+  , E.Value (Maybe Text)
+  , E.Value (Maybe UTCTime)
+  , E.Value UTCTime
+  , E.Value Int
+  , E.Value (Maybe Int)
+  , E.Value (Maybe Int)
+  , E.Value (Maybe Int)
+  ) -> ReaderT SqlBackend m
+  (
+    ( E.Value Int
+    , E.Value (Key TblPost)
+    , E.Value Int
+    , E.Value Text
+    , E.Value (Maybe (Key TblCategory))
+    , E.Value (Maybe Text)
+    , E.Value (Maybe Text)
+    , E.Value (Maybe UTCTime)
+    , E.Value UTCTime
+    , E.Value Int
+    , E.Value (Maybe Int)
+    , E.Value (Maybe Int)
+    , E.Value (Maybe Int)
+    )
+  , [Entity TblCategory]
+  )
+appendCateBreadCrumbs
+  inTpl = do
+  let (E.Value catekey) = (inTpl ^. _5)
+  case catekey of
+    Just k -> do
+      res <- getEntity k
+      case res of
+        Just cate -> do
+          cs <- recursiveCateEntity cate
+          return (inTpl, cs ++ [cate])
+        Nothing -> return (inTpl, [])
+    Nothing -> return (inTpl, [])
+
+initPostInfo ::
+  [Post]
+  -> Handler [PostInf]
+initPostInfo ps =
+  mapM (\post -> do
+           cs <- case unPostCateId post of
+                   Just cateId -> getCategoryBreadCrumbs (int64ToInt cateId)
+                   Nothing -> return []
+           return $ PostInf post (listPosInit cs)
+       ) ps
