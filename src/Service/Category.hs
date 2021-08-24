@@ -105,7 +105,7 @@ getCategoryBreadCrumbs cid = runDB $ do
         Just pid -> do
           cate' <- liftHandler $ getCategoryBreadCrumbs pid
           return $ cate'++ [cate]
-        Nothing -> return []
+        Nothing -> return [cate]
     Left _ -> return []
 
 getCategories :: Handler [Cate]
