@@ -120,7 +120,7 @@ recursiveCate :: MonadIO m =>
 recursiveCate c = do
   chd <- getCategoryPid (Just $ int64ToInt $ unCateId c)
   case chd of
-    (_:xs) -> do
+    xs -> do
       xs' <- mapM recursiveCate xs
       return $ c { unCateList = xs' }
     [] -> return  $ c { unCateList = [] }
