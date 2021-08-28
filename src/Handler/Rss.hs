@@ -7,7 +7,7 @@
 module Handler.Rss where
 
 import Import
-import Text.Blaze.Html (text)
+import Text.Blaze.Html (preEscapedText)
 import qualified Prelude as P
 import DataTypes.HoubouType
 import Yesod.RssFeed
@@ -44,7 +44,7 @@ initFeed setting atoms = Feed {
   , feedLinkSelf = HomeR
   , feedLinkHome = HomeR
   , feedAuthor = unBlogSettingBlogAuthor setting
-  , feedDescription = text $ unBlogSettingBlogDesc setting
+  , feedDescription = preEscapedText $ unBlogSettingBlogDesc setting
   , feedLanguage = "ja"
   , feedUpdated = latest (atoms P.!! 0)
   , feedLogo = Nothing
@@ -61,7 +61,7 @@ initFeedEntry atoms =
             feedEntryLink = decideUrl atom
           , feedEntryUpdated = unHbAtomUpdateTime atom
           , feedEntryTitle = unHbAtomTitle atom
-          , feedEntryContent = text $ unHbAtomBody atom
+          , feedEntryContent = preEscapedText $ unHbAtomBody atom
           , feedEntryEnclosure = Nothing
           , feedEntryCategories = []
           }
