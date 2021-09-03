@@ -119,11 +119,8 @@ recursiveCate :: MonadIO m =>
   -> ReaderT SqlBackend m Cate
 recursiveCate c = do
   chd <- getCategoryPid (Just $ int64ToInt $ unCateId c)
-  case chd of
-    xs -> do
-      xs' <- mapM recursiveCate xs
-      return $ c { unCateList = xs' }
-    [] -> return  $ c { unCateList = [] }
+  xs' <- mapM recursiveCate chd
+  return $ c { unCateList = xs' }
 
 registerCategory ::
   CateSetting

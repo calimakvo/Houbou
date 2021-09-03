@@ -397,7 +397,8 @@ initFreeList freeinf =
           in
             Object (
               GE.fromList [
-                    ("hb_body", String $ getPutHtmlFree free)
+                    ( "hb_body", String $ getPutHtmlFree free)
+                  , ( "hb_title", String $ unFreeTitle free)
                   , ( "hb_category_list", Array $ fromList (
                         map (\c ->
                                Object ( GE.fromList
@@ -520,6 +521,7 @@ initPostList postinf = map (\(PostInf post cate) ->
     Object (
       GE.fromList [
             ( "hb_body", String $ getPutHtml post)
+          , ( "hb_title", String $ unPostTitle post)
           , ( "hb_category_list", Array $ fromList (
                  map (\c ->
                          Object ( GE.fromList
