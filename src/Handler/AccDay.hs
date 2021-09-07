@@ -25,9 +25,10 @@ getAccDayR = do
                   Just "日付を指定してください" :: Maybe Text
                else
                   Nothing
+  tz <- liftIO getCurrentTimeZone
   (totalCnt, accList) <- case empmsg of
            Just _ -> return (0, [])
-           Nothing -> getAccessDay from to
+           Nothing -> getAccessDay tz from to
   defaultLayout $ do
     setTitle title
     $(widgetFile "accday")

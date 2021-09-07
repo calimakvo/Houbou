@@ -9,17 +9,21 @@ module Service.Access (
   ) where
 
 import Import
+import Data.Time
+import qualified Data.Text as T
 import qualified Database.Esqueleto as E
 import DataTypes.HoubouType
 import Service.Common
 
 getAccessDay ::
-  Maybe UTCTime
+  TimeZone
+  -> Maybe UTCTime
   -> Maybe UTCTime
   -> Handler (Int, [AccDay])
-getAccessDay from to = do
-  let fwhr = if isJust from == True then [" timezone('JST', acc_time) >= ? "] else []
-      twhr = if isJust to == True then [" timezone('JST', acc_time) <= ? "] else []
+getAccessDay tz from to = do
+  let tzt = T.pack $ show tz
+      fwhr = if isJust from == True then [" timezone('" <> tzt <> "', acc_time) >= ? "] else []
+      twhr = if isJust to == True then [" timezone('" <> tzt <> "', acc_time) <= ? "] else []
       whr = intercalate " AND " $ fwhr ++ twhr
       sql = "SELECT row_number() OVER (), tid, rectype, cnt, title, slug, urlpath FROM " <>
             "((SELECT post_id as tid, 1 as rectype, sum(view_cnt) AS cnt, title, slug, urlpath " <>
