@@ -1,6 +1,7 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Service.Post (
     getPostList
@@ -20,8 +21,8 @@ import Import
 import qualified Prelude as P
 import Control.Lens
 import Database.Persist.Sql (BackendKey(..))
-import qualified Database.Esqueleto as E
-import qualified Database.Esqueleto.Internal.Sql as E
+import qualified Database.Esqueleto.Internal.Internal as IE
+import qualified Database.Esqueleto.Experimental as E
 import DataTypes.HoubouType
 import UrlParam.PostId
 import Libs.Common
@@ -54,25 +55,30 @@ getPostList sparam pageInfo = runDB $ do
         case cateId of
           Just cid -> (tbl E.^. TblPostCateId E.==. E.val (Just $ toTblCategoryKey $ intToInt64 cid))
           Nothing -> (E.val True)
-      countQuery = E.from $ \tblPost -> do
+      countQuery = do
+        tblPost <- E.from $ E.table @TblPost
         E.where_ $ do
           blogWhere (unSearchParamSearchType sparam) tblPost
           E.&&. (categoyWhere (unSearchParamCateId sparam) tblPost)
         return $ E.count(tblPost E.^. TblPostId)
-      baseQuery = E.from $ \tblPost -> do
-        let comCntTotal = E.subSelect $ E.from $ \tblComment -> do
+      baseQuery = do
+        tblPost <- E.from $ E.table @TblPost
+        let comCntTotal = E.subSelect $ do
+              tblComment <- E.from $ E.table @TblComment
               E.where_ $ tblComment E.^. TblCommentPostId E.==. tblPost E.^. TblPostId
               E.groupBy $ tblPost E.^. TblPostId
               return $ E.count(tblComment E.^. TblCommentPostId)
-            comCntAprov = E.subSelect $ E.from $ \tblComment -> do
+            comCntAprov = E.subSelect $ do
+              tblComment <- E.from $ E.table @TblComment
               E.where_ $
-                tblComment E.^. TblCommentPostId E.==. tblPost E.^. TblPostId
-                E.&&.
-                tblComment E.^. TblCommentStatus E.==. E.val (fromEnum Approval)
+                   tblComment E.^. TblCommentPostId E.==. tblPost E.^. TblPostId
+                   E.&&.
+                   tblComment E.^. TblCommentStatus E.==. E.val (fromEnum Approval)
               E.groupBy $ tblPost E.^. TblPostId
               return $ E.count(tblComment E.^. TblCommentPostId)
-            rowNum = E.unsafeSqlValue "row_number() over(order by create_time desc)"
-            postCnt = (E.subSelectMaybe $ E.from $ \tblPostAcc -> do
+            rowNum = IE.unsafeSqlValue "row_number() over(order by create_time desc)"
+            postCnt = (E.subSelectMaybe $ do
+              tblPostAcc <- E.from $ E.table @TblPostAcc
               E.where_ $ tblPostAcc E.^. TblPostAccPostId E.==. tblPost E.^. TblPostId
               E.groupBy $ tblPostAcc E.^. TblPostAccPostId
               return $ E.sum_(tblPostAcc E.^. TblPostAccViewCnt)) :: E.SqlExpr (E.Value (Maybe Int))

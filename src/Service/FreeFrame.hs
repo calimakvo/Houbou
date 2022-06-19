@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Service.FreeFrame (
     getFreeFrameList
@@ -14,8 +15,8 @@ module Service.FreeFrame (
 import Import
 import qualified Prelude as P
 import Database.Persist.Sql (BackendKey(..))
-import qualified Database.Esqueleto as E
-import qualified Database.Esqueleto.Internal.Sql as E
+import qualified Database.Esqueleto.Internal.Internal as IE
+import qualified Database.Esqueleto.Experimental as E
 import DataTypes.HoubouType
 import Libs.Common
 import UrlParam.FreeFrameId
@@ -27,11 +28,13 @@ getFreeFrameList ::
 getFreeFrameList pageInfo = runDB $ do
   let pageNum = unPageNum pageInfo
       pagePerLine = fromIntegral $ unPagePerLine pageInfo
-      countQuery = E.from $ \tblFreeFrame -> do
+      countQuery = do
+        tblFreeFrame <- E.from $ E.table @TblFreeFrame
         return $ E.count(tblFreeFrame E.^. TblFreeFrameId)
-      baseQuery = E.from $ \tblFreeFrame -> do
+      baseQuery = do
+        let rowNum = IE.unsafeSqlValue "row_number() over(order by update_time desc)"
+        tblFreeFrame <- E.from $ E.table @TblFreeFrame
         E.orderBy [ E.desc $ tblFreeFrame E.^. TblFreeFrameValidFlag, E.desc $ tblFreeFrame E.^. TblFreeFrameUpdateTime ]
-        let rowNum = E.unsafeSqlValue "row_number() over(order by update_time desc)"
         return
           (
             rowNum

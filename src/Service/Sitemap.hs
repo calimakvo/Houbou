@@ -8,7 +8,7 @@ module Service.Sitemap (
 
 import Import
 import DataTypes.HoubouType
-import qualified Database.Esqueleto as E
+import qualified Database.Esqueleto.Experimental as E
 import Service.Common
 
 getSiteurlList ::

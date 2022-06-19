@@ -53,7 +53,7 @@ import DataTypes.HoubouType
 import Libs.Common
 import Libs.Template
 import Forms.CommonForm
-import qualified Database.Esqueleto as E
+import qualified Database.Esqueleto.Experimental as E
 import Service.Common
 
 data SlugChkType =

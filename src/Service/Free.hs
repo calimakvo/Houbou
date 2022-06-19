@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Service.Free (
     getFreeList
@@ -18,8 +19,8 @@ import Import
 import qualified Prelude as P
 import Control.Lens
 import Database.Persist.Sql (BackendKey(..))
-import qualified Database.Esqueleto as E
-import qualified Database.Esqueleto.Internal.Sql as E
+import qualified Database.Esqueleto.Experimental as E
+import qualified Database.Esqueleto.Internal.Internal as IE
 import DataTypes.HoubouType
 import UrlParam.FreeId
 import Libs.Common
@@ -42,21 +43,24 @@ getFreeList sparam pageInfo = runDB $ do
         case cateId of
           Just cid -> (tbl E.^. TblFreeCateId E.==. E.val (Just $ toTblCategoryKey $ intToInt64 cid))
           Nothing -> (E.val True)
-      countQuery = E.from $ \tblFree -> do
+      countQuery = do
+        tblFree <- E.from $ E.table @TblFree
         E.where_ $ do
           freeWhere (unSearchParamSearchType sparam) tblFree
           E.&&. (categoyWhere (unSearchParamCateId sparam) tblFree)
         return $ E.count(tblFree E.^. TblFreeId)
-      baseQuery = E.from $ \tblFree -> do
+      baseQuery = do
+        tblFree <- E.from $ E.table @TblFree
         E.where_ $ do
           freeWhere (unSearchParamSearchType sparam) tblFree
           E.&&. (categoyWhere (unSearchParamCateId sparam) tblFree)
         E.orderBy [ E.desc $ tblFree E.^. TblFreePublishDate, E.desc $ tblFree E.^. TblFreeCreateTime ]
-        let rowNum = E.unsafeSqlValue "row_number() over(order by publish_date desc)"
-            freeCnt = (E.subSelectMaybe $ E.from $ \tblFreeAcc -> do
+        let rowNum = IE.unsafeSqlValue "row_number() over(order by publish_date desc)"
+            freeCnt = (E.subSelectMaybe $ do
+              tblFreeAcc <- E.from $ E.table @TblFreeAcc
               E.where_ $ tblFreeAcc E.^. TblFreeAccFreeId E.==. tblFree E.^. TblFreeId
               E.groupBy $ tblFreeAcc E.^. TblFreeAccFreeId
-              return $ E.sum_(tblFreeAcc E.^. TblFreeAccViewCnt)) :: E.SqlExpr (E.Value (Maybe Int))
+              return $ IE.sum_(tblFreeAcc E.^. TblFreeAccViewCnt)) :: E.SqlExpr (E.Value (Maybe Int))
         return
           (
             rowNum

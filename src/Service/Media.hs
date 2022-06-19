@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Service.Media (
     getMediaList
@@ -17,8 +18,8 @@ import qualified Prelude as P
 import qualified Data.Text as T
 import qualified Data.ByteString as B
 import Database.Persist.Sql (BackendKey(..))
-import qualified Database.Esqueleto as E
-import qualified Database.Esqueleto.Internal.Sql as E
+import qualified Database.Esqueleto.Internal.Internal as IE
+import qualified Database.Esqueleto.Experimental as E
 import DataTypes.HoubouType
 import Libs.Common
 import Service.Common
@@ -34,11 +35,16 @@ getMediaList ::
 getMediaList pageInfo = runDB $ do
   let pageNum = unPageNum pageInfo
       pagePerLine = fromIntegral $ unPagePerLine pageInfo
-      countQuery = E.from $ \tblMedia -> do
+      countQuery = do
+        tblMedia <- E.from $ E.table @TblMedia
         return $ E.count(tblMedia E.^. TblMediaId)
-      baseQuery = E.from $ \(tblMedia `E.LeftOuterJoin` tblMstMimeType) -> do
-        let rowNum = E.unsafeSqlValue "row_number() over(order by tbl_media.create_time desc)"
-        E.on $ (tblMedia E.^. TblMediaMimeTypeId E.==. E.just (tblMstMimeType E.^. TblMstMimeTypeId))
+      baseQuery = do
+        let rowNum = IE.unsafeSqlValue "row_number() over(order by tbl_media.create_time desc)"
+        (tblMedia E.:& tblMstMimeType) <-
+          E.from $ E.table @TblMedia
+          `E.LeftOuterJoin` E.table @TblMstMimeType
+          `E.on` (\(tblMedia E.:& tblMstMimeType) ->
+                    tblMedia E.^. TblMediaMimeTypeId E.==. tblMstMimeType E.?. TblMstMimeTypeId)
         E.orderBy [E.desc (tblMedia E.^. TblMediaCreateTime)]
         return
           (
@@ -51,8 +57,8 @@ getMediaList pageInfo = runDB $ do
           , tblMedia E.^. TblMediaThumbDispFlag
           , tblMedia E.^. TblMediaCreateTime
           , tblMedia E.^. TblMediaUpdateTime
-          , E.just (tblMstMimeType E.^. TblMstMimeTypeExtension)
-          , E.just (tblMstMimeType E.^. TblMstMimeTypeMimeType)
+          , tblMstMimeType E.?. TblMstMimeTypeExtension
+          , tblMstMimeType E.?. TblMstMimeTypeMimeType
           , tblMedia E.^. TblMediaVersion
           )
       baseQueryPage = do

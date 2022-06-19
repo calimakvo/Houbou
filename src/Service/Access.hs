@@ -11,7 +11,7 @@ module Service.Access (
 import Import
 import Data.Time
 import qualified Data.Text as T
-import qualified Database.Esqueleto as E
+import qualified Database.Esqueleto.Experimental as E
 import DataTypes.HoubouType
 import Service.Common
 

@@ -23,7 +23,7 @@ import Import
 import qualified Data.Maybe as M
 import qualified Data.Map.Ordered as O
 import Database.Persist.Sql (BackendKey(..))
-import qualified Database.Esqueleto as E
+import qualified Database.Esqueleto.Experimental as E
 import DataTypes.HoubouType
 import UrlParam.CateId
 import Libs.Common

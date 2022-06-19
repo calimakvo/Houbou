@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Service.User (
     getUserList
@@ -14,8 +15,8 @@ import Import
 import Data.Maybe
 import qualified Prelude as P
 import Database.Persist.Sql (BackendKey(..))
-import qualified Database.Esqueleto as E
-import qualified Database.Esqueleto.Internal.Sql as E
+import qualified Database.Esqueleto.Internal.Internal as IE
+import qualified Database.Esqueleto.Experimental as E
 import Libs.Common
 import DataTypes.HoubouType
 import Service.Common
@@ -26,11 +27,16 @@ getUserList ::
 getUserList pageInfo = runDB $ do
   let pageNum = unPageNum pageInfo
       pagePerLine = fromIntegral $ unPagePerLine pageInfo
-      countQuery = E.from $ \tblUser -> do
+      countQuery = do
+        tblUser <- E.from $ E.table @TblUser
         return $ E.count(tblUser E.^. TblUserId)
-      baseQuery = E.from $ \(tblUser `E.InnerJoin` tblMstUserPerm) -> do
-        let rowNum = E.unsafeSqlValue "row_number() over(order by tbl_user.create_time asc)"
-        E.on $ (tblUser E.^. TblUserUserPermId E.==. tblMstUserPerm E.^. TblMstUserPermId)
+      baseQuery = do
+        let rowNum = IE.unsafeSqlValue "row_number() over(order by tbl_user.create_time asc)"
+        (tblUser E.:& tblMstUserPerm) <-
+          E.from $ E.table @TblUser
+          `E.InnerJoin` E.table @TblMstUserPerm
+          `E.on` (\(tblUser E.:& tblMstUserPerm) ->
+                    tblUser E.^. TblUserUserPermId E.==. tblMstUserPerm E.^. TblMstUserPermId)
         E.orderBy [E.asc (tblUser E.^. TblUserCreateTime)]
         return
           (
@@ -59,8 +65,12 @@ checkAdminUserPerm ::
   -> Handler (HResult Bool)
 checkAdminUserPerm loginUserKey = runDB $ do
   let
-    baseQuery = E.from $ \(tblUser `E.InnerJoin` tblMstUserPerm) -> do
-      E.on $ tblUser E.^. TblUserUserPermId E.==. tblMstUserPerm E.^. TblMstUserPermId
+    baseQuery = do
+      (tblUser E.:& tblMstUserPerm) <-
+        E.from $ E.table @TblUser
+        `E.InnerJoin` E.table @TblMstUserPerm
+        `E.on` (\(tblUser E.:& tblMstUserPerm) ->
+                  tblUser E.^. TblUserUserPermId E.==. tblMstUserPerm E.^. TblMstUserPermId)
       E.where_ $ do
         tblUser E.^. TblUserId E.==. E.val loginUserKey
           E.&&. tblMstUserPerm E.^. TblMstUserPermLevel E.==. E.val 0

@@ -70,7 +70,7 @@ module Service.Common (
 
 import Import
 import Database.Persist.Sql (BackendKey(..))
-import qualified Database.Esqueleto as E
+import qualified Database.Esqueleto.Experimental as E
 import DataTypes.HoubouType
 import Libs.Common
 import Libs.Template

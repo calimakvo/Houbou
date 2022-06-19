@@ -21,6 +21,7 @@ import Text.Hamlet          (hamletFile)
 import Text.Jasmine         (minifym)
 import Control.Monad.Logger (LogSource)
 import Text.Email.Validate (isValid)
+import Data.Kind
 
 import qualified Yesod.Auth.Message as M
 import Yesod.Auth.HashDB (authHashDBWithForm, HashDBUser(..))
@@ -82,7 +83,7 @@ mkYesodData "App" $(parseRoutesFile "config/routes")
 type Form x = Html -> MForm (HandlerFor App) (FormResult x, Widget)
 
 -- | A convenient synonym for database access functions.
-type DB a = forall (m :: * -> *).
+type DB a = forall (m :: Type -> Type).
     (MonadUnliftIO m) => ReaderT SqlBackend m a
 
 -- | Login form data

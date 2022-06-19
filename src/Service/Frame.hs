@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Service.Frame (
     getFrameList
@@ -14,8 +15,8 @@ module Service.Frame (
 import Import
 import qualified Prelude as P
 import Database.Persist.Sql (BackendKey(..))
-import qualified Database.Esqueleto as E
-import qualified Database.Esqueleto.Internal.Sql as E
+import qualified Database.Esqueleto.Internal.Internal as IE
+import qualified Database.Esqueleto.Experimental as E
 import DataTypes.HoubouType
 import UrlParam.FrameId
 import Libs.Common
@@ -27,11 +28,13 @@ getFrameList ::
 getFrameList pageInfo = runDB $ do
   let pageNum = unPageNum pageInfo
       pagePerLine = fromIntegral $ unPagePerLine pageInfo
-      countQuery = E.from $ \tblFrame -> do
+      countQuery = do
+        tblFrame <- E.from $ E.table @TblFrame
         return $ E.count(tblFrame E.^. TblFrameId)
-      baseQuery = E.from $ \tblFrame -> do
+      baseQuery = do
+        let rowNum = IE.unsafeSqlValue "row_number() over(order by update_time desc)"
+        tblFrame <- E.from $ E.table @TblFrame
         E.orderBy [ E.desc $ tblFrame E.^. TblFrameValidFlag, E.desc $ tblFrame E.^. TblFrameUpdateTime ]
-        let rowNum = E.unsafeSqlValue "row_number() over(order by update_time desc)"
         return
           (
             rowNum

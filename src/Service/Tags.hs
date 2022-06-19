@@ -11,7 +11,7 @@ module Service.Tags (
 
 import Import
 import Data.Maybe
-import qualified Database.Esqueleto as E
+import qualified Database.Esqueleto.Experimental as E
 import DataTypes.HoubouType
 import UrlParam.TagId
 import Libs.Common
