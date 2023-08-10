@@ -236,7 +236,9 @@ wtiteUploadFile :: MonadResource m =>
 wtiteUploadFile d f bs = do
   let filename = T.unpack f
       dir = T.unpack d
-      [fn, ext] = T.unpack <$> T.splitOn (T.pack ".") f
+      xs = T.unpack <$> T.splitOn (T.pack ".") f
+      fn = xs P.!! 0
+      ext = xs P.!! 1
   curDir <- liftIO $ getCurrentDirectory
   liftIO $ setCurrentDirectory dir
   exist <- liftIO $ doesFileExist filename

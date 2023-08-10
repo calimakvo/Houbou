@@ -22,6 +22,7 @@ import Text.Jasmine         (minifym)
 import Control.Monad.Logger (LogSource)
 import Text.Email.Validate (isValid)
 import Data.Kind
+import Data.UnixTime
 
 import qualified Yesod.Auth.Message as M
 import Yesod.Auth.HashDB (authHashDBWithForm, HashDBUser(..))
@@ -125,6 +126,7 @@ instance Yesod App where
         muser <- maybeAuthPair
         (pall, ppub, pdra) <- postCountAll
         (fall, fpub, fdra) <- freeCountAll
+        uxt <- liftIO $ getUnixTime >>= \(UnixTime s _) -> return $ show s
         pc <- widgetToPageContent $ do
             addStylesheet $ StaticR css_bootstrap_min_css
             $(widgetFile "default-layout")
@@ -382,6 +384,7 @@ houbouMiddleware = defaultYesodMiddleware . defaultCsrfMiddleware
 genericLayout :: Widget -> Handler Html
 genericLayout widget = do
   master <- getYesod
+  uxt <- liftIO $ getUnixTime >>= \(UnixTime s _) -> return $ show s
   pc <- widgetToPageContent $ do
     addStylesheet $ StaticR css_bootstrap_min_css
     $(widgetFile "generic-default-layout")
@@ -390,6 +393,7 @@ genericLayout widget = do
 loginLayout :: Widget -> Handler Html
 loginLayout widget = do
     master <- getYesod
+    uxt <- liftIO $ getUnixTime >>= \(UnixTime s _) -> return $ show s
     pc <- widgetToPageContent $ do
         addStylesheet $ StaticR css_bootstrap_min_css
         $(widgetFile "generic-default-layout")
@@ -530,3 +534,10 @@ blogCount sql ps = rawSql sql ps
 
 unSgl :: [ Single Int ] -> Int
 unSgl = unSingle . P.head
+
+{-
+cacheAvoid :: Handler String
+cacheAvoid = do
+  uxt <- liftIO $ getUnixTime >>= \(UnixTime s _) -> return $ show s
+  return uxt
+-}

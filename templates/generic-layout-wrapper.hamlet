@@ -33,7 +33,7 @@
         <!-- Lightbox CSS -->
         <link href="/static/css/lightbox.min.css" rel="stylesheet" />
         <!-- Houbou CSS -->
-        <link href="/static/css/houbou.css" rel="stylesheet">
+        <link href="/static/css/houbou.css?c=#{uxt}" rel="stylesheet">
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js">

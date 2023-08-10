@@ -10,7 +10,7 @@ module UrlParam.YPath
 
 import Data.Text
 import Data.Aeson
-import Data.ByteString.Internal
+import Data.ByteString.Internal (unpackChars, packChars)
 import Data.ByteString.Lazy (toStrict)
 import Yesod.Core.Dispatch (PathPiece(..))
 

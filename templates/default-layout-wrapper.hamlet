@@ -33,7 +33,7 @@
         <!-- Lightbox CSS -->
         <link href="/static/css/lightbox.min.css" rel="stylesheet">
         <!-- Houbou CSS -->
-        <link href="/static/css/houbou.css" rel="stylesheet">
+        <link href="/static/css/houbou.css?c=#{uxt}" rel="stylesheet">
 
         <!-- jQuery UI -->
         <link href="/static/css/jquery-ui.min.css" rel="stylesheet">

@@ -80,7 +80,7 @@
                                                                         $else
                                                                             <a href=@{PutFreeR $ FreeId (Just tid)} target="_blank" .fa .fa-external-link aria-hidden="true" #accDayUrlId#{n}>#{title}
                                                                     $of _
-2                                <!-- /.panel-body -->
+                                <!-- /.panel-body -->
                                 <!-- /.panel-heading -->
                             <!-- /.panel .panel-default -->
                         <!-- /.col-lg-12 -->
