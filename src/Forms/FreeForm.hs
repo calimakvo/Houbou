@@ -13,6 +13,7 @@ import Forms.FormValid
 import Forms.CommonForm
 import DataTypes.HoubouType
 import Libs.Common
+import Libs.CommonWidget
 
 freeForm ::
   Maybe Free
@@ -46,13 +47,13 @@ freeForm free cate extra = do
       urlpath = if freeId > 0 then join (unFreeUrlpath <$> free) else (Just $ toUrlPath t)
   inpTyp <- liftHandler getInputTypeTouple
   stsTyp <- liftHandler getStatusSelectTouple
-  cateLst <- liftHandler $ cateMapToTouble cate
+  cateLst <- liftHandler $ cateToOption <$> cateMapToTouble cate
   (freeIdRes, freeIdView) <- mreq hiddenField freeIdFieldSet (Just freeId)
   (titleRes, titleView) <- mreq (freeTitleField titleLen) freeTitleFieldSet (unFreeTitle <$> free)
   (contRes, contView) <- mreq (freeContField contLen) freeContFieldSet (Textarea <$> (unFreeContent <$> free))
   (cssRes, cssView) <- mopt (freeCssField cssLen) freeCssFieldSet ((Textarea <$>) <$> (unFreeCss <$> free))
   (slugRes, slugView) <- mopt (slugFreeField slugLen freeIdRes urlpath) slugFreeFieldSet (unFreeSlug <$> free)
-  (cateRes, cateView) <- mopt (selectFieldList cateLst) cateSelectFieldSet $ (int64ToInt <$>) `fmap` (unFreeCateId <$> free)
+  (cateRes, cateView) <- mopt (selectField $ return cateLst) cateSelectFieldSet $ (int64ToInt <$>) `fmap` (unFreeCateId <$> free)
   (inpTypRes, _) <- mreq (radioFieldList inpTyp) inputTypeRadioFieldSet (unFreeInputType <$> free)
   (stsTypRes, stsTypView) <- mreq (radioFieldList stsTyp) statusTypeRadioFieldSet (unFreeStatus <$> free)
   (tagRes, tagView) <- mopt (tagField tagLen tagOneLen) tagFieldSet (unFreeTags <$> free)

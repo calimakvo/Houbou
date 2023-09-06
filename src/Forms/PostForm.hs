@@ -16,6 +16,7 @@ import Forms.FormValid
 import Forms.CommonForm
 import DataTypes.HoubouType
 import Libs.Common
+import Libs.CommonWidget
 
 postForm ::
   Maybe Post
@@ -48,12 +49,12 @@ postForm post cate extra = do
       urlpath = if postId > 0 then join (unPostUrlpath <$> post) else (Just $ toUrlPath t)
   inpTyp <- liftHandler getInputTypeTouple
   stsTyp <- liftHandler getStatusSelectTouple
-  cateLst <- liftHandler $ cateMapToTouble cate
+  cateLst <- liftHandler $ cateToOption <$> cateMapToTouble cate
   (postIdRes, postIdView) <- mreq hiddenField postIdFieldSet (Just postId)
   (titleRes, titleView) <- mreq (titleField titleLen) titleFieldSet (unPostTitle <$> post)
   (textRes, textView) <- mreq (bodyField bodyLen) bodyFieldSet (Textarea <$> (unPostContent <$> post))
   (slugRes, slugView) <- mopt (slugPostField slugLen postIdRes urlpath) slugPostFieldSet (unPostSlug <$> post)
-  (cateRes, cateView) <- mopt (selectFieldList cateLst) cateSelectFieldSet $ (int64ToInt <$>) `fmap` (unPostCateId <$> post)
+  (cateRes, cateView) <- mopt (selectField $ return cateLst) cateSelectFieldSet $ (int64ToInt <$>) `fmap` (unPostCateId <$> post)
   (inpTypRes, inpTypView) <- mreq (radioFieldList inpTyp) inputTypeRadioFieldSet (unPostInputType <$> post)
   (stsTypRes, stsTypView) <- mreq (radioFieldList stsTyp) statusTypeRadioFieldSet (unPostStatus <$> post)
   (tagRes, tagView) <- mopt (tagField tagLen tagOneLen) tagFieldSet (unPostTags <$> post)

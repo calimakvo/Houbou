@@ -33,6 +33,7 @@ module Libs.CommonWidget (
   , getDateFromToParam
   , listParam
   , catesToTextBreadCrumbs
+  , cateToOption
   ) where
 
 import Import
@@ -295,3 +296,14 @@ catesToTextBreadCrumbs baseUrl cs =
         $ map (\(clink, cname) ->
                  "<a href=\"" <> baseUrl <> clink <> "\">" <> cname <> "</a>"
               ) linkSet
+
+cateToOption :: [(Text, Int)] -> OptionList Int
+cateToOption xs =
+  let opts = map (\(r, i) -> Option { optionDisplay = r
+                                    , optionInternalValue = i
+                                    , optionExternalValue = pack $ show i
+                                    }) xs
+  in
+    OptionList { olOptions = opts
+               , olReadExternal = \i -> Just $ textToInt i
+               }
